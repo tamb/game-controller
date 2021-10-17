@@ -110,11 +110,28 @@ class GameController {
   }
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-  const controller = new GameController({ actions: 4 });
+var actions = 2;
+function createController() {
+  const controller = new GameController({ actions });
   const app = document.getElementById("app");
+  app.innerHTML = "";
   app.insertAdjacentHTML("afterbegin", controller.render());
   document
     .getElementById("fullscreen")
     .addEventListener("click", toggleFullscreen);
+  document
+    .querySelector(".game-controller__stage")
+    .addEventListener("click", function () {
+      console.log("click");
+      if (actions == 2) {
+        actions = 4;
+      } else {
+        actions = 2;
+      }
+      createController();
+    });
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  createController();
 });
