@@ -7,14 +7,21 @@
     "watch": "parcel watch",
     "build": "parcel build src/index.html",
     "start": "parcel src/index.html",
-    "quad": "parcel src/four-button.html"
+    "quad": "parcel src/four-button.html",
+    "react": "parcel src/react/index.html"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@babel/preset-env": "^7.15.8",
+    "@babel/preset-react": "^7.14.5",
     "@parcel/transformer-sass": "^2.0.0",
     "parcel": "^2.0.0"
   },
-  "browserslist": "> 0.5%, last 2 versions, not dead"
+  "browserslist": "> 0.5%, last 2 versions, not dead",
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
 }
