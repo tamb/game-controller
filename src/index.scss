@@ -112,3 +112,82 @@ body {
     }
   }
 }
+
+@media screen and (orientation: landscape) {
+  .game-controller {
+    &__wrapper {
+      flex-direction: row;
+      flex-wrap: wrap;
+      position: relative;
+    }
+
+    &__stage {
+      width: 50%;
+      height: 90vh;
+      top: 8vh;
+      position: absolute;
+      left: 27%;
+    }
+    &__main-controls {
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      padding-top: 33vh;
+    }
+    &__d-pad-container {
+      width: 25%;
+      margin-left: 1%;
+    }
+    &__actions {
+      width: 25%;
+      margin-left: auto;
+      margin-right: 1%;
+    }
+    &__ancillaries {
+      width: 100%;
+      top: 0;
+      position: absolute;
+      height: 9vh;
+      z-index: 99;
+      button {
+        margin: 0 1%;
+        padding: 0.25% 5%;
+      }
+    }
+
+    &__d-pad {
+      &-button {
+        margin-bottom: 5%;
+        &--up {
+          height: 66px;
+          width: 25%;
+          margin-left: 38%;
+          margin-right: 38%;
+        }
+        &--right {
+          width: 38%;
+          height: 33px;
+        }
+        &--down {
+          height: 66px;
+          width: 25%;
+          margin-left: 38%;
+          margin-right: 38%;
+        }
+        &--left {
+          width: 38%;
+          height: 33px;
+        }
+      }
+    }
+
+    &__actions--quad {
+      .game-controller__action-btn {
+        &--2 {
+          margin-right: calc(50% - 38px);
+        }
+      }
+    }
+  }
+}
