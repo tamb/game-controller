@@ -116,6 +116,7 @@ function createController() {
   const app = document.getElementById("app");
   app.innerHTML = "";
   app.insertAdjacentHTML("afterbegin", controller.render());
+  addVibrations();
   document
     .getElementById("fullscreen")
     .addEventListener("click", toggleFullscreen);
