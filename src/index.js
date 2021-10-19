@@ -1,6 +1,6 @@
 function addVibrations() {
   const buttons = document.querySelectorAll(
-    ".game-controller__container button"
+    ".gamecontroller__container button"
   );
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -93,53 +93,64 @@ class GameController {
     this.root = document.querySelector(query);
     this.actions = config?.actions || 2;
     this.refs = {};
+    this.hooks = config.hooks || {};
   }
 
   attachEventHandlers = () => {
     this.refs.ancillaries.fullscreen.addEventListener("click", function () {
+      this.hooks.fullscreen ? this.hooks.fullscreen(this) : null;
       emitEvent.call(this, "gamecontroller:ancillary:fullscreen");
     });
     this.refs.ancillaries.select.addEventListener("click", function () {
+      this.hooks.select ? this.hooks.select(this) : null;
       emitEvent.call(this, "gamecontroller:ancillary:select");
     });
     this.refs.ancillaries.start.addEventListener("click", function () {
+      this.hooks.start ? this.hooks.start(this) : null;
       emitEvent.call(this, "gamecontroller:ancillary:start");
     });
     this.refs.dpad.up.addEventListener("click", function () {
+      this.hooks.up ? this.hooks.up(this) : null;
       emitEvent.call(this, "gamecontroller:dpad:up");
     });
     this.refs.dpad.right.addEventListener("click", function () {
+      this.hooks.right ? this.hooks.right(this) : null;
       emitEvent.call(this, "gamecontroller:dpad:right");
     });
     this.refs.dpad.down.addEventListener("click", function () {
+      this.hooks.down ? this.hooks.down(this) : null;
       emitEvent.call(this, "gamecontroller:dpad:down");
     });
     this.refs.dpad.left.addEventListener("click", function () {
+      this.hooks.left ? this.hooks.left(this) : null;
       emitEvent.call(this, "gamecontroller:dpad:left");
     });
 
     this.refs.actions.buttons.forEach((btn, i) => {
       btn.addEventListener("click", () => {
-        emitEvent.call(this, 
+        const name = this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1];
+        this.hooks[name] ? this.hooks[name](this) : null;
+        emitEvent.call(
+          this,
           `gamecontroller:action:${
             this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
           }`
         );
       });
     });
-  }
+  };
 
   createContainer() {
     this.refs.container = createElement({
       type: "div",
-      attributes: [["classes", ["game-controller__container"]]],
+      attributes: [["classes", ["gamecontroller__container"]]],
     });
   }
 
   createStage() {
     this.refs.stage = createElement({
       type: "div",
-      attributes: [["classes", ["game-controller__stage"]]],
+      attributes: [["classes", ["gamecontroller__stage"]]],
     });
   }
 
@@ -147,12 +158,12 @@ class GameController {
     this.refs.ancillaries = {
       container: createElement({
         type: "div",
-        attributes: [["classes", ["game-controller__ancillaries"]]],
+        attributes: [["classes", ["gamecontroller__ancillaries"]]],
       }),
       fullscreen: createElement({
         type: "button",
         attributes: [
-          ["classes", ["game-controller__ancillary-btn"]],
+          ["classes", ["gamecontroller__ancillary-btn"]],
           ["type", "button"],
           ["id", "fullscreen"],
         ],
@@ -161,7 +172,7 @@ class GameController {
       select: createElement({
         type: "button",
         attributes: [
-          ["classes", ["game-controller__ancillary-btn"]],
+          ["classes", ["gamecontroller__ancillary-btn"]],
           ["type", "button"],
         ],
         text: "select",
@@ -169,7 +180,7 @@ class GameController {
       start: createElement({
         type: "button",
         attributes: [
-          ["classes", ["game-controller__ancillary-btn"]],
+          ["classes", ["gamecontroller__ancillary-btn"]],
           ["type", "button"],
         ],
         text: "start",
@@ -180,7 +191,7 @@ class GameController {
   createMainControlsContainer() {
     this.refs.mainControls = createElement({
       type: "div",
-      attributes: [["classes", ["game-controller__main-controls"]]],
+      attributes: [["classes", ["gamecontroller__main-controls"]]],
     });
   }
 
@@ -188,14 +199,14 @@ class GameController {
     this.refs.dpad = {
       container: createElement({
         type: "div",
-        attributes: [["classes", ["game-controller__d-pad-container"]]],
+        attributes: [["classes", ["gamecontroller__d-pad-container"]]],
       }),
       up: createElement({
         type: "button",
         attributes: [
           [
             "classes",
-            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--up"],
+            ["gamecontroller__d-pad-btn", "gamecontroller__d-pad-btn--up"],
           ],
         ],
       }),
@@ -204,7 +215,7 @@ class GameController {
         attributes: [
           [
             "classes",
-            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--right"],
+            ["gamecontroller__d-pad-btn", "gamecontroller__d-pad-btn--right"],
           ],
         ],
       }),
@@ -213,7 +224,7 @@ class GameController {
         attributes: [
           [
             "classes",
-            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--down"],
+            ["gamecontroller__d-pad-btn", "gamecontroller__d-pad-btn--down"],
           ],
         ],
       }),
@@ -222,7 +233,7 @@ class GameController {
         attributes: [
           [
             "classes",
-            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--left"],
+            ["gamecontroller__d-pad-btn", "gamecontroller__d-pad-btn--left"],
           ],
         ],
       }),
@@ -243,8 +254,8 @@ class GameController {
           [
             "classes",
             [
-              "game-controller__action-btn",
-              `game-controller__action-btn--${i + 1}`,
+              "gamecontroller__action-btn",
+              `gamecontroller__action-btn--${i + 1}`,
             ],
           ],
         ],
@@ -265,11 +276,11 @@ class GameController {
         [
           "classes",
           [
-            "game-controller__actions",
+            "gamecontroller__actions",
             `${
               this.actions === 2
-                ? "game-controller__actions--two"
-                : "game-controller__actions--four"
+                ? "gamecontroller__actions--two"
+                : "gamecontroller__actions--four"
             }`,
           ],
         ],
@@ -310,7 +321,14 @@ class GameController {
 
 var actions = 2;
 function createController() {
-  const controller = new GameController("#app", { actions });
+  const controller = new GameController("#app", {
+    actions,
+    hooks: {
+      X: function (self) {
+        console.log("X hook", self);
+      },
+    },
+  });
   const app = document.getElementById("app");
   app.innerHTML = "";
   controller.render();
@@ -319,10 +337,10 @@ function createController() {
     .getElementById("fullscreen")
     .addEventListener("click", toggleFullscreen);
   document
-    .querySelector(".game-controller__stage")
+    .querySelector(".gamecontroller__stage")
     .addEventListener("click", function () {
       console.log("click");
-      if (actions == 2) {
+      if (actions === 2) {
         actions = 4;
       } else {
         actions = 2;
