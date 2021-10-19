@@ -4,7 +4,7 @@ body {
 }
 
 .game-controller {
-  &__wrapper {
+  &__container {
     height: 100vh;
     width: 100vw;
     max-height: 100vh;
@@ -38,7 +38,7 @@ body {
       margin-left: 2.5%;
       margin-top: 2%;
     }
-    &-button {
+    &-btn {
       margin-bottom: 5%;
       &--up {
         height: 66px;
@@ -92,7 +92,7 @@ body {
     }
   }
 
-  &__actions--quad {
+  &__actions--four {
     margin-left: 5%;
     flex-direction: row;
     flex-wrap: wrap;
@@ -101,7 +101,7 @@ body {
         margin-left: calc(50% - 12.5px);
       }
       &--2 {
-        margin-right: calc(50% - 50px);
+        margin-right: calc(50% - 45px);
       }
       &--3 {
       }
@@ -115,7 +115,7 @@ body {
 
 @media screen and (orientation: landscape) {
   .game-controller {
-    &__wrapper {
+    &__container {
       flex-direction: row;
       flex-wrap: wrap;
       position: relative;
@@ -157,7 +157,7 @@ body {
     }
 
     &__d-pad {
-      &-button {
+      &-btn {
         margin-bottom: 5%;
         &--up {
           height: 66px;
@@ -182,10 +182,10 @@ body {
       }
     }
 
-    &__actions--quad {
+    &__actions--four {
       .game-controller__action-btn {
         &--2 {
-          margin-right: calc(50% - 38px);
+          margin-right: calc(50% - 36px);
         }
       }
     }

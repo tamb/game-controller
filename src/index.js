@@ -1,5 +1,7 @@
 function addVibrations() {
-  const buttons = document.querySelectorAll(".game-controller__wrapper button");
+  const buttons = document.querySelectorAll(
+    ".game-controller__Container button"
+  );
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
       navigator.vibrate(10);
@@ -44,78 +46,254 @@ function toggleFullscreen() {
   }
 }
 
+//Todo - create elementCreator
+
+function createElement(obj) {
+  const el = document.createElement(obj.type);
+  obj.attributes?.forEach((attrTuple) => {
+    if (attrTuple[0] === "classes") {
+      el.classList.add(...attrTuple[1]);
+    } else {
+      el.setAttribute(attrTuple[0], attrTuple[1]);
+    }
+  });
+  el.textContent = obj.text;
+
+  return el;
+}
+
+// TODO: refactor to use
+// DocumentFragments, eventListeners for hooks, custom events, render Attributes, custom button text
 class GameController {
-  constructor(config) {
+  constructor(query, config) {
+    this.root = document.querySelector(query);
     this.actions = config?.actions || 2;
     this.refs = {};
   }
 
-  renderActions() {
-    if (this.actions === 2) {
-      return `
-      <div class="game-controller__actions">
-        <button class="game-controller__action-btn game-controller__action-btn--1" type="button">B</button>
-        <button class="game-controller__action-btn game-controller__action-btn--2" type="button">A</button>
-      </div>
-          `;
-    } else if (this.actions === 4) {
-      return `
-      <div class="game-controller__actions game-controller__actions--quad">
-        <button class="game-controller__action-btn game-controller__action-btn--1" type="button">Y</button>
-        <button class="game-controller__action-btn game-controller__action-btn--2" type="button">X</button>
-        <button class="game-controller__action-btn game-controller__action-btn--3" type="button">B</button>
-        <button class="game-controller__action-btn game-controller__action-btn--4" type="button">A</button>
-      </div>
-      `;
-    }
+  createContainer() {
+    this.refs.container = createElement({
+      type: "div",
+      attributes: [["classes", ["game-controller__container"]]],
+    });
   }
+
+  createStage() {
+    this.refs.stage = createElement({
+      type: "div",
+      attributes: [["classes", ["game-controller__stage"]]],
+    });
+  }
+
+  createAncillaries() {
+    this.refs.ancillaries = {
+      container: createElement({
+        type: "div",
+        attributes: [["classes", ["game-controller__ancillaries"]]],
+      }),
+      fullscreen: createElement({
+        type: "button",
+        attributes: [
+          ["classes", ["game-controller__ancillary-btn"]],
+          ["type", "button"],
+          ["id", "fullscreen"],
+        ],
+        text: "fullscreen",
+      }),
+      select: createElement({
+        type: "button",
+        attributes: [
+          ["classes", ["game-controller__ancillary-btn"]],
+          ["type", "button"],
+        ],
+        text: "select",
+      }),
+      start: createElement({
+        type: "button",
+        attributes: [
+          ["classes", ["game-controller__ancillary-btn"]],
+          ["type", "button"],
+        ],
+        text: "start",
+      }),
+    };
+  }
+
+  createMainControlsContainer() {
+    this.refs.mainControls = createElement({
+      type: "div",
+      attributes: [["classes", ["game-controller__main-controls"]]],
+    });
+  }
+
+  createDPad() {
+    this.refs.dpad = {
+      container: createElement({
+        type: "div",
+        attributes: [["classes", ["game-controller__d-pad-container"]]],
+      }),
+      up: createElement({
+        type: "button",
+        attributes: [
+          [
+            "classes",
+            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--up"],
+          ],
+        ],
+      }),
+      right: createElement({
+        type: "button",
+        attributes: [
+          [
+            "classes",
+            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--right"],
+          ],
+        ],
+      }),
+      down: createElement({
+        type: "button",
+        attributes: [
+          [
+            "classes",
+            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--down"],
+          ],
+        ],
+      }),
+      left: createElement({
+        type: "button",
+        attributes: [
+          [
+            "classes",
+            ["game-controller__d-pad-btn", "game-controller__d-pad-btn--left"],
+          ],
+        ],
+      }),
+    };
+
+    this.refs.dpad.container.appendChild(this.refs.dpad.up);
+    this.refs.dpad.container.appendChild(this.refs.dpad.left);
+    this.refs.dpad.container.appendChild(this.refs.dpad.right);
+    this.refs.dpad.container.appendChild(this.refs.dpad.down);
+    this.refs.mainControls.appendChild(this.refs.dpad.container);
+  }
+
+  createActions() {
+    this.refs.actions.buttons = new Array(this.actions).fill().map((x, i) => {
+      return createElement({
+        type: "button",
+        attributes: [
+          [
+            "classes",
+            [
+              "game-controller__action-btn",
+              `game-controller__action-btn--${i + 1}`,
+            ],
+          ],
+        ],
+      });
+    });
+
+    this.refs.actions.buttons.forEach((btn) => {
+      this.refs.actions.actionsContainer.appendChild(btn);
+    });
+  }
+
+  createActionsContainer() {
+    this.refs.actions = {};
+    this.refs.actions.actionsContainer = createElement({
+      type: "div",
+      attributes: [
+        [
+          "classes",
+          [
+            "game-controller__actions",
+            `${
+              this.actions === 2
+                ? "game-controller__actions--two"
+                : "game-controller__actions--four"
+            }`,
+          ],
+        ],
+      ],
+    });
+  }
+
+  createAllElements() {
+    this.createContainer();
+    this.createStage();
+    this.createAncillaries();
+    this.createMainControlsContainer();
+    this.createDPad();
+    this.createActionsContainer();
+    this.createActions();
+  }
+
+  insertAllElements() {
+    // once all refs are made, then append in order
+    this.refs.container.appendChild(this.refs.stage);
+    this.refs.ancillaries.container.appendChild(
+      this.refs.ancillaries.fullscreen
+    );
+    this.refs.ancillaries.container.appendChild(this.refs.ancillaries.select);
+    this.refs.ancillaries.container.appendChild(this.refs.ancillaries.start);
+    this.refs.container.appendChild(this.refs.ancillaries.container);
+    this.refs.container.appendChild(this.refs.mainControls);
+    this.refs.mainControls.appendChild(this.refs.actions.actionsContainer);
+  }
+
   render() {
-    return `<div class="game-controller__wrapper">
-      <div class="game-controller__stage"></div>
-      <div class="game-controller__ancillaries">
-        <button type="button" id="fullscreen">fullscreen</buttontype>
-        <button type="button">Select</button>
-        <button type="button">Start</button>
-      </div>
-      <div class="game-controller__main-controls">
-        <div class="game-controller__d-pad-container">
-          <button
-            type="button"
-            class="
-              game-controller__d-pad-button game-controller__d-pad-button--up
-            "
-          ></button>
-          <button
-            type="button"
-            class="
-              game-controller__d-pad-button game-controller__d-pad-button--left
-            "
-          ></button>
-          <button
-            type="button"
-            class="
-              game-controller__d-pad-button game-controller__d-pad-button--right
-            "
-          ></button>
-          <button
-            type="button"
-            class="
-              game-controller__d-pad-button game-controller__d-pad-button--down
-            "
-          ></button>
-        </div>
-        ${this.renderActions()}
-      </div>
-    </div>`;
+    this.createAllElements();
+    this.insertAllElements();
+    this.root.appendChild(this.refs.container);
   }
+
+  // render() {
+  //   return `<div class="game-controller__Container">
+  //     <div class="game-controller__stage"></div>
+  //     <div class="game-controller__ancillaries">
+  //       <button type="button" id="fullscreen">fullscreen</buttontype>
+  //       <button type="button">Select</button>
+  //       <button type="button">Start</button>
+  //     </div>
+  //     <div class="game-controller__main-controls">
+  //       <div class="game-controller__d-pad-container">
+  //         <button
+  //           type="button"
+  //           class="
+  //             game-controller__d-pad-button game-controller__d-pad-button--up
+  //           "
+  //         ></button>
+  //         <button
+  //           type="button"
+  //           class="
+  //             game-controller__d-pad-button game-controller__d-pad-button--left
+  //           "
+  //         ></button>
+  //         <button
+  //           type="button"
+  //           class="
+  //             game-controller__d-pad-button game-controller__d-pad-button--right
+  //           "
+  //         ></button>
+  //         <button
+  //           type="button"
+  //           class="
+  //             game-controller__d-pad-button game-controller__d-pad-button--down
+  //           "
+  //         ></button>
+  //       </div>
+  //       ${this.renderActions()}
+  //     </div>
+  //   </div>`;
+  // }
 }
 
 var actions = 2;
 function createController() {
-  const controller = new GameController({ actions });
+  const controller = new GameController("#app", { actions });
   const app = document.getElementById("app");
   app.innerHTML = "";
-  app.insertAdjacentHTML("afterbegin", controller.render());
+  controller.render();
   addVibrations();
   document
     .getElementById("fullscreen")
