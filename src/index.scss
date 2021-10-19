@@ -1,3 +1,6 @@
+$action-size: 50;
+$up-down-size: 66;
+
 body {
   padding: 0;
   margin: 0;
@@ -21,6 +24,7 @@ body {
     width: 90vw;
     justify-self: flex-start;
     position: relative;
+    z-index: 999;
   }
   &__main-controls {
     width: 100%;
@@ -41,24 +45,24 @@ body {
     &-btn {
       margin-bottom: 5%;
       &--up {
-        height: 66px;
+        height: #{$up-down-size}px;
         width: 25%;
         margin-left: 38%;
         margin-right: 38%;
       }
       &--right {
         width: 38%;
-        height: 33px;
+        height: #{($up-down-size/2)}px;
       }
       &--down {
-        height: 66px;
+        height: #{$up-down-size}px;
         width: 25%;
         margin-left: 38%;
         margin-right: 38%;
       }
       &--left {
         width: 38%;
-        height: 33px;
+        height: #{($up-down-size/2)}px;
       }
     }
   }
@@ -77,36 +81,39 @@ body {
   &__actions {
     width: 45%;
     display: flex;
-    flex-direction: column;
+    flex-direction: column-reverse;
+    justify-content: center;
   }
 
   &__action-btn {
-    width: 50px;
-    height: 50px;
+    width: #{$action-size}px;
+    height: #{$action-size}px;
     border-radius: 50%;
-    &--1 {
-      margin-left: calc(50% - 50px);
-    }
     &--2 {
+      margin-left: calc(50% - #{$action-size}px);
+    }
+    &--1 {
       margin-left: auto;
     }
   }
 
   &__actions--four {
     margin-left: 5%;
-    flex-direction: row;
     flex-wrap: wrap;
+    flex-direction: column;
+    justify-content: initial;
+
     .game-controller__action-btn {
       &--1 {
-        margin-left: calc(50% - 12.5px);
+        margin-left: calc(50% - #{($action-size / 4)}px);
       }
-      &--2 {
-        margin-right: calc(50% - 45px);
-      }
+
       &--3 {
+        margin-left: auto;
+        margin-top: -#{$action-size}px;
       }
       &--4 {
-        margin-left: calc(50% - 12.5px);
+        margin-left: calc(50% - #{($action-size / 4)}px);
         margin-bottom: 30%;
       }
     }
@@ -184,8 +191,18 @@ body {
 
     &__actions--four {
       .game-controller__action-btn {
+        &--1{
+          margin-left: calc(50% - #{$action-size/8}px);
+        }
+        
         &--2 {
-          margin-right: calc(50% - 36px);
+          margin-right: auto;
+        }
+        &--3 {
+          margin-left: auto;
+        }
+        &--4 {
+          margin-left: calc(50% - #{$action-size/8}px);
         }
       }
     }

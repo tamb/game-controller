@@ -1,6 +1,6 @@
 function addVibrations() {
   const buttons = document.querySelectorAll(
-    ".game-controller__Container button"
+    ".game-controller__container button"
   );
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -62,6 +62,30 @@ function createElement(obj) {
   return el;
 }
 
+function emitEvent(name, data) {
+  window.dispatchEvent(
+    new CustomEvent(name, {
+      detail: {
+        ...data,
+        controller: this,
+      },
+      bubbles: true,
+    })
+  );
+}
+
+const _4_TEXT = {
+  1: "Y",
+  2: "X",
+  3: "B",
+  4: "A",
+};
+
+const _2_TEXT = {
+  1: "A",
+  2: "B",
+};
+
 // TODO: refactor to use
 // DocumentFragments, eventListeners for hooks, custom events, render Attributes, custom button text
 class GameController {
@@ -70,6 +94,8 @@ class GameController {
     this.actions = config?.actions || 2;
     this.refs = {};
   }
+
+  attachEventHandlers() {}
 
   createContainer() {
     this.refs.container = createElement({
@@ -190,6 +216,7 @@ class GameController {
             ],
           ],
         ],
+        text: this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1],
       });
     });
 
@@ -246,46 +273,6 @@ class GameController {
     this.insertAllElements();
     this.root.appendChild(this.refs.container);
   }
-
-  // render() {
-  //   return `<div class="game-controller__Container">
-  //     <div class="game-controller__stage"></div>
-  //     <div class="game-controller__ancillaries">
-  //       <button type="button" id="fullscreen">fullscreen</buttontype>
-  //       <button type="button">Select</button>
-  //       <button type="button">Start</button>
-  //     </div>
-  //     <div class="game-controller__main-controls">
-  //       <div class="game-controller__d-pad-container">
-  //         <button
-  //           type="button"
-  //           class="
-  //             game-controller__d-pad-button game-controller__d-pad-button--up
-  //           "
-  //         ></button>
-  //         <button
-  //           type="button"
-  //           class="
-  //             game-controller__d-pad-button game-controller__d-pad-button--left
-  //           "
-  //         ></button>
-  //         <button
-  //           type="button"
-  //           class="
-  //             game-controller__d-pad-button game-controller__d-pad-button--right
-  //           "
-  //         ></button>
-  //         <button
-  //           type="button"
-  //           class="
-  //             game-controller__d-pad-button game-controller__d-pad-button--down
-  //           "
-  //         ></button>
-  //       </div>
-  //       ${this.renderActions()}
-  //     </div>
-  //   </div>`;
-  // }
 }
 
 var actions = 2;
