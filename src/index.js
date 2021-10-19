@@ -95,7 +95,39 @@ class GameController {
     this.refs = {};
   }
 
-  attachEventHandlers() {}
+  attachEventHandlers = () => {
+    this.refs.ancillaries.fullscreen.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:ancillary:fullscreen");
+    });
+    this.refs.ancillaries.select.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:ancillary:select");
+    });
+    this.refs.ancillaries.start.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:ancillary:start");
+    });
+    this.refs.dpad.up.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:dpad:up");
+    });
+    this.refs.dpad.right.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:dpad:right");
+    });
+    this.refs.dpad.down.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:dpad:down");
+    });
+    this.refs.dpad.left.addEventListener("click", function () {
+      emitEvent.call(this, "gamecontroller:dpad:left");
+    });
+
+    this.refs.actions.buttons.forEach((btn, i) => {
+      btn.addEventListener("click", () => {
+        emitEvent.call(this, 
+          `gamecontroller:action:${
+            this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
+          }`
+        );
+      });
+    });
+  }
 
   createContainer() {
     this.refs.container = createElement({
@@ -272,6 +304,7 @@ class GameController {
     this.createAllElements();
     this.insertAllElements();
     this.root.appendChild(this.refs.container);
+    this.attachEventHandlers();
   }
 }
 

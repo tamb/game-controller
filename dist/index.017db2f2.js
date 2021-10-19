@@ -137,18 +137,42 @@ var _2_TEXT = {
 // DocumentFragments, eventListeners for hooks, custom events, render Attributes, custom button text
 var GameController = /*#__PURE__*/ function() {
     function GameController(query, config) {
+        var _this = this;
         _classCallCheck(this, GameController);
+        _defineProperty(this, "attachEventHandlers", function() {
+            _this.refs.ancillaries.fullscreen.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:ancillary:fullscreen");
+            });
+            _this.refs.ancillaries.select.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:ancillary:select");
+            });
+            _this.refs.ancillaries.start.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:ancillary:start");
+            });
+            _this.refs.dpad.up.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:dpad:up");
+            });
+            _this.refs.dpad.right.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:dpad:right");
+            });
+            _this.refs.dpad.down.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:dpad:down");
+            });
+            _this.refs.dpad.left.addEventListener("click", function() {
+                emitEvent.call(this, "gamecontroller:dpad:left");
+            });
+            _this.refs.actions.buttons.forEach(function(btn, i) {
+                btn.addEventListener("click", function() {
+                    emitEvent.call(_this, "gamecontroller:action:".concat(_this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]));
+                });
+            });
+        });
         this.root = document.querySelector(query);
         this.actions = (config === null || config === void 0 ? void 0 : config.actions) || 2;
         this.refs = {
         };
     }
     _createClass(GameController, [
-        {
-            key: "attachEventHandlers",
-            value: function attachEventHandlers() {
-            }
-        },
         {
             key: "createContainer",
             value: function createContainer() {
@@ -341,7 +365,7 @@ var GameController = /*#__PURE__*/ function() {
         {
             key: "createActions",
             value: function createActions() {
-                var _this = this;
+                var _this2 = this;
                 this.refs.actions.buttons = new Array(this.actions).fill().map(function(x, i) {
                     return createElement({
                         type: "button",
@@ -354,11 +378,11 @@ var GameController = /*#__PURE__*/ function() {
                                 ]
                             ]
                         ],
-                        text: _this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
+                        text: _this2.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
                     });
                 });
                 this.refs.actions.buttons.forEach(function(btn) {
-                    _this.refs.actions.actionsContainer.appendChild(btn);
+                    _this2.refs.actions.actionsContainer.appendChild(btn);
                 });
             }
         },
@@ -412,6 +436,7 @@ var GameController = /*#__PURE__*/ function() {
                 this.createAllElements();
                 this.insertAllElements();
                 this.root.appendChild(this.refs.container);
+                this.attachEventHandlers();
             }
         }
     ]);
