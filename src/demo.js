@@ -13,6 +13,7 @@ function createController() {
   const app = document.getElementById("app");
   app.innerHTML = "";
   controller.render();
+  window.gamecontroller = controller;
   document
     .querySelector(".gamecontroller__stage")
     .addEventListener("click", function () {

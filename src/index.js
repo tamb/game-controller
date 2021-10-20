@@ -50,39 +50,39 @@ export default class GameController {
   }
 
   attachEventHandlers = () => {
-    this.refs.ancillaries.fullscreen.addEventListener("click", function () {
+    this.refs.ancillaries.fullscreen.addEventListener("click", () => {
       this.hooks.fullscreen ? this.hooks.fullscreen(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       this.fullscreen = !this.fullscreen;
       this.fullscreen ? this.openFullscreen() : this.closeFullscreen();
       emitEvent.call(this, "gamecontroller:ancillary:fullscreen");
     });
-    this.refs.ancillaries.select.addEventListener("click", function () {
+    this.refs.ancillaries.select.addEventListener("click", () => {
       this.hooks.select ? this.hooks.select(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:ancillary:select");
     });
-    this.refs.ancillaries.start.addEventListener("click", function () {
+    this.refs.ancillaries.start.addEventListener("click", () => {
       this.hooks.start ? this.hooks.start(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:ancillary:start");
     });
-    this.refs.dpad.up.addEventListener("click", function () {
+    this.refs.dpad.up.addEventListener("click", () => {
       this.hooks.up ? this.hooks.up(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:up");
     });
-    this.refs.dpad.right.addEventListener("click", function () {
+    this.refs.dpad.right.addEventListener("click", () => {
       this.hooks.right ? this.hooks.right(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:right");
     });
-    this.refs.dpad.down.addEventListener("click", function () {
+    this.refs.dpad.down.addEventListener("click", () => {
       this.hooks.down ? this.hooks.down(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:down");
     });
-    this.refs.dpad.left.addEventListener("click", function () {
+    this.refs.dpad.left.addEventListener("click", () => {
       this.hooks.left ? this.hooks.left(this) : null;
       this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:left");
