@@ -585,12 +585,12 @@ function _typeof(obj) {
     return (function() {
         var t = {
             981: function _(t, e, n) {
-                var r = n(81), i = n.n(r), a = n(645), o = n.n(a)()(i());
-                o.push([
+                var r = n(81), o = n.n(r), i = n(645), a = n.n(i)()(o());
+                a.push([
                     t.id,
                     ".gamecontroller__container{height:100vh;width:100vw;max-height:100vh;max-width:100vw;overflow:hidden;display:flex;flex-direction:column;justify-content:space-around;align-items:center}.gamecontroller__stage{border:2px solid;min-height:40vh;width:90vw;justify-self:flex-start;position:relative;z-index:999}.gamecontroller__main-controls{width:100%;display:flex;margin-bottom:20%}.gamecontroller__d-pad-container{align-self:flex-start;justify-self:flex-start;display:flex;flex-wrap:wrap;width:45%;justify-content:space-between;margin-left:2.5%;margin-top:2%}.gamecontroller__d-pad-btn{margin-bottom:5%}.gamecontroller__d-pad-btn--up{height:66px;width:25%;margin-left:38%;margin-right:38%}.gamecontroller__d-pad-btn--right{width:38%;height:33px}.gamecontroller__d-pad-btn--down{height:66px;width:25%;margin-left:38%;margin-right:38%}.gamecontroller__d-pad-btn--left{width:38%;height:33px}.gamecontroller__ancillaries{width:100%;display:flex;justify-content:center;align-items:center}.gamecontroller__ancillaries button{margin:5%;padding:1% 5%}.gamecontroller__actions{width:45%;display:flex;flex-direction:column-reverse;justify-content:center}.gamecontroller__action-btn{width:50px;height:50px;border-radius:50%}.gamecontroller__action-btn--2{margin-left:calc(50% - 50px)}.gamecontroller__action-btn--1{margin-left:auto}.gamecontroller__actions--four{margin-left:5%;flex-wrap:wrap;flex-direction:column;justify-content:initial}.gamecontroller__actions--four .gamecontroller__action-btn--1{margin-left:calc(50% - 12.5px)}.gamecontroller__actions--four .gamecontroller__action-btn--3{margin-left:auto;margin-top:-50px}.gamecontroller__actions--four .gamecontroller__action-btn--4{margin-left:calc(50% - 12.5px);margin-bottom:30%}@media screen and (orientation: landscape){.gamecontroller__container{flex-direction:row;flex-wrap:wrap;position:relative}.gamecontroller__stage{width:50%;height:90vh;top:1vh;position:absolute;left:27%}.gamecontroller__main-controls{width:100%;position:absolute;top:0;left:0;padding-top:33vh}.gamecontroller__d-pad-container{width:25%;margin-left:1%}.gamecontroller__actions{width:25%;margin-left:auto;margin-right:1%}.gamecontroller__ancillaries{width:100%;bottom:0;position:absolute;height:9vh;z-index:99}.gamecontroller__ancillaries button{margin:0 1%;padding:.25% 5%}.gamecontroller__d-pad-btn{margin-bottom:5%}.gamecontroller__d-pad-btn--up{height:66px;width:25%;margin-left:38%;margin-right:38%}.gamecontroller__d-pad-btn--right{width:38%;height:33px}.gamecontroller__d-pad-btn--down{height:66px;width:25%;margin-left:38%;margin-right:38%}.gamecontroller__d-pad-btn--left{width:38%;height:33px}.gamecontroller__actions--four .gamecontroller__action-btn--1{margin-left:calc(50% - 6.25px)}.gamecontroller__actions--four .gamecontroller__action-btn--2{margin-right:auto}.gamecontroller__actions--four .gamecontroller__action-btn--3{margin-left:auto}.gamecontroller__actions--four .gamecontroller__action-btn--4{margin-left:calc(50% - 6.25px)}}",
                     ""
-                ]), e.Z = o;
+                ]), e.Z = a;
             },
             645: function _(t) {
                 t.exports = function(t) {
@@ -600,7 +600,7 @@ function _typeof(obj) {
                             var n = "", r = void 0 !== e[5];
                             return e[4] && (n += "@supports (".concat(e[4], ") {")), e[2] && (n += "@media ".concat(e[2], " {")), r && (n += "@layer".concat(e[5].length > 0 ? " ".concat(e[5]) : "", " {")), n += t(e), r && (n += "}"), e[2] && (n += "}"), e[4] && (n += "}"), n;
                         }).join("");
-                    }, e.i = function(t, n, r, i, a) {
+                    }, e.i = function(t, n, r, o, i) {
                         "string" == typeof t && (t = [
                             [
                                 null,
@@ -608,15 +608,15 @@ function _typeof(obj) {
                                 void 0
                             ]
                         ]);
-                        var o = {
+                        var a = {
                         };
-                        if (r) for(var s = 0; s < this.length; s++){
-                            var l = this[s][0];
-                            null != l && (o[l] = !0);
+                        if (r) for(var l = 0; l < this.length; l++){
+                            var s = this[l][0];
+                            null != s && (a[s] = !0);
                         }
                         for(var c = 0; c < t.length; c++){
                             var d = [].concat(t[c]);
-                            r && o[d[0]] || (void 0 !== a && (void 0 === d[5] || (d[1] = "@layer".concat(d[5].length > 0 ? " ".concat(d[5]) : "", " {").concat(d[1], "}")), d[5] = a), n && (d[2] ? (d[1] = "@media ".concat(d[2], " {").concat(d[1], "}"), d[2] = n) : d[2] = n), i && (d[4] ? (d[1] = "@supports (".concat(d[4], ") {").concat(d[1], "}"), d[4] = i) : d[4] = "".concat(i)), e.push(d));
+                            r && a[d[0]] || (void 0 !== i && (void 0 === d[5] || (d[1] = "@layer".concat(d[5].length > 0 ? " ".concat(d[5]) : "", " {").concat(d[1], "}")), d[5] = i), n && (d[2] ? (d[1] = "@media ".concat(d[2], " {").concat(d[1], "}"), d[2] = n) : d[2] = n), o && (d[4] ? (d[1] = "@supports (".concat(d[4], ") {").concat(d[1], "}"), d[4] = o) : d[4] = "".concat(o)), e.push(d));
                         }
                     }, e;
                 };
@@ -636,31 +636,31 @@ function _typeof(obj) {
                     return n;
                 }
                 function r(t, r) {
-                    for(var a = {
-                    }, o = [], s = 0; s < t.length; s++){
-                        var l = t[s], c = r.base ? l[0] + r.base : l[0], d = a[c] || 0, h = "".concat(c, " ").concat(d);
-                        a[c] = d + 1;
-                        var u = n(h), p = {
-                            css: l[1],
-                            media: l[2],
-                            sourceMap: l[3],
-                            supports: l[4],
-                            layer: l[5]
+                    for(var i = {
+                    }, a = [], l = 0; l < t.length; l++){
+                        var s = t[l], c = r.base ? s[0] + r.base : s[0], d = i[c] || 0, u = "".concat(c, " ").concat(d);
+                        i[c] = d + 1;
+                        var h = n(u), f = {
+                            css: s[1],
+                            media: s[2],
+                            sourceMap: s[3],
+                            supports: s[4],
+                            layer: s[5]
                         };
-                        if (-1 !== u) e[u].references++, e[u].updater(p);
+                        if (-1 !== h) e[h].references++, e[h].updater(f);
                         else {
-                            var f = i(p, r);
-                            r.byIndex = s, e.splice(s, 0, {
-                                identifier: h,
-                                updater: f,
+                            var p = o(f, r);
+                            r.byIndex = l, e.splice(l, 0, {
+                                identifier: u,
+                                updater: p,
                                 references: 1
                             });
                         }
-                        o.push(h);
+                        a.push(u);
                     }
-                    return o;
+                    return a;
                 }
-                function i(t, e) {
+                function o(t, e) {
                     var n = e.domAPI(e);
                     n.update(t);
                     return function(e) {
@@ -670,20 +670,20 @@ function _typeof(obj) {
                         } else n.remove();
                     };
                 }
-                t.exports = function(t, i) {
-                    var a = r(t = t || [], i = i || {
+                t.exports = function(t, o) {
+                    var i = r(t = t || [], o = o || {
                     });
                     return function(t) {
                         t = t || [];
-                        for(var o = 0; o < a.length; o++){
-                            var s = n(a[o]);
-                            e[s].references--;
+                        for(var a = 0; a < i.length; a++){
+                            var l = n(i[a]);
+                            e[l].references--;
                         }
-                        for(var l = r(t, i), c = 0; c < a.length; c++){
-                            var d = n(a[c]);
+                        for(var s = r(t, o), c = 0; c < i.length; c++){
+                            var d = n(i[c]);
                             0 === e[d].references && (e[d].updater(), e.splice(d, 1));
                         }
-                        a = l;
+                        i = s;
                     };
                 };
             },
@@ -727,10 +727,10 @@ function _typeof(obj) {
                             !function(t, e, n) {
                                 var r = "";
                                 n.supports && (r += "@supports (".concat(n.supports, ") {")), n.media && (r += "@media ".concat(n.media, " {"));
-                                var i = void 0 !== n.layer;
-                                i && (r += "@layer".concat(n.layer.length > 0 ? " ".concat(n.layer) : "", " {")), r += n.css, i && (r += "}"), n.media && (r += "}"), n.supports && (r += "}");
-                                var a = n.sourceMap;
-                                a && "undefined" != typeof btoa && (r += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(a)))), " */")), e.styleTagTransform(r, t, e.options);
+                                var o = void 0 !== n.layer;
+                                o && (r += "@layer".concat(n.layer.length > 0 ? " ".concat(n.layer) : "", " {")), r += n.css, o && (r += "}"), n.media && (r += "}"), n.supports && (r += "}");
+                                var i = n.sourceMap;
+                                i && "undefined" != typeof btoa && (r += "\n/*# sourceMappingURL=data:application/json;base64,".concat(btoa(unescape(encodeURIComponent(JSON.stringify(i)))), " */")), e.styleTagTransform(r, t, e.options);
                             }(e, t, n);
                         },
                         remove: function remove() {
@@ -754,14 +754,14 @@ function _typeof(obj) {
         }, e = {
         };
         function n(r) {
-            var i = e[r];
-            if (void 0 !== i) return i.exports;
-            var a = e[r] = {
+            var o = e[r];
+            if (void 0 !== o) return o.exports;
+            var i = e[r] = {
                 id: r,
                 exports: {
                 }
             };
-            return t[r](a, a.exports, n), a.exports;
+            return t[r](i, i.exports, n), i.exports;
         }
         n.n = function(t) {
             var e = t && t.__esModule ? function() {
@@ -794,17 +794,19 @@ function _typeof(obj) {
                     return y;
                 }
             });
-            var t = n(379), e = n.n(t), i = n(795), a = n.n(i), o = n(569), s = n.n(o), l = n(565), c = n.n(l), d = n(216), h = n.n(d), u = n(589), p = n.n(u), f = n(981), m = {
+            var t = n(379), e = n.n(t), o = n(795), i = n.n(o), a = n(569), l = n.n(a), s = n(565), c = n.n(s), d = n(216), u = n.n(d), h = n(589), f = n.n(h), p = n(981), m = {
             };
-            m.styleTagTransform = p(), m.setAttributes = c(), m.insert = s().bind(null, "head"), m.domAPI = a(), m.insertStyleElement = h();
-            e()(f.Z, m), f.Z && f.Z.locals && f.Z.locals;
+            m.styleTagTransform = f(), m.setAttributes = c(), m.insert = l().bind(null, "head"), m.domAPI = i(), m.insertStyleElement = u();
+            e()(p.Z, m), p.Z && p.Z.locals && p.Z.locals;
             function g(t) {
-                var _t$attributes;
+                var _t$attributes, _this = this;
                 var e = document.createElement(t.type);
                 return (_t$attributes = t.attributes) !== null && _t$attributes !== void 0 && _t$attributes.forEach(function(t) {
                     var _e$classList;
                     "classes" === t[0] ? (_e$classList = e.classList).add.apply(_e$classList, _toConsumableArray(t[1])) : e.setAttribute(t[0], t[1]);
-                }), e.textContent = t.text, e;
+                }), e.textContent = t.text, t.ref && (this.refs[t.ref] = e), t.children && t.children.forEach(function(t) {
+                    e.appendChild(g.call(_this, t));
+                }), e;
             }
             function _(t, e) {
                 window.dispatchEvent(new CustomEvent(t, {
@@ -827,27 +829,27 @@ function _typeof(obj) {
             };
             var y = /*#__PURE__*/ function() {
                 function y(_t, _e) {
-                    var _this = this;
+                    var _this2 = this;
                     _classCallCheck(this, y);
                     _defineProperty(this, "attachEventHandlers", function() {
-                        _this.refs.ancillaries.fullscreen.addEventListener("click", function() {
-                            _this.hooks.fullscreen && _this.hooks.fullscreen(_this), _this.vibrate && navigator.vibrate(10), _this.fullscreen = !_this.fullscreen, _this.fullscreen ? _this.openFullscreen() : _this.closeFullscreen(), _.call(_this, "gamecontroller:ancillary:fullscreen");
-                        }), _this.refs.ancillaries.select.addEventListener("click", function() {
-                            _this.hooks.select && _this.hooks.select(_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:ancillary:select");
-                        }), _this.refs.ancillaries.start.addEventListener("click", function() {
-                            _this.hooks.start && _this.hooks.start(_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:ancillary:start");
-                        }), _this.refs.dpad.up.addEventListener("click", function() {
-                            _this.hooks.up && _this.hooks.up(_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:dpad:up");
-                        }), _this.refs.dpad.right.addEventListener("click", function() {
-                            _this.hooks.right && _this.hooks.right(_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:dpad:right");
-                        }), _this.refs.dpad.down.addEventListener("click", function() {
-                            _this.hooks.down && _this.hooks.down(_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:dpad:down");
-                        }), _this.refs.dpad.left.addEventListener("click", function() {
-                            _this.hooks.left && _this.hooks.left(_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:dpad:left");
-                        }), _this.refs.actions.buttons.forEach(function(t, e) {
+                        _this2.refs.ancillaries.fullscreen.addEventListener("click", function() {
+                            _this2.hooks.fullscreen && _this2.hooks.fullscreen(_this2), _this2.vibrate && navigator.vibrate(10), _this2.fullscreen = !_this2.fullscreen, _this2.fullscreen ? _this2.openFullscreen() : _this2.closeFullscreen(), _.call(_this2, "gamecontroller:ancillary:fullscreen");
+                        }), _this2.refs.ancillaries.select.addEventListener("click", function() {
+                            _this2.hooks.select && _this2.hooks.select(_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:ancillary:select");
+                        }), _this2.refs.ancillaries.start.addEventListener("click", function() {
+                            _this2.hooks.start && _this2.hooks.start(_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:ancillary:start");
+                        }), _this2.refs.dpad.up.addEventListener("click", function() {
+                            _this2.hooks.up && _this2.hooks.up(_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:dpad:up");
+                        }), _this2.refs.dpad.right.addEventListener("click", function() {
+                            _this2.hooks.right && _this2.hooks.right(_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:dpad:right");
+                        }), _this2.refs.dpad.down.addEventListener("click", function() {
+                            _this2.hooks.down && _this2.hooks.down(_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:dpad:down");
+                        }), _this2.refs.dpad.left.addEventListener("click", function() {
+                            _this2.hooks.left && _this2.hooks.left(_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:dpad:left");
+                        }), _this2.refs.actions.buttons.forEach(function(t, e) {
                             t.addEventListener("click", function() {
-                                var t = 2 === _this.actions ? v[e + 1] : b[e + 1];
-                                _this.hooks[t] && _this.hooks[t](_this), _this.vibrate && navigator.vibrate(10), _.call(_this, "gamecontroller:action:".concat(2 === _this.actions ? v[e + 1] : b[e + 1]));
+                                var t = 2 === _this2.actions ? v[e + 1] : b[e + 1];
+                                _this2.hooks[t] && _this2.hooks[t](_this2), _this2.vibrate && navigator.vibrate(10), _.call(_this2, "gamecontroller:action:".concat(2 === _this2.actions ? v[e + 1] : b[e + 1]));
                             });
                         });
                     });
@@ -855,7 +857,7 @@ function _typeof(obj) {
                         document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen ? document.webkitExitFullscreen() : document.msExitFullscreen && document.msExitFullscreen();
                     });
                     _defineProperty(this, "openFullscreen", function() {
-                        _this.document.requestFullscreen ? _this.document.requestFullscreen() : _this.document.webkitRequestFullscreen ? _this.document.webkitRequestFullscreen() : _this.document.msRequestFullscreen && _this.document.msRequestFullscreen();
+                        _this2.document.requestFullscreen ? _this2.document.requestFullscreen() : _this2.document.webkitRequestFullscreen ? _this2.document.webkitRequestFullscreen() : _this2.document.msRequestFullscreen && _this2.document.msRequestFullscreen();
                     });
                     this.root = document.querySelector(_t), this.actions = (_e === null || _e === void 0 ? void 0 : _e.actions) || 2, this.refs = {
                     }, this.hooks = _e.hooks || {
@@ -863,9 +865,10 @@ function _typeof(obj) {
                 }
                 _createClass(y, [
                     {
-                        key: "createContainer",
-                        value: function createContainer() {
-                            this.refs.container = g({
+                        key: "render",
+                        value: function render() {
+                            var _this3 = this;
+                            this.root.appendChild(g.call(this, {
                                 type: "div",
                                 attributes: [
                                     [
@@ -874,235 +877,197 @@ function _typeof(obj) {
                                             "gamecontroller__container"
                                         ]
                                     ]
-                                ]
-                            });
-                        }
-                    },
-                    {
-                        key: "createStage",
-                        value: function createStage() {
-                            this.refs.stage = g({
-                                type: "div",
-                                attributes: [
-                                    [
-                                        "classes",
-                                        [
-                                            "gamecontroller__stage"
-                                        ]
-                                    ]
-                                ]
-                            });
-                        }
-                    },
-                    {
-                        key: "createAncillaries",
-                        value: function createAncillaries() {
-                            this.refs.ancillaries = {
-                                container: g({
-                                    type: "div",
-                                    attributes: [
-                                        [
-                                            "classes",
+                                ],
+                                children: [
+                                    {
+                                        type: "div",
+                                        attributes: [
                                             [
-                                                "gamecontroller__ancillaries"
-                                            ]
-                                        ]
-                                    ]
-                                }),
-                                fullscreen: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__ancillary-btn"
+                                                "classes",
+                                                [
+                                                    "gamecontroller__stage"
+                                                ]
                                             ]
                                         ],
-                                        [
-                                            "type",
-                                            "button"
-                                        ],
-                                        [
-                                            "id",
-                                            "fullscreen"
-                                        ]
-                                    ],
-                                    text: "fullscreen"
-                                }),
-                                select: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
+                                        ref: "stage"
+                                    },
+                                    {
+                                        type: "div",
+                                        attributes: [
                                             [
-                                                "gamecontroller__ancillary-btn"
+                                                "classes",
+                                                [
+                                                    "gamecontroller__ancillaries"
+                                                ]
                                             ]
                                         ],
-                                        [
-                                            "type",
-                                            "button"
+                                        children: [
+                                            {
+                                                type: "button",
+                                                attributes: [
+                                                    [
+                                                        "classes",
+                                                        [
+                                                            "gamecontroller__ancillary-btn"
+                                                        ]
+                                                    ],
+                                                    [
+                                                        "type",
+                                                        "button"
+                                                    ],
+                                                    [
+                                                        "id",
+                                                        "fullscreen"
+                                                    ]
+                                                ],
+                                                text: "fullscreen",
+                                                ref: "fullscreenBtn"
+                                            },
+                                            {
+                                                type: "button",
+                                                attributes: [
+                                                    [
+                                                        "classes",
+                                                        [
+                                                            "gamecontroller__ancillary-btn"
+                                                        ]
+                                                    ],
+                                                    [
+                                                        "type",
+                                                        "button"
+                                                    ]
+                                                ],
+                                                text: "select",
+                                                ref: "selectBtn"
+                                            },
+                                            {
+                                                type: "button",
+                                                attributes: [
+                                                    [
+                                                        "classes",
+                                                        [
+                                                            "gamecontroller__ancillary-btn"
+                                                        ]
+                                                    ],
+                                                    [
+                                                        "type",
+                                                        "button"
+                                                    ]
+                                                ],
+                                                text: "start",
+                                                ref: "startBtn"
+                                            }
                                         ]
-                                    ],
-                                    text: "select"
-                                }),
-                                start: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
+                                    },
+                                    {
+                                        type: "div",
+                                        attributes: [
                                             [
-                                                "gamecontroller__ancillary-btn"
+                                                "classes",
+                                                [
+                                                    "gamecontroller__main-controls"
+                                                ]
                                             ]
                                         ],
-                                        [
-                                            "type",
-                                            "button"
+                                        children: [
+                                            {
+                                                type: "div",
+                                                attributes: [
+                                                    [
+                                                        "classes",
+                                                        [
+                                                            "gamecontroller__d-pad-container"
+                                                        ]
+                                                    ]
+                                                ],
+                                                children: [
+                                                    {
+                                                        type: "button",
+                                                        attributes: [
+                                                            [
+                                                                "classes",
+                                                                [
+                                                                    "gamecontroller__d-pad-btn",
+                                                                    "gamecontroller__d-pad-btn--up"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        ref: "upBtn"
+                                                    },
+                                                    {
+                                                        type: "button",
+                                                        attributes: [
+                                                            [
+                                                                "classes",
+                                                                [
+                                                                    "gamecontroller__d-pad-btn",
+                                                                    "gamecontroller__d-pad-btn--left"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        ref: "leftBtn"
+                                                    },
+                                                    {
+                                                        type: "button",
+                                                        attributes: [
+                                                            [
+                                                                "classes",
+                                                                [
+                                                                    "gamecontroller__d-pad-btn",
+                                                                    "gamecontroller__d-pad-btn--right"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        ref: "rightBtn"
+                                                    },
+                                                    {
+                                                        type: "button",
+                                                        attributes: [
+                                                            [
+                                                                "classes",
+                                                                [
+                                                                    "gamecontroller__d-pad-btn",
+                                                                    "gamecontroller__d-pad-btn--down"
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        ref: "downBtn"
+                                                    }
+                                                ]
+                                            },
+                                            {
+                                                type: "div",
+                                                attributes: [
+                                                    [
+                                                        "classes",
+                                                        [
+                                                            "gamecontroller__actions",
+                                                            "" + (2 === this.actions ? "gamecontroller__actions--two" : "gamecontroller__actions--four")
+                                                        ]
+                                                    ]
+                                                ],
+                                                children: new Array(this.actions).fill().map(function(t, e) {
+                                                    return {
+                                                        type: "button",
+                                                        attributes: [
+                                                            [
+                                                                "classes",
+                                                                [
+                                                                    "gamecontroller__action-btn",
+                                                                    "gamecontroller__action-btn--".concat(e + 1)
+                                                                ]
+                                                            ]
+                                                        ],
+                                                        text: 2 === _this3.actions ? v[e + 1] : b[e + 1],
+                                                        ref: "".concat(2 === _this3.actions ? v[e + 1] : b[e + 1], "btn")
+                                                    };
+                                                })
+                                            }
                                         ]
-                                    ],
-                                    text: "start"
-                                })
-                            };
-                        }
-                    },
-                    {
-                        key: "createMainControlsContainer",
-                        value: function createMainControlsContainer() {
-                            this.refs.mainControls = g({
-                                type: "div",
-                                attributes: [
-                                    [
-                                        "classes",
-                                        [
-                                            "gamecontroller__main-controls"
-                                        ]
-                                    ]
-                                ]
-                            });
-                        }
-                    },
-                    {
-                        key: "createDPad",
-                        value: function createDPad() {
-                            this.refs.dpad = {
-                                container: g({
-                                    type: "div",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__d-pad-container"
-                                            ]
-                                        ]
-                                    ]
-                                }),
-                                up: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__d-pad-btn",
-                                                "gamecontroller__d-pad-btn--up"
-                                            ]
-                                        ]
-                                    ]
-                                }),
-                                right: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__d-pad-btn",
-                                                "gamecontroller__d-pad-btn--right"
-                                            ]
-                                        ]
-                                    ]
-                                }),
-                                down: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__d-pad-btn",
-                                                "gamecontroller__d-pad-btn--down"
-                                            ]
-                                        ]
-                                    ]
-                                }),
-                                left: g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__d-pad-btn",
-                                                "gamecontroller__d-pad-btn--left"
-                                            ]
-                                        ]
-                                    ]
-                                })
-                            }, this.refs.dpad.container.appendChild(this.refs.dpad.up), this.refs.dpad.container.appendChild(this.refs.dpad.left), this.refs.dpad.container.appendChild(this.refs.dpad.right), this.refs.dpad.container.appendChild(this.refs.dpad.down), this.refs.mainControls.appendChild(this.refs.dpad.container);
-                        }
-                    },
-                    {
-                        key: "createActions",
-                        value: function createActions() {
-                            var _this2 = this;
-                            this.refs.actions.buttons = new Array(this.actions).fill().map(function(t, e) {
-                                return g({
-                                    type: "button",
-                                    attributes: [
-                                        [
-                                            "classes",
-                                            [
-                                                "gamecontroller__action-btn",
-                                                "gamecontroller__action-btn--".concat(e + 1)
-                                            ]
-                                        ]
-                                    ],
-                                    text: 2 === _this2.actions ? v[e + 1] : b[e + 1]
-                                });
-                            }), this.refs.actions.buttons.forEach(function(t) {
-                                _this2.refs.actions.actionsContainer.appendChild(t);
-                            });
-                        }
-                    },
-                    {
-                        key: "createActionsContainer",
-                        value: function createActionsContainer() {
-                            this.refs.actions = {
-                            }, this.refs.actions.actionsContainer = g({
-                                type: "div",
-                                attributes: [
-                                    [
-                                        "classes",
-                                        [
-                                            "gamecontroller__actions",
-                                            "" + (2 === this.actions ? "gamecontroller__actions--two" : "gamecontroller__actions--four")
-                                        ]
-                                    ]
-                                ]
-                            });
-                        }
-                    },
-                    {
-                        key: "createAllElements",
-                        value: function createAllElements() {
-                            this.createContainer(), this.createStage(), this.createAncillaries(), this.createMainControlsContainer(), this.createDPad(), this.createActionsContainer(), this.createActions();
-                        }
-                    },
-                    {
-                        key: "insertAllElements",
-                        value: function insertAllElements() {
-                            this.refs.container.appendChild(this.refs.stage), this.refs.ancillaries.container.appendChild(this.refs.ancillaries.fullscreen), this.refs.ancillaries.container.appendChild(this.refs.ancillaries.select), this.refs.ancillaries.container.appendChild(this.refs.ancillaries.start), this.refs.container.appendChild(this.refs.ancillaries.container), this.refs.container.appendChild(this.refs.mainControls), this.refs.mainControls.appendChild(this.refs.actions.actionsContainer);
-                        }
-                    },
-                    {
-                        key: "render",
-                        value: function render() {
-                            this.createAllElements(), this.insertAllElements(), this.root.appendChild(this.refs.container), this.attachEventHandlers();
+                                    }
+                                ],
+                                ref: "container"
+                            }));
                         }
                     }
                 ]);
