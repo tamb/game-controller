@@ -4,19 +4,27 @@
   "description": "",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "parcel watch",
-    "build": "parcel build src/index.html",
-    "start": "parcel src/index.html",
-    "quad": "parcel src/four-button.html",
-    "react": "parcel src/react/index.html"
+    "build": "webpack",
+    "start": "webpack && parcel demo/demo.html"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@babel/preset-env": "^7.15.8",
-    "@parcel/transformer-sass": "^2.0.0",
-    "parcel": "^2.0.0"
+    "css-loader": "^6.4.0",
+    "html-webpack-plugin": "^5.4.0",
+    "node-sass": "^6.0.1",
+    "parcel": "^2.0.0",
+    "postcss": "^8.3.9",
+    "postcss-loader": "^6.2.0",
+    "postcss-preset-env": "^6.7.0",
+    "sass-loader": "^12.2.0",
+    "style-loader": "^3.3.0",
+    "terser-webpack-plugin": "^5.2.4",
+    "webpack": "^5.59.0",
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.3.1"
   },
   "browserslist": "> 0.5%, last 2 versions, not dead"
 }

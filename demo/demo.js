@@ -1,4 +1,4 @@
-import GameController from "./index";
+import GameController from "./../dist/main.js"
 
 var actions = 2;
 function createController() {
