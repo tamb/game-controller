@@ -1,52 +1,4 @@
-function addVibrations() {
-  const buttons = document.querySelectorAll(
-    ".gamecontroller__container button"
-  );
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => {
-      navigator.vibrate(10);
-    });
-  });
-}
-
-function toggleFullscreen() {
-  var fullscreen = false;
-
-  var elem = document.documentElement;
-
-  document.getElementById("fullscreen").addEventListener("click", function () {
-    fullscreen = !fullscreen;
-    fullscreen ? openFullscreen() : closeFullscreen();
-  });
-
-  /* View in fullscreen */
-  function openFullscreen() {
-    if (elem.requestFullscreen) {
-      elem.requestFullscreen();
-    } else if (elem.webkitRequestFullscreen) {
-      /* Safari */
-      elem.webkitRequestFullscreen();
-    } else if (elem.msRequestFullscreen) {
-      /* IE11 */
-      elem.msRequestFullscreen();
-    }
-  }
-
-  /* Close fullscreen */
-  function closeFullscreen() {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      /* Safari */
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      /* IE11 */
-      document.msExitFullscreen();
-    }
-  }
-}
-
-//Todo - create elementCreator
+import "./index.scss";
 
 function createElement(obj) {
   const el = document.createElement(obj.type);
@@ -86,43 +38,53 @@ const _2_TEXT = {
   2: "B",
 };
 
-// TODO: refactor to use
-// DocumentFragments, eventListeners for hooks, custom events, render Attributes, custom button text
-class GameController {
+export default class GameController {
   constructor(query, config) {
     this.root = document.querySelector(query);
     this.actions = config?.actions || 2;
     this.refs = {};
     this.hooks = config.hooks || {};
+    this.vibrate = config.vibrate || true;
+    this.fullscreen = false;
+    this.document = document.documentElement;
   }
 
   attachEventHandlers = () => {
     this.refs.ancillaries.fullscreen.addEventListener("click", function () {
       this.hooks.fullscreen ? this.hooks.fullscreen(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
+      this.fullscreen = !this.fullscreen;
+      this.fullscreen ? this.openFullscreen() : this.closeFullscreen();
       emitEvent.call(this, "gamecontroller:ancillary:fullscreen");
     });
     this.refs.ancillaries.select.addEventListener("click", function () {
       this.hooks.select ? this.hooks.select(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:ancillary:select");
     });
     this.refs.ancillaries.start.addEventListener("click", function () {
       this.hooks.start ? this.hooks.start(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:ancillary:start");
     });
     this.refs.dpad.up.addEventListener("click", function () {
       this.hooks.up ? this.hooks.up(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:up");
     });
     this.refs.dpad.right.addEventListener("click", function () {
       this.hooks.right ? this.hooks.right(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:right");
     });
     this.refs.dpad.down.addEventListener("click", function () {
       this.hooks.down ? this.hooks.down(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:down");
     });
     this.refs.dpad.left.addEventListener("click", function () {
       this.hooks.left ? this.hooks.left(this) : null;
+      this.vibrate ? navigator.vibrate(10) : null;
       emitEvent.call(this, "gamecontroller:dpad:left");
     });
 
@@ -130,6 +92,7 @@ class GameController {
       btn.addEventListener("click", () => {
         const name = this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1];
         this.hooks[name] ? this.hooks[name](this) : null;
+        this.vibrate ? navigator.vibrate(10) : null;
         emitEvent.call(
           this,
           `gamecontroller:action:${
@@ -138,6 +101,30 @@ class GameController {
         );
       });
     });
+  };
+
+  closeFullscreen = () => {
+    if (document.exitFullscreen) {
+      document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) {
+      /* Safari */
+      document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) {
+      /* IE11 */
+      document.msExitFullscreen();
+    }
+  };
+
+  openFullscreen = () => {
+    if (this.document.requestFullscreen) {
+      this.document.requestFullscreen();
+    } else if (this.document.webkitRequestFullscreen) {
+      /* Safari */
+      this.document.webkitRequestFullscreen();
+    } else if (this.document.msRequestFullscreen) {
+      /* IE11 */
+      this.document.msRequestFullscreen();
+    }
   };
 
   createContainer() {
@@ -318,37 +305,3 @@ class GameController {
     this.attachEventHandlers();
   }
 }
-
-var actions = 2;
-function createController() {
-  const controller = new GameController("#app", {
-    actions,
-    hooks: {
-      X: function (self) {
-        console.log("X hook", self);
-      },
-    },
-  });
-  const app = document.getElementById("app");
-  app.innerHTML = "";
-  controller.render();
-  addVibrations();
-  document
-    .getElementById("fullscreen")
-    .addEventListener("click", toggleFullscreen);
-  document
-    .querySelector(".gamecontroller__stage")
-    .addEventListener("click", function () {
-      console.log("click");
-      if (actions === 2) {
-        actions = 4;
-      } else {
-        actions = 2;
-      }
-      createController();
-    });
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  createController();
-});
