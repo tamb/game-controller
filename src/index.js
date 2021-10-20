@@ -10,6 +10,11 @@ function createElement(obj) {
     }
   });
   el.textContent = obj.text;
+  if (obj.children) {
+    obj.children.forEach((child) => {
+      el.appendChild(createElement(child));
+    });
+  }
 
   return el;
 }
