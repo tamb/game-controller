@@ -1,8 +1,16 @@
 import "./index.scss";
 
-function createElement(obj) {
+interface IEl {
+  type: string;
+  attributes: string[][];
+  ref: string;
+  text: string;
+  children: IEl[];
+}
+
+function createElement(obj: IEl): HTMLElement {
   const el = document.createElement(obj.type);
-  obj.attributes?.forEach((attrTuple) => {
+  obj.attributes?.forEach((attrTuple: any) => {
     if (attrTuple[0] === "classes") {
       el.classList.add(...attrTuple[1]);
     } else {
@@ -22,7 +30,7 @@ function createElement(obj) {
   return el;
 }
 
-function emitEvent(name, data) {
+function emitEvent(name: string, data: object) {
   window.dispatchEvent(
     new CustomEvent(name, {
       detail: {
@@ -47,7 +55,15 @@ const _2_TEXT = {
 };
 
 export default class GameController {
-  constructor(query, config) {
+  root: HTMLElement;
+  actions: number;
+  refs: any;
+  hooks: any;
+  vibrate: boolean;
+  fullscreen: boolean;
+  document: HTMLElement;
+
+  constructor(query: string, config: any) {
     this.root = document.querySelector(query);
     this.actions = config?.actions || 2;
     this.refs = {};
@@ -113,27 +129,11 @@ export default class GameController {
   };
 
   closeFullscreen = () => {
-    if (document.exitFullscreen) {
-      document.exitFullscreen();
-    } else if (document.webkitExitFullscreen) {
-      /* Safari */
-      document.webkitExitFullscreen();
-    } else if (document.msExitFullscreen) {
-      /* IE11 */
-      document.msExitFullscreen();
-    }
+    document.exitFullscreen();
   };
 
   openFullscreen = () => {
-    if (this.document.requestFullscreen) {
-      this.document.requestFullscreen();
-    } else if (this.document.webkitRequestFullscreen) {
-      /* Safari */
-      this.document.webkitRequestFullscreen();
-    } else if (this.document.msRequestFullscreen) {
-      /* IE11 */
-      this.document.msRequestFullscreen();
-    }
+    this.document.requestFullscreen();
   };
 
   render() {
@@ -258,7 +258,7 @@ export default class GameController {
                     ],
                   ],
                 ],
-                children: new Array(this.actions).fill().map((x, i) => {
+                children: new Array(this.actions).fill("").map((x, i) => {
                   return {
                     type: "button",
                     attributes: [

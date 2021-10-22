@@ -1,3 +1,5 @@
+@use "sass:math";
+
 $action-size: 50;
 $up-down-size: 66;
 
@@ -47,7 +49,7 @@ $up-down-size: 66;
       }
       &--right {
         width: 38%;
-        height: #{($up-down-size/2)}px;
+        height: #{math.div($up-down-size, 2)}px;
       }
       &--down {
         height: #{$up-down-size}px;
@@ -57,7 +59,7 @@ $up-down-size: 66;
       }
       &--left {
         width: 38%;
-        height: #{($up-down-size/2)}px;
+        height: #{math.div($up-down-size, 2)}px;
       }
     }
   }
@@ -100,7 +102,7 @@ $up-down-size: 66;
 
     .gamecontroller__action-btn {
       &--1 {
-        margin-left: calc(50% - #{($action-size / 4)}px);
+        margin-left: calc(50% - #{math.div($action-size, 4)}px);
       }
 
       &--3 {
@@ -108,7 +110,7 @@ $up-down-size: 66;
         margin-top: -#{$action-size}px;
       }
       &--4 {
-        margin-left: calc(50% - #{($action-size / 4)}px);
+        margin-left: calc(50% - #{math.div($action-size, 4)}px);
         margin-bottom: 30%;
       }
     }
@@ -187,7 +189,7 @@ $up-down-size: 66;
     &__actions--four {
       .gamecontroller__action-btn {
         &--1 {
-          margin-left: calc(50% - #{($action-size / 8)}px);
+          margin-left: calc(50% - #{math.div($action-size, 8)}px);
         }
 
         &--2 {
@@ -197,7 +199,7 @@ $up-down-size: 66;
           margin-left: auto;
         }
         &--4 {
-          margin-left: calc(50% - #{$action-size/8}px);
+          margin-left: calc(50% - #{math.div($action-size, 8)}px);
         }
       }
     }

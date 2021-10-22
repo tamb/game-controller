@@ -1,4 +1,4 @@
-import GameController from "../dist/main.js"
+import GameController from "./index";
 
 var actions = 2;
 function createController() {
@@ -13,7 +13,6 @@ function createController() {
   const app = document.getElementById("app");
   app.innerHTML = "";
   controller.render();
-  window.gamecontroller = controller;
   document
     .querySelector(".gamecontroller__stage")
     .addEventListener("click", function () {
