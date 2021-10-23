@@ -5,7 +5,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
-    "start": "webpack serve --env demo=true"
+    "start": "webpack serve --env demo=true",
+    "beta:publish":"npm run build && npm publish --tag beta",
+    "alpha:publish":"npm run build && npm publish --tag alpha",
+    "safe:publish":"npm run build && npm publish"
   },
   "keywords": [],
   "author": {
