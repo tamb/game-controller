@@ -1,34 +1,5 @@
+import { createElement } from "@tamb/utils";
 import "./index.scss";
-
-interface IEl {
-  type: string;
-  attributes: string[][];
-  ref: string;
-  text: string;
-  children: IEl[];
-}
-
-function createElement(obj: IEl): HTMLElement {
-  const el = document.createElement(obj.type);
-  obj.attributes?.forEach((attrTuple: any) => {
-    if (attrTuple[0] === "classes") {
-      el.classList.add(...attrTuple[1]);
-    } else {
-      el.setAttribute(attrTuple[0], attrTuple[1]);
-    }
-  });
-  el.textContent = obj.text;
-  if (obj.ref) {
-    this.refs[obj.ref] = el;
-  }
-  if (obj.children) {
-    obj.children.forEach((child) => {
-      el.appendChild(createElement.call(this, child));
-    });
-  }
-
-  return el;
-}
 
 function emitEvent(name: string, data: object) {
   window.dispatchEvent(
@@ -112,20 +83,20 @@ export default class GameController {
       emitEvent.call(this, "gamecontroller:dpad:left");
     });
 
-    // FIXME: should dynamically search ref object for action buttons
-    // this.refs.actions.buttons.forEach((btn, i) => {
-    //   btn.addEventListener("click", () => {
-    //     const name = this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1];
-    //     this.hooks[name] ? this.hooks[name](this) : null;
-    //     this.vibrate ? navigator.vibrate(10) : null;
-    //     emitEvent.call(
-    //       this,
-    //       `gamecontroller:action:${
-    //         this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
-    //       }`
-    //     );
-    //   });
-    // });
+    const btns = this.actions === 2 ? _2_TEXT : _4_TEXT;
+    Object.keys(btns).forEach((key, i) => {
+      this.refs[`${btns[key]}Btn`].addEventListener("click", () => {
+        const name = this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1];
+        this.hooks[name] ? this.hooks[name](this) : null;
+        this.vibrate ? navigator.vibrate(10) : null;
+        emitEvent.call(
+          this,
+          `gamecontroller:action:${
+            this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
+          }`
+        );
+      });
+    });
   };
 
   closeFullscreen = () => {
@@ -138,7 +109,7 @@ export default class GameController {
 
   render() {
     this.root.appendChild(
-      createElement.call(this, {
+      createElement.call(this.refs, {
         type: "div",
         attributes: [["classes", ["gamecontroller__container"]]],
         children: [
@@ -273,7 +244,7 @@ export default class GameController {
                     text: this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1],
                     ref: `${
                       this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
-                    }btn`,
+                    }Btn`,
                   };
                 }),
               },
@@ -283,5 +254,7 @@ export default class GameController {
         ref: "container",
       })
     );
+
+    this.attachEventHandlers();
   }
 }

@@ -8,8 +8,12 @@ function createController() {
       X: function (self) {
         console.log("X hook", self);
       },
+      A: function (self) {
+        console.log("A HOOK ", self);
+      },
     },
   });
+  console.log(controller);
   const app = document.getElementById("app");
   app.innerHTML = "";
   controller.render();
