@@ -1,7 +1,7 @@
 {
   "name": "@tamb/gamecontroller",
   "version": "1.0.0-alpha.1",
-  "description": "",
+  "description": "A simple HTML skin for a Gameboy-style virtual controller",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
@@ -16,10 +16,14 @@
     "email": "t.saporito@gmail.com",
     "url": "https://tamb.github.io"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tamb/game-controller.git"
+  },
   "main": "dist/main.js",
   "module": "dist/main.js",
   "types": "dist/index.d.ts",
-  "license": "ISC",
+  "license": "MIT",
   "devDependencies": {
     "@babel/preset-env": "^7.15.8",
     "css-loader": "^6.4.0",
