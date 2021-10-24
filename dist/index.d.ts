@@ -7,6 +7,7 @@ export default class GameController {
     fullscreen: boolean;
     document: HTMLElement;
     constructor(query: string, config: any);
+    handleClick: (eventName: any, refName: any) => void;
     attachEventHandlers: () => void;
     closeFullscreen: () => void;
     openFullscreen: () => void;

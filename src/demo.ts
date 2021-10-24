@@ -5,10 +5,10 @@ function createController() {
   const controller = new GameController("#app", {
     actions,
     hooks: {
-      X: function (self) {
+      x: function (self) {
         console.log("X hook", self);
       },
-      A: function (self) {
+      a: function (self) {
         console.log("A HOOK ", self);
       },
     },

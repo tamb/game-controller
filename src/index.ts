@@ -14,15 +14,15 @@ function emitEvent(name: string, data: object) {
 }
 
 const _4_TEXT = {
-  1: "Y",
-  2: "X",
-  3: "B",
-  4: "A",
+  1: "y",
+  2: "x",
+  3: "b",
+  4: "a",
 };
 
 const _2_TEXT = {
-  1: "A",
-  2: "B",
+  1: "a",
+  2: "b",
 };
 
 export default class GameController {
@@ -44,48 +44,40 @@ export default class GameController {
     this.document = document.documentElement;
   }
 
+  handleClick = (eventName, refName) => {
+    this.vibrate ? navigator.vibrate(10) : null;
+    this.hooks[refName] ? this.hooks[refName](this) : null;
+    emitEvent.call(this, eventName);
+  };
+
   attachEventHandlers = () => {
-    this.refs.fullscreenBtn.addEventListener("click", () => {
-      this.hooks.fullscreen ? this.hooks.fullscreen(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
+    this.refs.fullscreen.addEventListener("click", () => {
+      this.handleClick("gamecontroller:ancillary:fullscreen", "fullscreen");
       this.fullscreen = !this.fullscreen;
       this.fullscreen ? this.openFullscreen() : this.closeFullscreen();
-      emitEvent.call(this, "gamecontroller:ancillary:fullscreen");
     });
-    this.refs.selectBtn.addEventListener("click", () => {
-      this.hooks.select ? this.hooks.select(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
-      emitEvent.call(this, "gamecontroller:ancillary:select");
+    this.refs.select.addEventListener("click", () => {
+      this.handleClick("gamecontroller:ancillary:select", "select");
     });
-    this.refs.startBtn.addEventListener("click", () => {
-      this.hooks.start ? this.hooks.start(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
-      emitEvent.call(this, "gamecontroller:ancillary:start");
+    this.refs.start.addEventListener("click", () => {
+      this.handleClick("gamecontroller:ancillary:start", "start");
     });
-    this.refs.upBtn.addEventListener("click", () => {
-      this.hooks.up ? this.hooks.up(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
-      emitEvent.call(this, "gamecontroller:dpad:up");
+    this.refs.up.addEventListener("click", () => {
+      this.handleClick("gamecontroller:dpad:up", "up");
     });
-    this.refs.rightBtn.addEventListener("click", () => {
-      this.hooks.right ? this.hooks.right(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
-      emitEvent.call(this, "gamecontroller:dpad:right");
+    this.refs.right.addEventListener("click", () => {
+      this.handleClick("gamecontroller:dpad:right", "right");
     });
-    this.refs.downBtn.addEventListener("click", () => {
-      this.hooks.down ? this.hooks.down(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
-      emitEvent.call(this, "gamecontroller:dpad:down");
+    this.refs.down.addEventListener("click", () => {
+      this.handleClick("gamecontroller:dpad:down", "down");
     });
-    this.refs.leftBtn.addEventListener("click", () => {
-      this.hooks.left ? this.hooks.left(this) : null;
-      this.vibrate ? navigator.vibrate(10) : null;
-      emitEvent.call(this, "gamecontroller:dpad:left");
+    this.refs.left.addEventListener("click", () => {
+      this.handleClick("gamecontroller:dpad:left", "left");
     });
 
     const btns = this.actions === 2 ? _2_TEXT : _4_TEXT;
     Object.keys(btns).forEach((key, i) => {
-      this.refs[`${btns[key]}Btn`].addEventListener("click", () => {
+      this.refs[`${btns[key]}`].addEventListener("click", () => {
         const name = this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1];
         this.hooks[name] ? this.hooks[name](this) : null;
         this.vibrate ? navigator.vibrate(10) : null;
@@ -130,7 +122,7 @@ export default class GameController {
                   ["id", "fullscreen"],
                 ],
                 text: "fullscreen",
-                ref: "fullscreenBtn",
+                ref: "fullscreen",
               },
               {
                 type: "button",
@@ -139,7 +131,7 @@ export default class GameController {
                   ["type", "button"],
                 ],
                 text: "select",
-                ref: "selectBtn",
+                ref: "select",
               },
               {
                 type: "button",
@@ -148,7 +140,7 @@ export default class GameController {
                   ["type", "button"],
                 ],
                 text: "start",
-                ref: "startBtn",
+                ref: "start",
               },
             ],
           },
@@ -171,7 +163,7 @@ export default class GameController {
                         ],
                       ],
                     ],
-                    ref: "upBtn",
+                    ref: "up",
                   },
                   {
                     type: "button",
@@ -184,7 +176,7 @@ export default class GameController {
                         ],
                       ],
                     ],
-                    ref: "leftBtn",
+                    ref: "left",
                   },
                   {
                     type: "button",
@@ -197,7 +189,7 @@ export default class GameController {
                         ],
                       ],
                     ],
-                    ref: "rightBtn",
+                    ref: "right",
                   },
                   {
                     type: "button",
@@ -210,7 +202,7 @@ export default class GameController {
                         ],
                       ],
                     ],
-                    ref: "downBtn",
+                    ref: "down",
                   },
                 ],
               },
@@ -241,10 +233,13 @@ export default class GameController {
                         ],
                       ],
                     ],
-                    text: this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1],
+                    text: (this.actions === 2
+                      ? _2_TEXT[i + 1]
+                      : _4_TEXT[i + 1]
+                    ).toUpperCase(),
                     ref: `${
                       this.actions === 2 ? _2_TEXT[i + 1] : _4_TEXT[i + 1]
-                    }Btn`,
+                    }`,
                   };
                 }),
               },
