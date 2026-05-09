@@ -71,7 +71,8 @@ const meta = {
     },
     vibrate: {
       control: "boolean",
-      description: "Use `navigator.vibrate` on taps when supported",
+      description:
+        'Haptics: call `navigator.vibrate` on taps and joystick grab when supported (mobile). Off: `vibrate="false"` or `.vibrate = false`.',
     },
     leftControl: {
       control: "select",

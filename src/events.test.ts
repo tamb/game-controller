@@ -36,6 +36,7 @@ describe("Storybook event name lists", () => {
 
   it("joystick list dedupes and covers helpers + clock hours + cardinals", () => {
     expect(new Set(SB_GC_JOYSTICK_EVENTS).size).toBe(SB_GC_JOYSTICK_EVENTS.length);
+    expect(SB_GC_JOYSTICK_EVENTS).toContain(EVENTS.gcJoystick.pointerDown);
     expect(SB_GC_JOYSTICK_EVENTS).toContain(EVENTS.gcJoystick.move);
     expect(SB_GC_JOYSTICK_EVENTS).toContain(EVENTS.gcJoystick.sector);
     expect(SB_GC_JOYSTICK_EVENTS).toContain(EVENTS.gcJoystick.clock);

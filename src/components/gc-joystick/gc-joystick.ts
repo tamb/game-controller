@@ -241,6 +241,7 @@ export class GcJoystickElement extends LitElement {
     e.preventDefault();
     this.dragging = true;
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    this.emit(EVENTS.gcJoystick.pointerDown, { controller: this });
     this.updateStick(e.clientX, e.clientY);
   };
 

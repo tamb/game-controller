@@ -86,6 +86,32 @@ describe("GcJoystickElement", () => {
     expect(customElements.get("gc-joystick")).toBeDefined();
   });
 
+  it("emits gcjoystick:pointerdown when grabbing the knob", async () => {
+    const el = await mountJoystick();
+    stubJoystickRingRect(el);
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gcJoystick.pointerDown, spy);
+    const knob = el.shadowRoot?.querySelector(".gcjoystick__knob") as HTMLButtonElement;
+    const ring = el.shadowRoot?.querySelector(".gcjoystick__ring") as HTMLElement;
+    const r = ring.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    knob.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        clientX: cx,
+        clientY: cy,
+        pointerId: 1,
+      }),
+    );
+    expect(spy).toHaveBeenCalledTimes(1);
+    const evt = spy.mock.calls[0][0] as CustomEvent<{ controller: GcJoystickElement }>;
+    expect(evt.detail.controller).toBe(el);
+    expect(evt.composed).toBe(true);
+    expect(evt.bubbles).toBe(true);
+  });
+
   it("emits gcjoystick:move with magnitude and angles after drag", async () => {
     const el = await mountJoystick({ deadZone: 0.05 });
     const spy = vi.fn();

@@ -30,6 +30,7 @@ export const EVENTS = {
     left: "gcdpad:left",
   },
   gcJoystick: {
+    pointerDown: "gcjoystick:pointerdown",
     move: "gcjoystick:move",
     sector: "gcjoystick:sector",
     clock: "gcjoystick:clock",
@@ -78,6 +79,7 @@ export const SB_GC_FACE_EVENTS: readonly string[] = Object.values(EVENTS.gcFace)
 export const SB_GC_ANCILLARY_EVENTS: readonly string[] = Object.values(EVENTS.gcAncillary);
 
 export const SB_GC_JOYSTICK_EVENTS: readonly string[] = [
+  EVENTS.gcJoystick.pointerDown,
   EVENTS.gcJoystick.move,
   EVENTS.gcJoystick.sector,
   EVENTS.gcJoystick.clock,

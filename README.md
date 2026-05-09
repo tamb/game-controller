@@ -94,7 +94,7 @@ Direction clicks emit **`gcdpad:up`**, **`gcdpad:down`**, **`gcdpad:left`**, **`
 
 Pointer-drag joystick; knob snaps back on release.
 
-**Always:** **`gcjoystick:move`** — `detail` includes `controller`, normalized **`x`** / **`y`**, **`magnitude`** (0…1), **`angleDeg`** / **`angleRad`** (clockwise from **up**: 0° = up, 90° = right, …; `null` in dead zone), derived **`sectorId`**, **`cardinal`** (`up` \| `right` \| `down` \| `left` \| `none`), **`clockHour`** (1–12 with 12 at top), **`clockLabel`** (e.g. `6-oclock`).
+**Always:** **`gcjoystick:pointerdown`** once when the user grabs the knob (detail: **`controller`**). **`gcjoystick:move`** — `detail` includes `controller`, normalized **`x`** / **`y`**, **`magnitude`** (0…1), **`angleDeg`** / **`angleRad`** (clockwise from **up**: 0° = up, 90° = right, …; `null` in dead zone), derived **`sectorId`**, **`cardinal`** (`up` \| `right` \| `down` \| `left` \| `none`), **`clockHour`** (1–12 with 12 at top), **`clockLabel`** (e.g. `6-oclock`).
 
 **Optional edge events** (all default off):
 
@@ -109,7 +109,7 @@ Also: **`dead-zone`** (default `0.12`), **`sectors-json`** (`[{ id, startDeg, en
 ### API (`GameControllerElement`)
 
 - **`actions`**: `2` | `4` — number of face buttons (attribute `actions`, reflected).
-- **`vibrate`**: whether to call `navigator.vibrate` on taps (default `true`).
+- **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, and joystick grab where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`).
 - **`leftControl`**: `"dpad"` (default) or `"joystick"` — attribute **`left-control`** swaps `<gc-dpad>` for `<gc-joystick>` (listen for **`gcjoystick:*`**; no automatic **`gamecontroller:dpad:*`** mapping).
 - **`hooks`**: optional `Record<string, (controller) => void>` keyed by control name (`select`, `start`, `a`, …); not an HTML attribute.
 

@@ -220,4 +220,59 @@ describe("GameControllerElement", () => {
 
     expect(vibrate).not.toHaveBeenCalled();
   });
+
+  it("parses vibrate=false attribute as haptics off", async () => {
+    const el = document.createElement("game-controller") as GameControllerElement;
+    el.setAttribute("vibrate", "false");
+    document.body.appendChild(el);
+    await el.updateComplete;
+    expect(el.vibrate).toBe(false);
+  });
+
+  it("calls navigator.vibrate on joystick pointerdown when vibrate is true", async () => {
+    const vibrate = vi.fn(() => true as boolean);
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      writable: true,
+      value: vibrate,
+    });
+
+    const el = await mount();
+    el.leftControl = "joystick";
+    await el.updateComplete;
+
+    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement | undefined;
+    const knob = joystick?.shadowRoot?.querySelector(".gcjoystick__knob") as
+      | HTMLButtonElement
+      | undefined;
+    if (!knob) throw new Error("joystick knob not found");
+
+    knob.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+
+    expect(vibrate).toHaveBeenCalledWith(10);
+  });
+
+  it("skips joystick haptics when vibrate is false", async () => {
+    const vibrate = vi.fn(() => true as boolean);
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      writable: true,
+      value: vibrate,
+    });
+
+    const el = await mount();
+    el.leftControl = "joystick";
+    el.vibrate = false;
+    await el.updateComplete;
+
+    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement | undefined;
+    const knob = joystick?.shadowRoot?.querySelector(".gcjoystick__knob") as
+      | HTMLButtonElement
+      | undefined;
+    if (!knob) throw new Error("joystick knob not found");
+
+    knob.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+
+    expect(vibrate).not.toHaveBeenCalled();
+  });
 });

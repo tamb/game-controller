@@ -7,6 +7,19 @@ import "../gc-face-buttons/gc-face-buttons";
 import "../gc-joystick/gc-joystick";
 import styleText from "./game-controller.css?raw";
 
+/** Parses `vibrate` / haptics toggle from HTML (`vibrate="false"` disables). Default when omitted: on. */
+const vibrateAttributeConverter = {
+  fromAttribute(value: string | null): boolean {
+    if (value === null) return true;
+    const s = value.trim().toLowerCase();
+    if (s === "false" || s === "0" || s === "off") return false;
+    return true;
+  },
+  toAttribute(value: boolean): string | null {
+    return value ? null : "false";
+  },
+};
+
 export type GameControllerHooks = Record<string, (controller: GameControllerElement) => void>;
 
 export type GameControllerLeftControl = "dpad" | "joystick";
@@ -18,7 +31,12 @@ export class GameControllerElement extends LitElement {
 
   static properties = {
     actions: { type: Number },
-    vibrate: { type: Boolean },
+    vibrate: {
+      type: Boolean,
+      attribute: "vibrate",
+      reflect: true,
+      converter: vibrateAttributeConverter,
+    },
     hooks: { type: Object, attribute: false },
     /** Left-hand control: directional pad or analog stick (`left-control` attribute). */
     leftControl: { type: String, attribute: "left-control" },
@@ -27,6 +45,10 @@ export class GameControllerElement extends LitElement {
   /** Number of face buttons: `2` or `4`. */
   actions = 2;
 
+  /**
+   * When true, uses the Vibration API (`navigator.vibrate`) for light haptics on taps and joystick grab
+   * where supported (typically mobile). Toggle off with `vibrate="false"` or `el.vibrate = false`.
+   */
   vibrate = true;
 
   /** `"dpad"` (default) or `"joystick"`. Unknown values fall back to d-pad. */
@@ -62,10 +84,13 @@ export class GameControllerElement extends LitElement {
     );
   }
 
+  private pulseHaptics(durationMs = 10) {
+    if (!this.vibrate) return;
+    navigator.vibrate?.(durationMs);
+  }
+
   private handleAncillary(refName: string, eventName: string) {
-    if (this.vibrate) {
-      navigator.vibrate?.(10);
-    }
+    this.pulseHaptics();
     this.hooks[refName]?.(this);
     this.emit(eventName);
   }
@@ -97,12 +122,14 @@ export class GameControllerElement extends LitElement {
   }
 
   private handleAction(buttonKey: GameControllerActionKey) {
-    if (this.vibrate) {
-      navigator.vibrate?.(10);
-    }
+    this.pulseHaptics();
     this.hooks[buttonKey]?.(this);
     this.emit(EVENTS.gameController.action[buttonKey]);
   }
+
+  private readonly onJoystickPointerDown = () => {
+    this.pulseHaptics();
+  };
 
   private get leftStickMode(): GameControllerLeftControl {
     return this.leftControl === "joystick" ? "joystick" : "dpad";
@@ -120,7 +147,7 @@ export class GameControllerElement extends LitElement {
   }
 
   private joystickTemplate() {
-    return html`<gc-joystick></gc-joystick>`;
+    return html`<gc-joystick @gcjoystick:pointerdown=${this.onJoystickPointerDown}></gc-joystick>`;
   }
 
   render() {
