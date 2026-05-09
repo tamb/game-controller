@@ -1,0 +1,329 @@
+/**
+ * All tokens use the `--gc-` prefix (game controller). Defaults are neutral monochrome
+ * (black strokes/text, white or transparent fills). Set overrides on `<game-controller>`:
+ *
+ *   game-controller {
+ *     --gc-shell-bg: #111;
+ *     --gc-action-btn-bg: #333;
+ *   }
+ *
+ * Layout fills the dynamic viewport (`100dvh` / `100dvw`) with safe-area insets. Portrait
+ * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then
+ * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex `order` +
+ * `display: contents` on `.gamecontroller__main-controls` so stick | center | actions read left
+ * to right. Fullscreen uses `requestFullscreen()` on `<game-controller>`.
+ */
+:host {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  /**
+   * Default fills the dynamic viewport. For embedded previews, set on an ancestor:
+   * `--gc-host-min-height: 100%` and `--gc-host-height: 100%`.
+   */
+  min-height: var(--gc-host-min-height, 100vh);
+  /* biome-ignore lint/suspicious/noDuplicateProperties: progressive enhancement */
+  min-height: var(--gc-host-min-height, 100dvh);
+  height: var(--gc-host-height, auto);
+
+  /* Typography */
+  --gc-font-family: system-ui, sans-serif;
+  --gc-color-text: #000000;
+  --gc-action-font-size: 0.75rem;
+  --gc-ancillary-font-size: 0.8rem;
+
+  /* Shell (outer device / viewport chrome) */
+  --gc-shell-bg: #ffffff;
+  --gc-shell-border-width: 0;
+  --gc-shell-border-style: solid;
+  --gc-shell-border-color: transparent;
+  --gc-shell-border: var(--gc-shell-border-width) var(--gc-shell-border-style)
+    var(--gc-shell-border-color);
+
+  /* Stage (“screen”) */
+  --gc-stage-bg: transparent;
+  --gc-stage-border-width: 1px;
+  --gc-stage-border-style: solid;
+  --gc-stage-border-color: #000000;
+  --gc-stage-border: var(--gc-stage-border-width) var(--gc-stage-border-style)
+    var(--gc-stage-border-color);
+
+  /* Control bands (behind d-pad / face buttons) */
+  --gc-main-controls-bg: transparent;
+
+  /* Face buttons (default + optional --gc-action-btn-{1-4}-* ) */
+  --gc-action-size: 50px;
+  --gc-action-btn-bg: #ffffff;
+  --gc-action-btn-color: #000000;
+  --gc-action-btn-border-width: 1px;
+  --gc-action-btn-border-style: solid;
+  --gc-action-btn-border-color: #000000;
+  --gc-action-btn-border: var(--gc-action-btn-border-width) var(--gc-action-btn-border-style)
+    var(--gc-action-btn-border-color);
+  --gc-action-btn-border-radius: 50%;
+
+  /* Ancillary row (fullscreen / select / start) */
+  --gc-ancillary-btn-bg: transparent;
+  --gc-ancillary-btn-color: #000000;
+  --gc-ancillary-btn-border-width: 1px;
+  --gc-ancillary-btn-border-style: solid;
+  --gc-ancillary-btn-border-color: #000000;
+  --gc-ancillary-btn-border: var(--gc-ancillary-btn-border-width)
+    var(--gc-ancillary-btn-border-style) var(--gc-ancillary-btn-border-color);
+  --gc-ancillary-btn-border-radius: 6px;
+  --gc-ancillary-margin: 5%;
+  --gc-ancillary-padding: 1% 5%;
+
+  /* D-pad */
+  --gc-dpad-axis: 66px;
+  --gc-dpad-half: 33px;
+  --gc-dpad-btn-bg: transparent;
+  --gc-dpad-btn-color: transparent;
+  --gc-dpad-btn-border-width: 1px;
+  --gc-dpad-btn-border-style: solid;
+  --gc-dpad-btn-border-color: #000000;
+  --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)
+    var(--gc-dpad-btn-border-color);
+  --gc-dpad-btn-border-radius: 4px;
+  --gc-dpad-axis-landscape: 66px;
+  --gc-dpad-half-landscape: 33px;
+
+  /* Focus ring (keyboard) */
+  --gc-focus-ring-width: 2px;
+  --gc-focus-ring-style: solid;
+  --gc-focus-ring-color: #000000;
+  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);
+
+  color: var(--gc-color-text);
+  font-family: var(--gc-font-family);
+}
+
+/* iOS Safari legacy full-height when parent chain lacks height */
+@supports (-webkit-touch-callout: none) {
+  :host {
+    min-height: var(--gc-host-min-height, -webkit-fill-available);
+  }
+}
+
+:host(:fullscreen) {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
+}
+
+.gamecontroller__shell {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gamecontroller__container {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  align-items: stretch;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  background: var(--gc-shell-bg);
+  border: var(--gc-shell-border);
+}
+
+:host(:fullscreen) .gamecontroller__shell {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+:host(:fullscreen) .gamecontroller__container {
+  min-height: 0;
+}
+
+/**
+ * Screen stack: stage then ancillary row (portrait reading order; landscape this column sits
+ * between stick and actions via flex order).
+ */
+.gamecontroller__center {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gamecontroller__stage {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+  background: var(--gc-stage-bg);
+  border: var(--gc-stage-border);
+  min-height: min(40dvh, 50%);
+  width: 100%;
+  max-width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+.gamecontroller__stage ::slotted(*) {
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  align-self: stretch;
+}
+
+.gamecontroller__ancillaries {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.gamecontroller__main-controls {
+  flex: 0 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 2.5% 0;
+  margin-bottom: 0;
+  background: var(--gc-main-controls-bg);
+}
+
+.gamecontroller__d-pad-container {
+  flex: 0 0 auto;
+  width: 45%;
+  max-width: 50%;
+  margin-left: 0;
+  margin-top: 0;
+  align-self: flex-end;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.gamecontroller__d-pad-container gc-joystick {
+  display: block;
+  width: 100%;
+  max-width: 140px;
+  margin-bottom: 4px;
+}
+
+.gamecontroller__ancillaries gc-ancillary-buttons {
+  display: block;
+  width: 100%;
+}
+
+.gamecontroller__d-pad-container gc-dpad {
+  display: block;
+  width: 100%;
+}
+
+.gamecontroller__actions {
+  flex: 0 0 auto;
+  width: 45%;
+  max-width: 50%;
+  align-self: flex-end;
+  margin-right: 0;
+  min-width: 0;
+}
+
+.gamecontroller__actions gc-face-buttons {
+  display: block;
+  width: 100%;
+}
+
+@media (orientation: landscape) {
+  .gamecontroller__shell {
+    --gc-dpad-axis: var(--gc-dpad-axis-landscape);
+    --gc-dpad-half: var(--gc-dpad-half-landscape);
+    --gc-ancillary-margin: 0 1%;
+    --gc-ancillary-padding: 0.25% 5%;
+  }
+
+  .gamecontroller__container {
+    flex-direction: row;
+    align-items: stretch;
+    column-gap: clamp(0.25rem, 2vmin, 0.75rem);
+    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);
+  }
+
+  /**
+   * Hoist d-pad + actions to siblings of `.gamecontroller__center` so flex `order` can place:
+   * stick (1) | center column (2) | face buttons (3).
+   */
+  .gamecontroller__main-controls {
+    display: contents;
+  }
+
+  .gamecontroller__d-pad-container {
+    order: 1;
+    flex: 0 1 26%;
+    width: auto;
+    max-width: none;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.15rem, 1.2vmin, 0.45rem);
+  }
+
+  .gamecontroller__d-pad-container gc-joystick {
+    margin-bottom: 0;
+  }
+
+  .gamecontroller__center {
+    order: 2;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);
+  }
+
+  .gamecontroller__stage {
+    flex: 1 1 auto;
+    min-height: 0;
+    width: auto;
+    max-width: none;
+  }
+
+  .gamecontroller__ancillaries {
+    flex: 0 0 auto;
+    width: 100%;
+  }
+
+  .gamecontroller__actions {
+    order: 3;
+    flex: 0 1 26%;
+    width: auto;
+    max-width: none;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    padding: clamp(0.15rem, 1.2vmin, 0.45rem);
+  }
+}

@@ -1,11 +1,18 @@
 {
   "name": "@tamb/gamecontroller",
   "version": "1.0.0-alpha.2",
+  "type": "module",
   "description": "A simple HTML skin for a Gameboy-style virtual controller",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
-    "start": "webpack serve --env demo=true",
+    "dev": "concurrently \"vite dev\" \"storybook dev -p 6006\"",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "build": "vite build --config vite.lib.config.ts",
+    "start": "npm run storybook",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build -o storybook-static",
     "beta:publish": "npm run build && npm publish --tag beta --access=public",
     "alpha:publish": "npm run build && npm publish --tag alpha --access=public",
     "safe:publish": "npm run build && npm publish --access=public"
@@ -20,29 +27,34 @@
     "type": "git",
     "url": "https://github.com/tamb/game-controller.git"
   },
-  "main": "dist/main.js",
-  "module": "dist/main.js",
-  "types": "dist/index.d.ts",
-  "license": "MIT",
-  "devDependencies": {
-    "@babel/preset-env": "^7.15.8",
-    "css-loader": "^6.4.0",
-    "html-webpack-plugin": "^5.4.0",
-    "node-sass": "^6.0.1",
-    "postcss": "^8.3.9",
-    "postcss-loader": "^6.2.0",
-    "postcss-preset-env": "^6.7.0",
-    "sass-loader": "^12.2.0",
-    "style-loader": "^3.3.0",
-    "terser-webpack-plugin": "^5.2.4",
-    "typescript-declaration-webpack-plugin": "^0.2.2",
-    "webpack": "^5.59.0",
-    "webpack-cli": "^4.9.1",
-    "webpack-dev-server": "^4.3.1"
+  "main": "./dist/main.js",
+  "module": "./dist/main.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/main.js",
+      "default": "./dist/main.js"
+    }
   },
-  "browserslist": "> 0.5%, last 2 versions, not dead",
-  "dependencies": {
-    "@tamb/utils": "^1.0.0-alpha.2",
-    "ts-loader": "^9.2.6"
+  "files": [
+    "dist"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "lit": "^3.2.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
+    "@storybook/addon-docs": "10.3.6",
+    "@storybook/web-components-vite": "10.3.6",
+    "concurrently": "^9.2.1",
+    "happy-dom": "^20.9.0",
+    "lit": "^3.3.2",
+    "storybook": "10.3.6",
+    "typescript": "~5.6.3",
+    "vite": "^8.0.11",
+    "vite-plugin-dts": "^5.0.0",
+    "vitest": "^4.1.5"
   }
 }

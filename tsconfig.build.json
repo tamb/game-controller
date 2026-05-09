@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/index.ts",
+    "src/events.ts",
+    "src/components/game-controller/game-controller.ts",
+    "src/components/gc-ancillary-buttons/gc-ancillary-buttons.ts",
+    "src/components/gc-dpad/gc-dpad.ts",
+    "src/components/gc-face-buttons/gc-face-buttons.ts",
+    "src/components/gc-joystick/gc-joystick.ts",
+    "src/raw-imports.d.ts",
+    "src/vite-env.d.ts"
+  ],
+  "exclude": ["**/*.stories.ts", "**/*.test.ts", ".storybook"]
+}

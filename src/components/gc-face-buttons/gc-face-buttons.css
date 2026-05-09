@@ -1,0 +1,109 @@
+/**
+ * Face / action buttons (A/B or Y/X/B/A). `var(--gc-*, fallback)` uses the same defaults as
+ * `<game-controller>` so Storybook / embeds work without a shell; inherited tokens from an
+ * ancestor still override when set.
+ */
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--gc-color-text, #000000);
+  font-family: var(--gc-font-family, system-ui, sans-serif);
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
+}
+
+.gcface__actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+  justify-content: flex-end;
+}
+
+.gcface__btn {
+  width: var(--gc-action-size, 50px);
+  height: var(--gc-action-size, 50px);
+  font-family: inherit;
+  font-size: var(--gc-action-font-size, 0.75rem);
+  font-weight: 600;
+  border-radius: var(--gc-action-btn-border-radius, 50%);
+}
+
+.gcface__btn:focus {
+  outline: none;
+}
+
+.gcface__btn:focus-visible {
+  outline: var(--gc-focus-ring, 2px solid #000000);
+  outline-offset: 2px;
+}
+
+.gcface__btn--1 {
+  margin-left: auto;
+  background: var(--gc-action-btn-1-bg, var(--gc-action-btn-bg, #ffffff));
+  color: var(--gc-action-btn-1-color, var(--gc-action-btn-color, #000000));
+  border: var(--gc-action-btn-1-border, var(--gc-action-btn-border, 1px solid #000000));
+}
+
+.gcface__btn--2 {
+  margin-left: calc(50% - var(--gc-action-size, 50px));
+  background: var(--gc-action-btn-2-bg, var(--gc-action-btn-bg, #ffffff));
+  color: var(--gc-action-btn-2-color, var(--gc-action-btn-color, #000000));
+  border: var(--gc-action-btn-2-border, var(--gc-action-btn-border, 1px solid #000000));
+}
+
+.gcface__btn--3 {
+  background: var(--gc-action-btn-3-bg, var(--gc-action-btn-bg, #ffffff));
+  color: var(--gc-action-btn-3-color, var(--gc-action-btn-color, #000000));
+  border: var(--gc-action-btn-3-border, var(--gc-action-btn-border, 1px solid #000000));
+}
+
+.gcface__btn--4 {
+  background: var(--gc-action-btn-4-bg, var(--gc-action-btn-bg, #ffffff));
+  color: var(--gc-action-btn-4-color, var(--gc-action-btn-color, #000000));
+  border: var(--gc-action-btn-4-border, var(--gc-action-btn-border, 1px solid #000000));
+}
+
+.gcface__actions--four {
+  margin-left: 5%;
+  flex-wrap: wrap;
+  flex-direction: column;
+  justify-content: initial;
+}
+
+.gcface__actions--four .gcface__btn--1 {
+  margin-left: calc(50% - var(--gc-action-size, 50px) / 4);
+}
+
+.gcface__actions--four .gcface__btn--3 {
+  margin-left: auto;
+  margin-top: calc(-1 * var(--gc-action-size, 50px));
+}
+
+.gcface__actions--four .gcface__btn--4 {
+  margin-left: calc(50% - var(--gc-action-size, 50px) / 4);
+  margin-bottom: 30%;
+}
+
+/** Landscape viewport: diamond margins match `<game-controller>` landscape flex row. */
+@media (orientation: landscape) {
+  .gcface__actions--four .gcface__btn--1 {
+    margin-left: calc(50% - var(--gc-action-size, 50px) / 8);
+  }
+
+  .gcface__actions--four .gcface__btn--2 {
+    margin-right: auto;
+  }
+
+  .gcface__actions--four .gcface__btn--3 {
+    margin-left: auto;
+  }
+
+  .gcface__actions--four .gcface__btn--4 {
+    margin-left: calc(50% - var(--gc-action-size, 50px) / 8);
+  }
+}

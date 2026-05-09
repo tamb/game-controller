@@ -1,0 +1,45 @@
+/**
+ * Standalone ancillary row (fullscreen / select / start). `var(--gc-*, fallback)` matches
+ * `<game-controller>` defaults for Storybook / embeds; inherited tokens override when set.
+ */
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--gc-color-text, #000000);
+  font-family: var(--gc-font-family, system-ui, sans-serif);
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
+}
+
+.gcancillary {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.gcancillary__btn {
+  margin: var(--gc-ancillary-margin, 5%);
+  padding: var(--gc-ancillary-padding, 1% 5%);
+  font-family: inherit;
+  font-size: var(--gc-ancillary-font-size, 0.8rem);
+  background: var(--gc-ancillary-btn-bg, transparent);
+  color: var(--gc-ancillary-btn-color, #000000);
+  border: var(--gc-ancillary-btn-border, 1px solid #000000);
+  border-radius: var(--gc-ancillary-btn-border-radius, 6px);
+}
+
+.gcancillary__btn:focus {
+  outline: none;
+}
+
+.gcancillary__btn:focus-visible {
+  outline: var(--gc-focus-ring, 2px solid #000000);
+  outline-offset: 2px;
+}

@@ -1,0 +1,92 @@
+/**
+ * D-pad shell. Inherits `--gc-dpad-*` from ancestors (e.g. `<game-controller>`).
+ * Standalone defaults match neutral monochrome (transparent pads, black borders).
+ */
+:host {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+
+  --gc-dpad-axis: 66px;
+  --gc-dpad-half: 33px;
+  --gc-dpad-btn-bg: transparent;
+  --gc-dpad-btn-color: transparent;
+  --gc-dpad-btn-border-width: 1px;
+  --gc-dpad-btn-border-style: solid;
+  --gc-dpad-btn-border-color: #000000;
+  --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)
+    var(--gc-dpad-btn-border-color);
+  --gc-dpad-btn-border-radius: 4px;
+
+  --gc-focus-ring-width: 2px;
+  --gc-focus-ring-style: solid;
+  --gc-focus-ring-color: #000000;
+  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
+}
+
+.gcdpad {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.gcdpad__btn {
+  margin-bottom: 5%;
+  background: var(--gc-dpad-btn-bg);
+  color: var(--gc-dpad-btn-color);
+  border: var(--gc-dpad-btn-border);
+  border-radius: var(--gc-dpad-btn-border-radius);
+  cursor: pointer;
+}
+
+.gcdpad__btn--up {
+  background: var(--gc-dpad-btn-up-bg, var(--gc-dpad-btn-bg));
+  color: var(--gc-dpad-btn-up-color, var(--gc-dpad-btn-color));
+  border: var(--gc-dpad-btn-up-border, var(--gc-dpad-btn-border));
+  height: var(--gc-dpad-axis);
+  width: 25%;
+  margin-left: 38%;
+  margin-right: 38%;
+}
+
+.gcdpad__btn--right {
+  background: var(--gc-dpad-btn-right-bg, var(--gc-dpad-btn-bg));
+  color: var(--gc-dpad-btn-right-color, var(--gc-dpad-btn-color));
+  border: var(--gc-dpad-btn-right-border, var(--gc-dpad-btn-border));
+  width: 38%;
+  height: var(--gc-dpad-half);
+}
+
+.gcdpad__btn--down {
+  background: var(--gc-dpad-btn-down-bg, var(--gc-dpad-btn-bg));
+  color: var(--gc-dpad-btn-down-color, var(--gc-dpad-btn-color));
+  border: var(--gc-dpad-btn-down-border, var(--gc-dpad-btn-border));
+  height: var(--gc-dpad-axis);
+  width: 25%;
+  margin-left: 38%;
+  margin-right: 38%;
+}
+
+.gcdpad__btn--left {
+  background: var(--gc-dpad-btn-left-bg, var(--gc-dpad-btn-bg));
+  color: var(--gc-dpad-btn-left-color, var(--gc-dpad-btn-color));
+  border: var(--gc-dpad-btn-left-border, var(--gc-dpad-btn-border));
+  width: 38%;
+  height: var(--gc-dpad-half);
+}
+
+.gcdpad__btn:focus {
+  outline: none;
+}
+
+.gcdpad__btn:focus-visible {
+  outline: var(--gc-focus-ring);
+  outline-offset: 2px;
+}

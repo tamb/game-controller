@@ -1,0 +1,69 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 140px;
+  aspect-ratio: 1;
+  box-sizing: border-box;
+
+  --gc-joystick-ring-bg: transparent;
+  --gc-joystick-ring-border-width: 1px;
+  --gc-joystick-ring-border-color: #000000;
+  --gc-joystick-ring-border: var(--gc-joystick-ring-border-width) solid
+    var(--gc-joystick-ring-border-color);
+
+  --gc-joystick-knob-bg: #ffffff;
+  --gc-joystick-knob-border: 1px solid #000000;
+  --gc-joystick-knob-size: 28px;
+
+  --gc-focus-ring-width: 2px;
+  --gc-focus-ring-style: solid;
+  --gc-focus-ring-color: #000000;
+  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);
+}
+
+:host *,
+:host *::before,
+:host *::after {
+  box-sizing: inherit;
+}
+
+.gcjoystick {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+}
+
+.gcjoystick__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--gc-joystick-ring-bg);
+  border: var(--gc-joystick-ring-border);
+}
+
+.gcjoystick__knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--gc-joystick-knob-size);
+  height: var(--gc-joystick-knob-size);
+  border-radius: 50%;
+  background: var(--gc-joystick-knob-bg);
+  border: var(--gc-joystick-knob-border);
+  cursor: grab;
+  box-shadow: none;
+}
+
+.gcjoystick__knob:active {
+  cursor: grabbing;
+}
+
+.gcjoystick__knob:focus {
+  outline: none;
+}
+
+.gcjoystick__knob:focus-visible {
+  outline: var(--gc-focus-ring);
+  outline-offset: 2px;
+}

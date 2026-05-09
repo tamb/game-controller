@@ -2,14 +2,20 @@
   "compilerOptions": {
     "outDir": "./dist/",
     "noImplicitAny": false,
-    "module": "commonjs",
-    "target": "es5",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "jsx": "react",
     "allowJs": true,
     "declaration": true,
-    "esModuleInterop": true
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "useDefineForClassFields": false,
+    "strictNullChecks": true,
+    "types": ["vite/client"]
   },
-  "exclude": ["node_modules/**/*"],
-  "include": ["src/index.ts"],
-  "declarations": true
+  "exclude": ["node_modules"],
+  "include": ["src/**/*.ts", ".storybook/**/*.ts", "vite.config.ts"]
 }
