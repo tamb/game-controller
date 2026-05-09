@@ -124,6 +124,8 @@ export class SbEventLogElement extends LitElement {
     moveLogThrottleMs: { type: Number, attribute: false },
     /** Listen on nearest `<game-controller>` (for `slot="stage"`); omits side-by-side demo grid. */
     embedStage: { type: Boolean, reflect: true, attribute: "embed-stage" },
+    /** When true, most recent lines appear at the top (queue / stack view). */
+    newestFirst: { type: Boolean, reflect: true, attribute: "newest-first" },
   };
 
   heading = "Events";
@@ -135,6 +137,8 @@ export class SbEventLogElement extends LitElement {
   moveLogThrottleMs = 48;
 
   embedStage = false;
+
+  newestFirst = false;
 
   private lines: string[] = [];
 
@@ -204,6 +208,17 @@ export class SbEventLogElement extends LitElement {
     super.disconnectedCallback();
   }
 
+  private logDisplayText(tail: string) {
+    const ordered = this.newestFirst ? [...this.lines].reverse() : [...this.lines];
+    const body = ordered.join("\n");
+    if (!tail) return body;
+    const pending = `… pending move: ${tail}`;
+    if (this.newestFirst) {
+      return body ? `${pending}\n${body}` : pending;
+    }
+    return body ? `${body}\n${pending}` : pending;
+  }
+
   private panelTemplate(tail: string) {
     return html`
       <aside class="sb-el__panel">
@@ -219,7 +234,7 @@ export class SbEventLogElement extends LitElement {
             </div>`
             : null
         }
-        <pre class="sb-el__pre" part="log">${this.lines.join("\n")}${tail ? `\n… pending move: ${tail}` : ""}</pre>
+        <pre class="sb-el__pre" part="log">${this.logDisplayText(tail)}</pre>
       </aside>
     `;
   }

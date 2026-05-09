@@ -13,6 +13,7 @@
     "start": "npm run storybook",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build -o storybook-static",
+    "build:gh-pages": "node scripts/build-gh-pages.mjs",
     "beta:publish": "npm run build && npm publish --tag beta --access=public",
     "alpha:publish": "npm run build && npm publish --tag alpha --access=public",
     "safe:publish": "npm run build && npm publish --access=public"

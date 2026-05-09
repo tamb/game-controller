@@ -1,10 +1,10 @@
-# Storybook → GitHub Pages (Actions deployment).
+# GitHub Pages: landing page, standalone event-log demo, and Storybook.
 # Triggers on pushes to `main` only (not feature branches).
 #
 # Repo setup: Settings → Pages → Build and deployment → Source: GitHub Actions
 # (not “Deploy from a branch”). Then push or use Actions → Run workflow.
 
-name: Deploy Storybook to GitHub Pages
+name: Deploy GitHub Pages (Storybook + site)
 
 on:
   push:
@@ -39,14 +39,15 @@ jobs:
 
       - run: npm ci
 
-      - name: Build Storybook
+      - name: Build site (landing, demo, Storybook)
         env:
-          STORYBOOK_BASE_PATH: /game-controller/
-        run: npm run build-storybook
+          STORYBOOK_BASE_PATH: /game-controller/storybook/
+          DEMO_BASE_PATH: /game-controller/demo/
+        run: npm run build:gh-pages
 
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: storybook-static
+          path: dist-site
 
       - id: deployment
         uses: actions/deploy-pages@v4

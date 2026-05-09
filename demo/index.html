@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Game controller — event log demo</title>
+    <style>
+      body {
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+      }
+      .demo-bar {
+        flex: 0 0 auto;
+        padding: 0.5rem 1rem;
+        font: 0.9rem system-ui, sans-serif;
+        border-bottom: 1px solid #cbd5e1;
+        background: #f8fafc;
+      }
+      .demo-bar a {
+        color: #1d4ed8;
+      }
+      .demo-stage-host {
+        flex: 1 1 auto;
+        min-height: 0;
+        display: flex;
+        flex-direction: column;
+      }
+      .demo-stage-host game-controller {
+        flex: 1 1 auto;
+        min-height: 0;
+        --gc-host-min-height: 0;
+        --gc-host-height: 100%;
+        --gc-stage-bg: #0f172a;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-bar"><a href="../">Home</a></div>
+    <div class="demo-stage-host">
+      <game-controller actions="4" left-control="joystick">
+        <sb-event-log
+          embed-stage
+          newest-first
+          slot="stage"
+          heading="Events (newest first)"
+        ></sb-event-log>
+      </game-controller>
+    </div>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

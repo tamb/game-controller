@@ -54,6 +54,28 @@ describe("SbEventLogElement", () => {
     expect(log.shadowRoot!.querySelector('[part="log"]')?.textContent?.trim()).toBe("");
   });
 
+  it("newest-first lists latest lines at the top", async () => {
+    const log = document.createElement("sb-event-log") as SbEventLogElement;
+    log.newestFirst = true;
+    log.eventNames = [EVENTS.gcDpad.up, EVENTS.gcDpad.down];
+    const dpad = document.createElement("gc-dpad");
+    log.appendChild(dpad);
+    document.body.append(log);
+    await log.updateComplete;
+
+    (dpad.shadowRoot!.querySelector(".gcdpad__btn--up") as HTMLButtonElement).click();
+    await log.updateComplete;
+    (dpad.shadowRoot!.querySelector(".gcdpad__btn--down") as HTMLButtonElement).click();
+    await log.updateComplete;
+
+    const text = log.shadowRoot!.querySelector('[part="log"]')?.textContent ?? "";
+    const upAt = text.indexOf(EVENTS.gcDpad.up);
+    const downAt = text.indexOf(EVENTS.gcDpad.down);
+    expect(downAt).toBeGreaterThan(-1);
+    expect(upAt).toBeGreaterThan(-1);
+    expect(downAt).toBeLessThan(upAt);
+  });
+
   it("embed-stage listens on closest game-controller", async () => {
     const gc = document.createElement("game-controller") as GameControllerElement;
     const log = document.createElement("sb-event-log") as SbEventLogElement;

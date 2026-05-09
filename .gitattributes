@@ -1,0 +1,2 @@
+# Store and check out text files as LF so Windows (autocrlf), Linux CI, and tooling agree.
+* text=auto eol=lf
