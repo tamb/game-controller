@@ -286,14 +286,17 @@
     flex: 0 1 26%;
     width: auto;
     max-width: none;
-    align-self: center;
+    align-self: stretch;
     align-items: center;
     justify-content: center;
     padding: clamp(0.15rem, 1.2vmin, 0.45rem);
+    /* `display: contents` on main-controls drops its background; paint sides instead. */
+    background: var(--gc-main-controls-bg);
   }
 
   .gamecontroller__d-pad-container gc-joystick {
     margin-bottom: 0;
+    max-width: min(140px, 100%);
   }
 
   .gamecontroller__center {
@@ -321,9 +324,16 @@
     flex: 0 1 26%;
     width: auto;
     max-width: none;
-    align-self: center;
+    align-self: stretch;
     align-items: center;
     justify-content: center;
+    display: flex;
     padding: clamp(0.15rem, 1.2vmin, 0.45rem);
+    background: var(--gc-main-controls-bg);
+  }
+
+  :host(:fullscreen) .gamecontroller__container {
+    /* Fullscreen + landscape: keep the three-column band edge-to-edge. */
+    min-height: 100%;
   }
 }

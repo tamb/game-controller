@@ -72,10 +72,13 @@ export class GcJoystickElement extends LitElement {
 
   override updated(changed: Map<PropertyKey, unknown>) {
     super.updated(changed);
-    if (changed.has("sectorsJson") && this.sectorsJson) {
-      const next = parseJoystickSectorsJson(this.sectorsJson);
-      if (next) this.sectors = next;
+    if (!changed.has("sectorsJson")) return;
+    if (!this.sectorsJson) {
+      this.sectors = [...DEFAULT_JOYSTICK_SECTORS];
+      return;
     }
+    const next = parseJoystickSectorsJson(this.sectorsJson);
+    if (next) this.sectors = next;
   }
 
   private emit(name: string, detail: Record<string, unknown>) {

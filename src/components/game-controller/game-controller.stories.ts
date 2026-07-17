@@ -54,7 +54,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Lit `<game-controller>` custom element. **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Stories embed a scrollable **event log** in the stage. In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.",
+          "Lit `<game-controller>` custom element. **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.",
       },
     },
   },
@@ -72,7 +72,7 @@ const meta = {
     vibrate: {
       control: "boolean",
       description:
-        'Haptics: call `navigator.vibrate` on taps and joystick grab when supported (mobile). Off: `vibrate="false"` or `.vibrate = false`.',
+        'Haptics: call `navigator.vibrate` on taps, d-pad, ancillaries, joystick grab, and joystick cardinal changes when supported (mobile). Off: `vibrate="false"` or `.vibrate = false`.',
     },
     leftControl: {
       control: "select",

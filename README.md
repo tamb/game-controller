@@ -109,9 +109,11 @@ Also: **`dead-zone`** (default `0.12`), **`sectors-json`** (`[{ id, startDeg, en
 ### API (`GameControllerElement`)
 
 - **`actions`**: `2` | `4` — number of face buttons (attribute `actions`, reflected).
-- **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, and joystick grab where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`).
-- **`leftControl`**: `"dpad"` (default) or `"joystick"` — attribute **`left-control`** swaps `<gc-dpad>` for `<gc-joystick>` (listen for **`gcjoystick:*`**; no automatic **`gamecontroller:dpad:*`** mapping).
+- **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, joystick grab, and joystick **cardinal** changes where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`).
+- **`leftControl`**: `"dpad"` (default) or `"joystick"` — attribute **`left-control`** swaps `<gc-dpad>` for `<gc-joystick>` with **`emit-cardinal`** enabled (listen for **`gcjoystick:*`**; no automatic **`gamecontroller:dpad:*`** mapping).
 - **`hooks`**: optional `Record<string, (controller) => void>` keyed by control name (`select`, `start`, `a`, …); not an HTML attribute.
+
+Fullscreen unlocks **`screen.orientation`** (when available) so the device can rotate into **landscape** while the controller is fullscreen.
 
 ### Theming (`--gc-*` CSS variables)
 
@@ -210,6 +212,17 @@ npm run storybook
 ```
 
 Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Fill viewport (no event log)** for full **`100dvh`**. Portrait vs landscape controls follow **viewport orientation**—widen the browser or use device rotation / fullscreen to hit **`orientation: landscape`**.
+
+### GitHub Pages demo
+
+`npm run build:gh-pages` writes a static site to `dist-site/`:
+
+- `/` — landing page with links to the demo, Storybook, credits, and the GitHub repository
+- `/demo/` — full-viewport controller; the **stage screen** toggles presets (classic / action / analog / stick+A/B), left control, face-button count, and haptics
+- `/credits.html` — author, license, and acknowledgements
+- `/storybook/` — component playground
+
+Deployed from `.github/workflows/deploy-storybook.yml` on pushes to `main`.
 
 Static build for docs deployment:
 
