@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Credits — @tamb/gamecontroller</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --page-bg: #f4f7f2;
+        --page-ink: #14201a;
+        --page-muted: #4b5c52;
+        --page-card: #ffffff;
+        --page-line: #c9d6cc;
+        --page-accent: #1f6b3a;
+        --page-accent-soft: #e7f5eb;
+        font-family: "Source Serif 4", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+          serif;
+        line-height: 1.5;
+      }
+
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --page-bg: #0d1511;
+          --page-ink: #e8f0ea;
+          --page-muted: #9db0a4;
+          --page-card: #16211b;
+          --page-line: #2a3b32;
+          --page-accent: #7dcea0;
+          --page-accent-soft: #1a2b22;
+        }
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        color: var(--page-ink);
+        background:
+          radial-gradient(ellipse at top left, rgb(31 107 58 / 0.12), transparent 45%),
+          linear-gradient(160deg, var(--page-bg), color-mix(in srgb, var(--page-bg) 85%, #000 15%));
+      }
+
+      .wrap {
+        max-width: 40rem;
+        margin: 0 auto;
+        padding: clamp(1.25rem, 4vw, 2.5rem);
+      }
+
+      nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem 1.25rem;
+        margin-bottom: 1.5rem;
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        font-size: 0.92rem;
+      }
+
+      a {
+        color: var(--page-accent);
+        font-weight: 600;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 0.18em;
+      }
+
+      a[target="_blank"]::after {
+        content: " ↗";
+        font-size: 0.85em;
+      }
+
+      .card {
+        padding: clamp(1.25rem, 3vw, 2rem);
+        background: var(--page-card);
+        border: 1px solid var(--page-line);
+        box-shadow: 0 18px 40px rgb(20 32 26 / 0.08);
+      }
+
+      h1 {
+        margin: 0 0 0.35rem;
+        font-size: clamp(1.7rem, 4vw, 2.2rem);
+        letter-spacing: -0.02em;
+      }
+
+      .lede {
+        margin: 0 0 1.5rem;
+        color: var(--page-muted);
+        font-size: 1.05rem;
+      }
+
+      h2 {
+        margin: 1.5rem 0 0.5rem;
+        font-size: 1.05rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--page-muted);
+      }
+
+      p,
+      li {
+        margin: 0 0 0.75rem;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+
+      .pill {
+        display: inline-block;
+        margin-top: 0.25rem;
+        padding: 0.2rem 0.55rem;
+        border-radius: 999px;
+        background: var(--page-accent-soft);
+        color: var(--page-accent);
+        font-family: "IBM Plex Sans", "Segoe UI", sans-serif;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <nav aria-label="Site">
+        <a href="./">Home</a>
+        <a href="./demo/">Demo</a>
+        <a href="./storybook/">Storybook</a>
+        <a href="https://github.com/tamb/game-controller" target="_blank" rel="noopener noreferrer"
+          >GitHub</a
+        >
+      </nav>
+
+      <main class="card">
+        <p class="pill">Credits</p>
+        <h1>@tamb/gamecontroller</h1>
+        <p class="lede">
+          A Lit-based Gameboy-style virtual controller skin for the web — d-pad or joystick, face
+          buttons, landscape layout, and haptic feedback.
+        </p>
+
+        <h2>Author</h2>
+        <p>
+          Created by
+          <a href="https://tamb.github.io" target="_blank" rel="noopener noreferrer">Tamb</a>
+          (<a href="mailto:t.saporito@gmail.com">t.saporito@gmail.com</a>).
+        </p>
+
+        <h2>Source</h2>
+        <p>
+          Open source on
+          <a
+            href="https://github.com/tamb/game-controller"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub</a
+          >
+          under the MIT License.
+        </p>
+
+        <h2>Built with</h2>
+        <ul>
+          <li>Lit web components</li>
+          <li>Vite &amp; Vitest</li>
+          <li>Storybook for interactive docs</li>
+        </ul>
+
+        <h2>This site</h2>
+        <p>
+          The GitHub Pages demo lets you switch controller layouts on the stage screen, try portrait
+          and landscape, and explore component stories in Storybook.
+        </p>
+      </main>
+    </div>
+  </body>
+</html>

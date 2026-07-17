@@ -3,76 +3,72 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <title>Game controller — event log demo</title>
-    <style>
-      body {
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100dvh;
-      }
-      .demo-bar {
-        flex: 0 0 auto;
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 0.75rem 1.25rem;
-        padding: 0.5rem 1rem;
-        font: 0.9rem system-ui, sans-serif;
-        border-bottom: 1px solid #cbd5e1;
-        background: #f8fafc;
-      }
-      .demo-bar a {
-        color: #1d4ed8;
-      }
-      .demo-bar label {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-      }
-      .demo-hint {
-        opacity: 0.75;
-        font-size: 0.8rem;
-      }
-      .demo-stage-host {
-        flex: 1 1 auto;
-        min-height: 0;
-        display: flex;
-        flex-direction: column;
-      }
-      .demo-stage-host game-controller {
-        flex: 1 1 auto;
-        min-height: 0;
-        --gc-host-min-height: 0;
-        --gc-host-height: 100%;
-        --gc-stage-bg: #0f172a;
-      }
-    </style>
+    <title>Game controller demo — @tamb/gamecontroller</title>
+    <link rel="stylesheet" href="./demo.css" />
   </head>
   <body>
-    <div class="demo-bar">
-      <a href="../">Home</a>
-      <label>
-        Left control
-        <select id="left-control">
-          <option value="joystick" selected>Joystick</option>
-          <option value="dpad">D-pad</option>
-        </select>
-      </label>
-      <label>
-        <input id="vibrate" type="checkbox" checked />
-        Haptics
-      </label>
-      <span class="demo-hint">Rotate device or widen the window for landscape</span>
-    </div>
     <div class="demo-stage-host">
-      <game-controller id="controller" actions="4" left-control="joystick">
-        <sb-event-log
-          embed-stage
-          newest-first
-          slot="stage"
-          heading="Events (newest first)"
-        ></sb-event-log>
+      <game-controller id="controller" actions="2" left-control="dpad">
+        <div class="stage-screen" slot="stage">
+          <header class="stage-screen__header">
+            <p class="stage-screen__brand">@tamb/gamecontroller</p>
+            <p class="stage-screen__tagline">Virtual Gameboy-style controller</p>
+          </header>
+
+          <section class="stage-screen__panel" aria-labelledby="layout-heading">
+            <h2 id="layout-heading" class="stage-screen__heading">Layout</h2>
+
+            <label class="stage-field">
+              <span class="stage-field__label">Preset</span>
+              <select id="preset" class="stage-field__control">
+                <option value="classic" selected>Classic — d-pad + 2 buttons</option>
+                <option value="action">Action — d-pad + 4 buttons</option>
+                <option value="analog">Analog — joystick + 4 buttons</option>
+                <option value="stick-ab">Stick + A/B — joystick + 2 buttons</option>
+              </select>
+            </label>
+
+            <div class="stage-grid">
+              <label class="stage-field">
+                <span class="stage-field__label">Left control</span>
+                <select id="left-control" class="stage-field__control">
+                  <option value="dpad" selected>D-pad</option>
+                  <option value="joystick">Joystick</option>
+                </select>
+              </label>
+
+              <label class="stage-field">
+                <span class="stage-field__label">Face buttons</span>
+                <select id="actions" class="stage-field__control">
+                  <option value="2" selected>2 (A / B)</option>
+                  <option value="4">4 (Y / X / B / A)</option>
+                </select>
+              </label>
+            </div>
+
+            <label class="stage-toggle">
+              <input id="vibrate" type="checkbox" checked />
+              <span>Haptic feedback</span>
+            </label>
+
+            <p class="stage-screen__hint">
+              Rotate the device or widen the window for landscape. Use fullscreen on the controller
+              for a full-bleed playfield.
+            </p>
+          </section>
+
+          <nav class="stage-screen__nav" aria-label="Demo links">
+            <a class="stage-link" href="../credits.html">Credits</a>
+            <a
+              class="stage-link stage-link--external"
+              href="https://github.com/tamb/game-controller"
+              target="_blank"
+              rel="noopener noreferrer"
+              >GitHub repository</a
+            >
+            <a class="stage-link" href="../">Home</a>
+          </nav>
+        </div>
       </game-controller>
     </div>
     <script type="module" src="./main.ts"></script>

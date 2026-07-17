@@ -29,3 +29,4 @@ run("npx", ["vite", "build", "--config", "vite.demo.config.ts"], {
 });
 
 copyFileSync(join(root, "pages", "index.html"), join(dist, "index.html"));
+copyFileSync(join(root, "pages", "credits.html"), join(dist, "credits.html"));
