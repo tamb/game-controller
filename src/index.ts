@@ -3,6 +3,12 @@ import "./components/gc-dpad/gc-dpad";
 import "./components/gc-face-buttons/gc-face-buttons";
 import "./components/gc-joystick/gc-joystick";
 
+export type { DemoCapabilityStatus } from "./capabilities";
+export {
+  getDemoCapabilityStatus,
+  isFullscreenSupported,
+  isHapticsSupported,
+} from "./capabilities";
 export type { GameControllerActionKey } from "./events";
 export {
   EVENTS,

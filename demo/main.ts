@@ -1,4 +1,5 @@
 import "../src/index";
+import { getDemoCapabilityStatus } from "../src/capabilities";
 import type {
   GameControllerElement,
   GameControllerLeftControl,
@@ -16,6 +17,49 @@ const presetEl = document.querySelector("#preset") as HTMLSelectElement | null;
 const leftControlEl = document.querySelector("#left-control") as HTMLSelectElement | null;
 const actionsEl = document.querySelector("#actions") as HTMLSelectElement | null;
 const vibrateEl = document.querySelector("#vibrate") as HTMLInputElement | null;
+const supportFullscreenEl = document.querySelector("#support-fullscreen");
+const supportHapticsEl = document.querySelector("#support-haptics");
+const supportNoteEl = document.querySelector("#support-note");
+const vibrateToggle = vibrateEl?.closest(".stage-toggle");
+
+function setSupportValue(el: Element | null, supported: boolean) {
+  if (!el) return;
+  el.textContent = supported ? "Supported" : "Not available";
+  el.setAttribute("data-supported", supported ? "true" : "false");
+}
+
+function renderCapabilityStatus() {
+  const status = getDemoCapabilityStatus();
+  setSupportValue(supportFullscreenEl, status.fullscreen);
+  setSupportValue(supportHapticsEl, status.haptics);
+
+  if (vibrateEl) {
+    vibrateEl.disabled = !status.haptics;
+    if (!status.haptics) vibrateEl.checked = false;
+  }
+  vibrateToggle?.toggleAttribute("data-unsupported", !status.haptics);
+
+  if (supportNoteEl instanceof HTMLElement) {
+    const notes: string[] = [];
+    if (!status.fullscreen) {
+      notes.push("Fullscreen API is unavailable in this browser (common on iOS Safari).");
+    }
+    if (!status.haptics) {
+      notes.push("Vibration API is unavailable here (typical on desktop).");
+    }
+    if (notes.length === 0) {
+      supportNoteEl.hidden = true;
+      supportNoteEl.textContent = "";
+    } else {
+      supportNoteEl.hidden = false;
+      supportNoteEl.textContent = notes.join(" ");
+    }
+  }
+
+  if (controller && !status.haptics) {
+    controller.vibrate = false;
+  }
+}
 
 function readUiState(): DemoLayoutState {
   return {
@@ -58,14 +102,17 @@ leftControlEl?.addEventListener("change", syncControllerFromUi);
 actionsEl?.addEventListener("change", syncControllerFromUi);
 vibrateEl?.addEventListener("change", syncControllerFromUi);
 
+renderCapabilityStatus();
+
 // Keep selects aligned with the initial markup / host attributes.
 if (controller) {
+  const caps = getDemoCapabilityStatus();
   const initial: DemoLayoutState = {
     leftControl: (controller.leftControl === "joystick"
       ? "joystick"
       : "dpad") as GameControllerLeftControl,
     actions: controller.actions === 4 ? 4 : 2,
-    vibrate: controller.vibrate,
+    vibrate: caps.haptics ? controller.vibrate : false,
   };
   writeUiState(initial, matchDemoPreset(initial) ?? "classic");
   applyDemoLayout(controller, initial);
