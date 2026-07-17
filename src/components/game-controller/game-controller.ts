@@ -1,19 +1,24 @@
 import { css, html, LitElement, unsafeCSS } from "lit";
 import type { GameControllerActionKey } from "../../events";
 import { EVENTS } from "../../events";
+import { parseVibrateAttribute, pulseHaptics } from "../../haptics";
+import { unlockScreenOrientation } from "../../orientation";
 import "../gc-ancillary-buttons/gc-ancillary-buttons";
 import "../gc-dpad/gc-dpad";
 import "../gc-face-buttons/gc-face-buttons";
 import "../gc-joystick/gc-joystick";
 import styleText from "./game-controller.css?raw";
+import {
+  type GameControllerLeftControl,
+  resolveGameControllerLeftControl,
+} from "./game-controller-layout";
+
+export type { GameControllerLeftControl };
 
 /** Parses `vibrate` / haptics toggle from HTML (`vibrate="false"` disables). Default when omitted: on. */
 const vibrateAttributeConverter = {
   fromAttribute(value: string | null): boolean {
-    if (value === null) return true;
-    const s = value.trim().toLowerCase();
-    if (s === "false" || s === "0" || s === "off") return false;
-    return true;
+    return parseVibrateAttribute(value);
   },
   toAttribute(value: boolean): string | null {
     return value ? null : "false";
@@ -21,8 +26,6 @@ const vibrateAttributeConverter = {
 };
 
 export type GameControllerHooks = Record<string, (controller: GameControllerElement) => void>;
-
-export type GameControllerLeftControl = "dpad" | "joystick";
 
 export class GameControllerElement extends LitElement {
   static styles = css`
@@ -46,8 +49,9 @@ export class GameControllerElement extends LitElement {
   actions = 2;
 
   /**
-   * When true, uses the Vibration API (`navigator.vibrate`) for light haptics on taps and joystick grab
-   * where supported (typically mobile). Toggle off with `vibrate="false"` or `el.vibrate = false`.
+   * When true, uses the Vibration API (`navigator.vibrate`) for light haptics on taps,
+   * d-pad, ancillaries, joystick grab, and joystick cardinal changes where supported
+   * (typically mobile). Toggle off with `vibrate="false"` or `el.vibrate = false`.
    */
   vibrate = true;
 
@@ -84,13 +88,12 @@ export class GameControllerElement extends LitElement {
     );
   }
 
-  private pulseHaptics(durationMs = 10) {
-    if (!this.vibrate) return;
-    navigator.vibrate?.(durationMs);
+  private pulse(durationMs?: number) {
+    pulseHaptics(this.vibrate, durationMs);
   }
 
   private handleAncillary(refName: string, eventName: string) {
-    this.pulseHaptics();
+    this.pulse();
     this.hooks[refName]?.(this);
     this.emit(eventName);
   }
@@ -114,6 +117,8 @@ export class GameControllerElement extends LitElement {
         await document.exitFullscreen();
       } else {
         await this.requestFullscreen();
+        // Unlock after entering fullscreen so rotation into landscape stays allowed.
+        await unlockScreenOrientation();
       }
     } catch {
       /* unsupported or denied */
@@ -122,17 +127,21 @@ export class GameControllerElement extends LitElement {
   }
 
   private handleAction(buttonKey: GameControllerActionKey) {
-    this.pulseHaptics();
+    this.pulse();
     this.hooks[buttonKey]?.(this);
     this.emit(EVENTS.gameController.action[buttonKey]);
   }
 
   private readonly onJoystickPointerDown = () => {
-    this.pulseHaptics();
+    this.pulse();
+  };
+
+  private readonly onJoystickCardinal = () => {
+    this.pulse();
   };
 
   private get leftStickMode(): GameControllerLeftControl {
-    return this.leftControl === "joystick" ? "joystick" : "dpad";
+    return resolveGameControllerLeftControl(this.leftControl);
   }
 
   private dpadTemplate() {
@@ -147,7 +156,17 @@ export class GameControllerElement extends LitElement {
   }
 
   private joystickTemplate() {
-    return html`<gc-joystick @gcjoystick:pointerdown=${this.onJoystickPointerDown}></gc-joystick>`;
+    return html`
+      <gc-joystick
+        emit-cardinal
+        @gcjoystick:pointerdown=${this.onJoystickPointerDown}
+        @gcjoystick:cardinal:up=${this.onJoystickCardinal}
+        @gcjoystick:cardinal:right=${this.onJoystickCardinal}
+        @gcjoystick:cardinal:down=${this.onJoystickCardinal}
+        @gcjoystick:cardinal:left=${this.onJoystickCardinal}
+        @gcjoystick:cardinal:none=${this.onJoystickCardinal}
+      ></gc-joystick>
+    `;
   }
 
   render() {

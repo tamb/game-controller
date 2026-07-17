@@ -19,7 +19,7 @@ describe("Storybook event name lists", () => {
     expect(new Set(SB_GAME_CONTROLLER_EVENTS).size).toBe(SB_GAME_CONTROLLER_EVENTS.length);
   });
 
-  it("includes every game-shell plus gcdpad name", () => {
+  it("includes every game-shell plus gcdpad and joystick channels", () => {
     const set = new Set(SB_GAME_CONTROLLER_EVENTS);
     for (const v of Object.values(EVENTS.gameController.ancillary)) expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gameController.dpad)) expect(set.has(v)).toBe(true);
@@ -27,6 +27,11 @@ describe("Storybook event name lists", () => {
     for (const v of Object.values(EVENTS.gcDpad)) expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gcAncillary)) expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gcFace)) expect(set.has(v)).toBe(true);
+    expect(set.has(EVENTS.gcJoystick.pointerDown)).toBe(true);
+    expect(set.has(EVENTS.gcJoystick.move)).toBe(true);
+    expect(set.has(EVENTS.gcJoystick.sector)).toBe(true);
+    expect(set.has(EVENTS.gcJoystick.clock)).toBe(true);
+    for (const v of Object.values(EVENTS.gcJoystick.cardinal)) expect(set.has(v)).toBe(true);
   });
 
   it("matches gcdpad-only list length", () => {

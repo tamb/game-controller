@@ -62,7 +62,11 @@ export function gcJoystickClockHourEvent(hour: number): string {
   return `${EVENTS.gcJoystick.clock}:${hour}`;
 }
 
-/** Names subscribed by the full-shell Storybook story (includes nested `<gc-dpad>`). */
+/**
+ * Names subscribed by the full-shell Storybook / demo event log.
+ * Includes nested d-pad, face, ancillary, and joystick channels so
+ * `left-control="joystick"` activity still appears in the log.
+ */
 export const SB_GAME_CONTROLLER_EVENTS: readonly string[] = [
   ...Object.values(EVENTS.gameController.ancillary),
   ...Object.values(EVENTS.gameController.dpad),
@@ -70,6 +74,11 @@ export const SB_GAME_CONTROLLER_EVENTS: readonly string[] = [
   ...Object.values(EVENTS.gcDpad),
   ...Object.values(EVENTS.gcAncillary),
   ...Object.values(EVENTS.gcFace),
+  EVENTS.gcJoystick.pointerDown,
+  EVENTS.gcJoystick.move,
+  EVENTS.gcJoystick.sector,
+  EVENTS.gcJoystick.clock,
+  ...Object.values(EVENTS.gcJoystick.cardinal),
 ];
 
 export const SB_GC_DPAD_EVENTS: readonly string[] = Object.values(EVENTS.gcDpad);

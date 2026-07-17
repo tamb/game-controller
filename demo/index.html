@@ -13,6 +13,10 @@
       }
       .demo-bar {
         flex: 0 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1.25rem;
         padding: 0.5rem 1rem;
         font: 0.9rem system-ui, sans-serif;
         border-bottom: 1px solid #cbd5e1;
@@ -20,6 +24,15 @@
       }
       .demo-bar a {
         color: #1d4ed8;
+      }
+      .demo-bar label {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+      }
+      .demo-hint {
+        opacity: 0.75;
+        font-size: 0.8rem;
       }
       .demo-stage-host {
         flex: 1 1 auto;
@@ -37,9 +50,23 @@
     </style>
   </head>
   <body>
-    <div class="demo-bar"><a href="../">Home</a></div>
+    <div class="demo-bar">
+      <a href="../">Home</a>
+      <label>
+        Left control
+        <select id="left-control">
+          <option value="joystick" selected>Joystick</option>
+          <option value="dpad">D-pad</option>
+        </select>
+      </label>
+      <label>
+        <input id="vibrate" type="checkbox" checked />
+        Haptics
+      </label>
+      <span class="demo-hint">Rotate device or widen the window for landscape</span>
+    </div>
     <div class="demo-stage-host">
-      <game-controller actions="4" left-control="joystick">
+      <game-controller id="controller" actions="4" left-control="joystick">
         <sb-event-log
           embed-stage
           newest-first

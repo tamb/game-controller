@@ -229,6 +229,78 @@ describe("GameControllerElement", () => {
     expect(el.vibrate).toBe(false);
   });
 
+  it("parses vibrate=0 and vibrate=off as haptics off", async () => {
+    const zero = document.createElement("game-controller") as GameControllerElement;
+    zero.setAttribute("vibrate", "0");
+    document.body.appendChild(zero);
+    await zero.updateComplete;
+    expect(zero.vibrate).toBe(false);
+
+    const off = document.createElement("game-controller") as GameControllerElement;
+    off.setAttribute("vibrate", "off");
+    document.body.appendChild(off);
+    await off.updateComplete;
+    expect(off.vibrate).toBe(false);
+  });
+
+  it("calls navigator.vibrate on d-pad presses when vibrate is true", async () => {
+    const vibrate = vi.fn(() => true as boolean);
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      writable: true,
+      value: vibrate,
+    });
+
+    const el = await mount();
+    const dpad = el.shadowRoot?.querySelector("gc-dpad") as GcDpadElement;
+    const upBtn = dpad.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    upBtn.click();
+
+    expect(vibrate).toHaveBeenCalledWith(10);
+  });
+
+  it("calls navigator.vibrate on select ancillary when vibrate is true", async () => {
+    const vibrate = vi.fn(() => true as boolean);
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      writable: true,
+      value: vibrate,
+    });
+
+    const el = await mount();
+    buttonByText(el, "select").click();
+
+    expect(vibrate).toHaveBeenCalledWith(10);
+  });
+
+  it("enables emit-cardinal on the shell joystick", async () => {
+    const el = await mount();
+    el.leftControl = "joystick";
+    await el.updateComplete;
+    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement & {
+      emitCardinal?: boolean;
+    };
+    expect(joystick?.hasAttribute("emit-cardinal")).toBe(true);
+  });
+
+  it("unlocks screen orientation after requesting fullscreen", async () => {
+    const unlock = vi.fn();
+    Object.defineProperty(globalThis, "screen", {
+      configurable: true,
+      value: { orientation: { unlock } },
+    });
+
+    const el = await mount();
+    const reqFs = vi.fn(() => Promise.resolve());
+    el.requestFullscreen = reqFs as typeof el.requestFullscreen;
+
+    buttonByText(el, "fullscreen").click();
+    await vi.waitFor(() => {
+      expect(reqFs).toHaveBeenCalledTimes(1);
+      expect(unlock).toHaveBeenCalled();
+    });
+  });
+
   it("calls navigator.vibrate on joystick pointerdown when vibrate is true", async () => {
     const vibrate = vi.fn(() => true as boolean);
     Object.defineProperty(navigator, "vibrate", {
@@ -274,5 +346,32 @@ describe("GameControllerElement", () => {
     knob.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
 
     expect(vibrate).not.toHaveBeenCalled();
+  });
+
+  it("pulses haptics when joystick cardinal changes", async () => {
+    const vibrate = vi.fn(() => true as boolean);
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      writable: true,
+      value: vibrate,
+    });
+
+    const el = await mount();
+    el.leftControl = "joystick";
+    await el.updateComplete;
+
+    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement | undefined;
+    if (!joystick) throw new Error("joystick not found");
+
+    vibrate.mockClear();
+    joystick.dispatchEvent(
+      new CustomEvent(EVENTS.gcJoystick.cardinal.up, {
+        bubbles: true,
+        composed: true,
+        detail: { cardinal: "up" },
+      }),
+    );
+
+    expect(vibrate).toHaveBeenCalledWith(10);
   });
 });

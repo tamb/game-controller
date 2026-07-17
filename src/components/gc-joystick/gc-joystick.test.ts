@@ -171,4 +171,34 @@ describe("GcJoystickElement", () => {
     const last = lastMoveWithMagnitude(spy);
     expect(last.detail.sectorId).toBe("custom-b");
   });
+
+  it("resets to default sectors when sectors-json is cleared", async () => {
+    const sectorsJson = JSON.stringify([
+      { id: "custom-a", startDeg: 0, endDeg: 179 },
+      { id: "custom-b", startDeg: 180, endDeg: 359 },
+    ]);
+    const el = await mountJoystick({ sectorsJson, deadZone: 0.05 });
+    await el.updateComplete;
+    expect(el.sectors.map((s) => s.id)).toEqual(["custom-a", "custom-b"]);
+
+    el.sectorsJson = null;
+    await el.updateComplete;
+    expect(el.sectors.map((s) => s.id)).toEqual(["n", "ne", "e", "se", "s", "sw", "w", "nw"]);
+  });
+
+  it("emits clock edge events when emitClock is true", async () => {
+    const el = await mountJoystick({ emitClock: true, deadZone: 0.05 });
+    const clockSpy = vi.fn();
+    const hourSpy = vi.fn();
+    el.addEventListener(EVENTS.gcJoystick.clock, clockSpy);
+    el.addEventListener("gcjoystick:clock:3", hourSpy);
+
+    dragKnob(el, 60, 0);
+
+    expect(clockSpy).toHaveBeenCalled();
+    expect(hourSpy).toHaveBeenCalled();
+    const clockEvt = clockSpy.mock.calls[0][0] as CustomEvent;
+    expect(clockEvt.detail.hour).toBe(3);
+    expect(clockEvt.detail.label).toBe("3-oclock");
+  });
 });
