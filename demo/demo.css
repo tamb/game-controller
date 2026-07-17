@@ -172,6 +172,53 @@ body {
   accent-color: #6fbf57;
 }
 
+.stage-support {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  padding-top: 0.15rem;
+  border-top: 1px solid var(--demo-line);
+}
+
+.stage-support__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+}
+
+.stage-support__item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  font-size: 0.78rem;
+}
+
+.stage-support__label {
+  color: var(--demo-ink-dim);
+}
+
+.stage-support__value {
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.72rem;
+}
+
+.stage-support__value[data-supported="true"] {
+  color: var(--demo-focus);
+}
+
+.stage-support__value[data-supported="false"] {
+  color: #f0a8a0;
+}
+
+.stage-toggle[data-unsupported="true"] {
+  opacity: 0.55;
+}
+
 .stage-screen__hint {
   margin: 0;
   font-size: 0.72rem;

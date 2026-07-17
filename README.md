@@ -218,7 +218,7 @@ Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include
 `npm run build:gh-pages` writes a static site to `dist-site/`:
 
 - `/` — landing page with links to the demo, Storybook, credits, and the GitHub repository
-- `/demo/` — full-viewport controller; the **stage screen** toggles presets (classic / action / analog / stick+A/B), left control, face-button count, and haptics
+- `/demo/` — full-viewport controller; the **stage screen** toggles presets (classic / action / analog / stick+A/B), left control, face-button count, and haptics, and shows **Fullscreen** / **Haptics** browser support status
 - `/credits.html` — author, license, and acknowledgements
 - `/storybook/` — component playground
 

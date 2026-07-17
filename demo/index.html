@@ -51,9 +51,34 @@
               <span>Haptic feedback</span>
             </label>
 
+            <section class="stage-support" aria-labelledby="support-heading">
+              <h2 id="support-heading" class="stage-screen__heading">Browser support</h2>
+              <ul class="stage-support__list">
+                <li class="stage-support__item">
+                  <span class="stage-support__label">Fullscreen</span>
+                  <span
+                    id="support-fullscreen"
+                    class="stage-support__value"
+                    data-supported="unknown"
+                    >Checking…</span
+                  >
+                </li>
+                <li class="stage-support__item">
+                  <span class="stage-support__label">Haptics</span>
+                  <span
+                    id="support-haptics"
+                    class="stage-support__value"
+                    data-supported="unknown"
+                    >Checking…</span
+                  >
+                </li>
+              </ul>
+              <p id="support-note" class="stage-screen__hint" hidden></p>
+            </section>
+
             <p class="stage-screen__hint">
               Rotate the device or widen the window for landscape. Use fullscreen on the controller
-              for a full-bleed playfield.
+              for a full-bleed playfield when the browser supports it.
             </p>
           </section>
 
