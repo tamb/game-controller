@@ -49,6 +49,8 @@
   --gc-stage-border-color: #000000;
   --gc-stage-border: var(--gc-stage-border-width) var(--gc-stage-border-style)
     var(--gc-stage-border-color);
+  /** Cap stage height in portrait; unset in landscape via media query. */
+  --gc-stage-max-height: 100%;
 
   /* Control bands (behind d-pad / face buttons) */
   --gc-main-controls-bg: transparent;
@@ -164,20 +166,22 @@
 .gamecontroller__center {
   display: flex;
   flex-direction: column;
-  flex: 1 1 auto;
+  flex: 1 1 0;
   min-width: 0;
   min-height: 0;
+  overflow: hidden;
 }
 
 .gamecontroller__stage {
-  flex: 1 1 auto;
+  flex: 1 1 0;
   display: flex;
   flex-direction: column;
   min-width: 0;
+  min-height: min(40dvh, 50%);
+  max-height: var(--gc-stage-max-height);
   overflow: hidden;
   background: var(--gc-stage-bg);
   border: var(--gc-stage-border);
-  min-height: min(40dvh, 50%);
   width: 100%;
   max-width: 100%;
   position: relative;
@@ -190,6 +194,9 @@
   min-width: 0;
   width: 100%;
   align-self: stretch;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
 .gamecontroller__ancillaries {
@@ -301,15 +308,17 @@
 
   .gamecontroller__center {
     order: 2;
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-width: 0;
     min-height: 0;
     row-gap: clamp(0.25rem, 1.5vh, 0.5rem);
+    --gc-stage-max-height: none;
   }
 
   .gamecontroller__stage {
-    flex: 1 1 auto;
+    flex: 1 1 0;
     min-height: 0;
+    max-height: none;
     width: auto;
     max-width: none;
   }
