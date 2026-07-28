@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Game controller">
+  <rect width="512" height="512" rx="96" fill="#020617"/>
+  <rect x="56" y="176" width="400" height="192" rx="96" fill="#111827" stroke="#3d6b32" stroke-width="10"/>
+  <rect x="128" y="232" width="28" height="80" rx="6" fill="#d7f5c8"/>
+  <rect x="104" y="256" width="76" height="28" rx="6" fill="#d7f5c8"/>
+  <circle cx="352" cy="248" r="22" fill="#f8fafc"/>
+  <circle cx="404" cy="280" r="22" fill="#f8fafc"/>
+  <circle cx="328" cy="296" r="22" fill="#8fbf7a"/>
+  <circle cx="380" cy="328" r="22" fill="#8fbf7a"/>
+</svg>
