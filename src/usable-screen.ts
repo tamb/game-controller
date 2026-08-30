@@ -340,6 +340,10 @@ export function subscribeUsableScreenScale(
   const win = host.ownerDocument?.defaultView ?? window;
   const doc = host.ownerDocument ?? document;
   const vv = win.visualViewport;
+  let raf = 0;
+  raf = win.requestAnimationFrame(() => {
+    raf = win.requestAnimationFrame(apply);
+  });
 
   win.addEventListener("resize", apply);
   win.addEventListener("orientationchange", apply);
@@ -353,6 +357,7 @@ export function subscribeUsableScreenScale(
   if (doc.body) ro?.observe(doc.body);
 
   return () => {
+    if (raf) win.cancelAnimationFrame(raf);
     win.removeEventListener("resize", apply);
     win.removeEventListener("orientationchange", apply);
     doc.removeEventListener("fullscreenchange", apply);
