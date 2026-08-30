@@ -7,31 +7,41 @@
  *     --gc-action-btn-bg: #333;
  *   }
  *
- * Layout fills the dynamic viewport (`100dvh` / `100dvw`) with safe-area insets and does not
- * grow past it. The stage clips overflow and scrolls slotted content. `touch-action:
- * manipulation` on the host disables double-tap zoom. Portrait (`orientation: portrait`):
- * `.gamecontroller__center` (stage → ancillary), then `.gamecontroller__main-controls` row
- * (stick | face buttons). Landscape uses flex `order` + `display: contents` on
- * `.gamecontroller__main-controls` so stick | center | actions read left to right. Fullscreen
- * uses `requestFullscreen()` on `<game-controller>`.
+ * Layout fills the usable screen (`--gc-usable-height` / `--gc-usable-width`: dynamic
+ * viewport minus `--gc-chrome-*` header, footer, and side menus) with safe-area insets
+ * and does not grow past it. The stage clips overflow and scrolls slotted content.
+ * `touch-action: manipulation` on the host disables double-tap zoom. Portrait
+ * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then
+ * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex
+ * `order` + `display: contents` on `.gamecontroller__main-controls` so stick | center |
+ * actions read left to right. Fullscreen uses `requestFullscreen()` on `<game-controller>`.
  */
 :host {
+  /**
+   * Usable screen = visual viewport minus header / footer / side chrome.
+   * `scale="usable"` (default) writes measured pixel values; override the chrome
+   * tokens for static menus (`--gc-chrome-top: 56px`).
+   */
+  --gc-chrome-top: 0px;
+  --gc-chrome-right: 0px;
+  --gc-chrome-bottom: 0px;
+  --gc-chrome-left: 0px;
+  --gc-usable-height: calc(100dvh - var(--gc-chrome-top) - var(--gc-chrome-bottom));
+  --gc-usable-width: calc(100dvw - var(--gc-chrome-left) - var(--gc-chrome-right));
+
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   width: 100%;
-  max-width: 100%;
+  max-width: min(100%, var(--gc-usable-width));
   /**
-   * Default fills the dynamic viewport and will not grow past it. For embedded
+   * Default fills the usable screen and will not grow past it. For embedded
    * previews, set on an ancestor: `--gc-host-min-height: 100%` and
    * `--gc-host-height: 100%` (`--gc-host-max-height` follows height when unset).
    */
-  min-height: var(--gc-host-min-height, 100vh);
-  /* biome-ignore lint/suspicious/noDuplicateProperties: progressive enhancement */
-  min-height: var(--gc-host-min-height, 100dvh);
+  min-height: var(--gc-host-min-height, var(--gc-usable-height));
   height: var(--gc-host-height, auto);
-  max-height: var(--gc-host-max-height, var(--gc-host-height, 100vh));
-  max-height: var(--gc-host-max-height, var(--gc-host-height, 100dvh));
+  max-height: var(--gc-host-max-height, var(--gc-host-height, var(--gc-usable-height)));
   overflow: hidden;
   /**
    * `manipulation` keeps panning/pinch but disables double-tap zoom so rapid
@@ -119,8 +129,13 @@
 /* iOS Safari legacy full-height when parent chain lacks height */
 @supports (-webkit-touch-callout: none) {
   :host {
-    min-height: var(--gc-host-min-height, -webkit-fill-available);
-    max-height: var(--gc-host-max-height, var(--gc-host-height, -webkit-fill-available));
+    --gc-usable-height: calc(
+      -webkit-fill-available -
+      var(--gc-chrome-top) -
+      var(--gc-chrome-bottom)
+    );
+    min-height: var(--gc-host-min-height, var(--gc-usable-height));
+    max-height: var(--gc-host-max-height, var(--gc-host-height, var(--gc-usable-height)));
   }
 }
 

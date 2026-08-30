@@ -37,6 +37,7 @@ type StoryArgs = {
   actions: number;
   vibrate: boolean;
   leftControl: "dpad" | "joystick";
+  scale: "usable" | "none";
 };
 
 function stageEventLog(): SbEventLogElement {
@@ -54,6 +55,7 @@ function controller(args: StoryArgs, extras?: { theme?: Readonly<Record<string, 
     actions: args.actions,
     vibrate: args.vibrate,
     leftControl: args.leftControl,
+    scale: args.scale,
   });
   if (extras?.theme) {
     for (const [name, value] of Object.entries(extras.theme)) {
@@ -71,7 +73,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "React `<GameController>` also exported as the `<game-controller>` custom element (via `@r2wc/core`). **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.",
+          'React `<GameController>` also exported as the `<game-controller>` custom element (via `@r2wc/core`). **`scale="usable"`** (default) sizes the host to the visual viewport minus header/footer chrome (`--gc-usable-height`). **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.',
       },
     },
   },
@@ -79,6 +81,7 @@ const meta = {
     actions: 2,
     vibrate: true,
     leftControl: "dpad" as const,
+    scale: "usable" as const,
   },
   argTypes: {
     actions: {
@@ -95,6 +98,12 @@ const meta = {
       control: "select",
       options: ["dpad", "joystick"],
       description: "Left-hand control (`left-control`)",
+    },
+    scale: {
+      control: "select",
+      options: ["usable", "none"],
+      description:
+        "Fit the remaining visual viewport after header/footer chrome (`scale`). `none` uses CSS tokens only.",
     },
   },
   render: (args: StoryArgs) => controller(args),
@@ -192,7 +201,7 @@ export const FillViewport: Story = {
     docs: {
       description: {
         story:
-          "Full canvas height (`100dvh`) with safe-area padding. Use **fullscreen** on the controller for OS fullscreen (`:host(:fullscreen)`).",
+          "Fills the usable canvas (`--gc-usable-height`, default `100dvh` minus chrome) with safe-area padding. Use **fullscreen** on the controller for OS fullscreen (`:host(:fullscreen)`).",
       },
     },
   },
@@ -201,5 +210,45 @@ export const FillViewport: Story = {
       actions: args.actions,
       vibrate: args.vibrate,
       leftControl: args.leftControl,
+      scale: args.scale,
     }),
+};
+
+export const UsableScreenWithChrome: Story = {
+  name: "Usable screen (header + footer)",
+  args: { actions: 2, vibrate: true, scale: "usable" },
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      description: {
+        story:
+          '`scale="usable"` sizes the controller to the visual viewport minus the marked **header** and **footer** menus (`data-gc-chrome`). Resize the window to see `--gc-usable-height` track the remaining space.',
+      },
+    },
+  },
+  render: (args) => {
+    const wrap = document.createElement("div");
+    wrap.style.cssText =
+      "display:flex;flex-direction:column;min-height:100dvh;background:#111827;color:#e5e7eb;font-family:system-ui,sans-serif;";
+    const header = document.createElement("header");
+    header.dataset.gcChrome = "header";
+    header.textContent = "App menu";
+    header.style.cssText =
+      "flex:0 0 48px;display:flex;align-items:center;padding:0 0.85rem;background:#0f172a;border-bottom:1px solid #334155;font-size:0.85rem;font-weight:600;";
+    const footer = document.createElement("footer");
+    footer.dataset.gcChrome = "footer";
+    footer.textContent = "Status · footer menu";
+    footer.style.cssText =
+      "flex:0 0 40px;display:flex;align-items:center;padding:0 0.85rem;background:#0f172a;border-top:1px solid #334155;font-size:0.75rem;color:#94a3b8;";
+    const el = createEl<GameControllerElement>("game-controller", {
+      actions: args.actions,
+      vibrate: args.vibrate,
+      leftControl: args.leftControl,
+      scale: args.scale,
+    });
+    el.style.flex = "1 1 auto";
+    el.style.minHeight = "0";
+    wrap.append(header, el, footer);
+    return wrap;
+  },
 };

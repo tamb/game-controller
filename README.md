@@ -86,7 +86,7 @@ document.body.appendChild(el);
 
 ### Layout and fullscreen
 
-`<game-controller>` fills the dynamic viewport (**`min-height` / `max-height: 100dvh`**) and **full width**, with **`env(safe-area-inset-*)`** padding on the inner shell so controls stay off notches and home bars when the page uses **`viewport-fit=cover`**:
+`<game-controller>` fills the **usable screen** — the visual viewport minus header / footer / side menus — via **`--gc-usable-height`** / **`--gc-usable-width`**. Those tokens default to **`100dvh` / `100dvw` minus `--gc-chrome-*`**. **`env(safe-area-inset-*)`** padding on the inner shell keeps controls off notches and home bars when the page uses **`viewport-fit=cover`**:
 
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -98,7 +98,24 @@ The **fullscreen** control calls **`this.requestFullscreen()`** on the element (
 
 The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the default d-pad for `<gc-joystick>`, or project your own control into the **`left-control`** slot (events remain **`gcjoystick:*`** / **`gcdpad:*`**).
 
-Embedded hosts with a fixed height should set **`--gc-host-min-height: 100%`** and **`--gc-host-height: 100%`** on an ancestor (and give that chain a definite height) so `:host` does not insist on **`100dvh`** and overflow the panel. **`--gc-host-max-height`** defaults to the same value as **`--gc-host-height`** when set.
+**`scale="usable"`** (default) measures the visual viewport and any page chrome, then writes **`--gc-usable-*`** and **`--gc-chrome-*`** so the shell stays in the remaining space. Mark menus with **`data-gc-chrome="header"`** / **`"footer"`** (or **`"left"`** / **`"right"`**), use a previous-sibling **`<header>`** / next-sibling **`<footer>`**, or point at them with **`chrome-header`** / **`chrome-footer`** (CSS selector or pixel size, e.g. **`chrome-header="56"`**). Stage content (the Gameboy screen) is ignored. **`scale="none"`** turns off measurement so only the CSS tokens apply.
+
+```html
+<header data-gc-chrome="header">App menu</header>
+<game-controller scale="usable" chrome-footer="48"></game-controller>
+<footer data-gc-chrome="footer">Status</footer>
+```
+
+Static layouts can set the tokens without JS:
+
+```css
+game-controller {
+  --gc-chrome-top: 56px;
+  --gc-chrome-bottom: 48px;
+}
+```
+
+Embedded hosts with a fixed height should set **`--gc-host-min-height: 100%`** and **`--gc-host-height: 100%`** on an ancestor (and give that chain a definite height) so `:host` does not insist on the usable viewport and overflow the panel. **`--gc-host-max-height`** defaults to the same value as **`--gc-host-height`** when set.
 
 ### Events
 
@@ -158,6 +175,8 @@ Also: **`dead-zone`** (default `0.12`), **`sectors-json`** (`[{ id, startDeg, en
 - **`actions`**: `2` | `4` — number of face buttons (attribute `actions`, reflected).
 - **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, joystick grab, and joystick **cardinal** changes where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`).
 - **`leftControl`**: `"dpad"` (default) or `"joystick"` — attribute **`left-control`** swaps `<gc-dpad>` for `<gc-joystick>` with **`emit-cardinal`** enabled (listen for **`gcjoystick:*`**; no automatic **`gamecontroller:dpad:*`** mapping).
+- **`scale`**: `"usable"` (default) or `"none"` — attribute **`scale`**. Usable mode sizes the host to the remaining visual viewport after header / footer menus (`measureUsableScreen` / `--gc-usable-height`). **`none`** (also `false` / `0` / `off`) leaves sizing to CSS tokens only.
+- **`chromeHeader`** / **`chromeFooter`**: optional chrome sources — attributes **`chrome-header`** / **`chrome-footer`**. CSS selector, pixel size (`48` or `48px`), or (from JS/React) an element outside the controller. Auto-detects **`data-gc-chrome`** and sibling **`<header>`** / **`<footer>`** when omitted.
 - **`hooks`**: optional `Record<string, (controller) => void>` keyed by control name (`select`, `start`, `a`, …); not an HTML attribute.
 
 Fullscreen unlocks **`screen.orientation`** (when available) so the device can rotate into **landscape** while the controller is fullscreen.
@@ -224,6 +243,15 @@ Set custom properties on `<game-controller>`. They apply on `:host` and drive co
 | `--gc-ancillary-btn-border-radius` | Corners |
 | `--gc-ancillary-margin` / `--gc-ancillary-padding` | Spacing |
 
+**Usable screen / chrome**
+
+| Variable | Role |
+| --- | --- |
+| `--gc-usable-height` / `--gc-usable-width` | Remaining screen after chrome; default host min/max size (`calc(100dvh − chrome)` until `scale="usable"` writes pixels) |
+| `--gc-chrome-top` / `--gc-chrome-bottom` | Header and footer menu bands (also written by usable scale) |
+| `--gc-chrome-left` / `--gc-chrome-right` | Side menus |
+| `--gc-host-min-height` / `--gc-host-height` / `--gc-host-max-height` | Embedded-host overrides (see Layout above) |
+
 **Other**
 
 | Variable | Role |
@@ -258,7 +286,7 @@ npm install
 npm run storybook
 ```
 
-Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Fill viewport (no event log)** for full **`100dvh`**. Portrait vs landscape controls follow **viewport orientation**—widen the browser or use device rotation / fullscreen to hit **`orientation: landscape`**.
+Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Fill viewport (no event log)** for the usable screen, or **Usable screen (header + footer)** to see chrome subtracted. Portrait vs landscape controls follow **viewport orientation**—widen the browser or use device rotation / fullscreen to hit **`orientation: landscape`**.
 
 The playground still mounts the **custom elements**; the same components can be imported as React from `@tamb/gamecontroller` (or the `@tamb/gamecontroller/react` alias).
 

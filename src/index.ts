@@ -8,6 +8,7 @@ export type {
   GameControllerHooks,
   GameControllerLeftControl,
   GameControllerProps,
+  GameControllerScale,
 } from "./components/game-controller/game-controller";
 export {
   GAME_CONTROLLER_SLOTS,
@@ -55,6 +56,24 @@ export {
   SB_GC_FACE_EVENTS,
   SB_GC_JOYSTICK_EVENTS,
 } from "./events";
+export type {
+  MeasureUsableScreenOptions,
+  UsableScreenChromeSource,
+  UsableScreenInsets,
+  UsableScreenSize,
+  UsableScreenViewport,
+} from "./usable-screen";
+export {
+  applyUsableScreenScale,
+  clearUsableScreenScale,
+  computeUsableScreen,
+  GC_USABLE_SCREEN_VARS,
+  measureUsableScreen,
+  parseUsableScreenChromeSource,
+  readVisualViewportSize,
+  resolveGameControllerScale,
+  subscribeUsableScreenScale,
+} from "./usable-screen";
 
 import type { GameControllerElement } from "./components/game-controller/game-controller";
 import { GameControllerElement as GameControllerCtor } from "./components/game-controller/game-controller";

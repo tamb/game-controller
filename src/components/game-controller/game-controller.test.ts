@@ -39,6 +39,55 @@ describe("GameControllerElement", () => {
     expect(customElements.get("game-controller")).toBeDefined();
   });
 
+  it("writes usable-screen CSS vars for scale=usable after header/footer chrome", async () => {
+    const header = document.createElement("header");
+    header.dataset.gcChrome = "header";
+    const el = document.createElement("game-controller") as GameControllerElement;
+    el.scale = "usable";
+    const footer = document.createElement("footer");
+    footer.dataset.gcChrome = "footer";
+    document.body.append(header, el, footer);
+
+    const stub = (node: Element, top: number, height: number) => {
+      Object.defineProperty(node, "getBoundingClientRect", {
+        configurable: true,
+        value: () => ({
+          top,
+          left: 0,
+          width: 360,
+          height,
+          right: 360,
+          bottom: top + height,
+          x: 0,
+          y: top,
+          toJSON() {
+            return this;
+          },
+        }),
+      });
+    };
+    stub(header, 0, 50);
+    stub(el, 50, 700);
+    stub(footer, 750, 50);
+
+    await el.updateComplete;
+    window.dispatchEvent(new Event("resize"));
+    await el.updateComplete;
+
+    expect(el.style.getPropertyValue("--gc-usable-height")).toMatch(/px$/);
+    expect(el.style.getPropertyValue("--gc-chrome-top")).toMatch(/px$/);
+    expect(el.scale).toBe("usable");
+  });
+
+  it("does not write usable-screen vars when scale is none", async () => {
+    const el = document.createElement("game-controller") as GameControllerElement;
+    el.scale = "none";
+    document.body.appendChild(el);
+    await el.updateComplete;
+    expect(el.style.getPropertyValue("--gc-usable-height")).toBe("");
+    expect(el.scale).toBe("none");
+  });
+
   it("projects custom named slots and keeps defaults when empty", async () => {
     const el = document.createElement("game-controller") as GameControllerElement;
     const stick = document.createElement("gc-joystick");
