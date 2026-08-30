@@ -7,6 +7,13 @@ import { dispatchComposed } from "../../lib/dispatch-event";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { unlockScreenOrientation } from "../../orientation";
+import {
+  type GameControllerScale,
+  parseUsableScreenChromeSource,
+  resolveGameControllerScale,
+  subscribeUsableScreenScale,
+  type UsableScreenChromeSource,
+} from "../../usable-screen";
 import { GcAncillaryButtons } from "../gc-ancillary-buttons/gc-ancillary-buttons";
 import type { GcDpadDirection } from "../gc-dpad/gc-dpad";
 import { GcDpad } from "../gc-dpad/gc-dpad";
@@ -27,7 +34,7 @@ import {
   partitionGameControllerSlots,
 } from "./game-controller-slots";
 
-export type { GameControllerLeftControl };
+export type { GameControllerLeftControl, GameControllerScale };
 export {
   GAME_CONTROLLER_SLOTS,
   GameControllerActions,
@@ -45,6 +52,12 @@ export type GameControllerProps = {
   actions?: number;
   vibrate?: boolean | string;
   leftControl?: string;
+  /** `"usable"` (default) fits the remaining visual viewport after header/footer chrome. */
+  scale?: string;
+  /** Header menu: selector, `48` / `48px`, or an element outside the controller. */
+  chromeHeader?: UsableScreenChromeSource;
+  /** Footer menu: selector, pixel size, or element. */
+  chromeFooter?: UsableScreenChromeSource;
   hooks?: GameControllerHooks;
   children?: ReactNode;
   container?: HTMLElement;
@@ -80,6 +93,9 @@ function GameControllerView({
   actions = 2,
   vibrate: vibrateProp,
   leftControl,
+  scale,
+  chromeHeader,
+  chromeFooter,
   hooks = {},
   children,
   container,
@@ -162,6 +178,16 @@ function GameControllerView({
     };
   }, [container, vibrate]);
 
+  useLayoutEffect(() => {
+    const host = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
+    if (!host) return;
+    if (resolveGameControllerScale(scale) !== "usable") return;
+    return subscribeUsableScreenScale(host, {
+      header: parseUsableScreenChromeSource(chromeHeader),
+      footer: parseUsableScreenChromeSource(chromeFooter),
+    });
+  }, [container, scale, chromeHeader, chromeFooter]);
+
   const rootClass = [inShadow ? undefined : HOST_CLASS, className].filter(Boolean).join(" ");
 
   const body = (
@@ -235,6 +261,9 @@ export interface GameControllerElement extends HTMLElement {
   actions: number;
   vibrate: boolean;
   leftControl: GameControllerLeftControl;
+  scale: GameControllerScale;
+  chromeHeader: string;
+  chromeFooter: string;
   hooks: GameControllerHooks;
   readonly updateComplete: Promise<void>;
 }
@@ -246,6 +275,9 @@ export const GameControllerElement = defineReactElement<GameControllerProps, Gam
       actions: "number",
       vibrate: "boolean",
       leftControl: "string",
+      scale: "string",
+      chromeHeader: "string",
+      chromeFooter: "string",
     },
     objectProps: ["hooks"],
   },
