@@ -86,17 +86,19 @@ document.body.appendChild(el);
 
 ### Layout and fullscreen
 
-`<game-controller>` stretches to at least **`100dvh`** tall and **full width**, with **`env(safe-area-inset-*)`** padding on the inner shell so controls stay off notches and home bars when the page uses **`viewport-fit=cover`**:
+`<game-controller>` fills the dynamic viewport (**`min-height` / `max-height: 100dvh`**) and **full width**, with **`env(safe-area-inset-*)`** padding on the inner shell so controls stay off notches and home bars when the page uses **`viewport-fit=cover`**:
 
 ```html
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 ```
 
+The host uses **`touch-action: manipulation`** so double-tapping buttons or the d-pad does not zoom the page (pinch-zoom is still allowed). The **stage** (screen) clips overflow and scrolls the slotted content inside the frame — tall HUD / log content cannot spill over the controls.
+
 The **fullscreen** control calls **`this.requestFullscreen()`** on the element (not `<html>`), so **`:host(:fullscreen)`** fills the screen when the API succeeds. Escape exits fullscreen and keeps the layout in sync.
 
 The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the default d-pad for `<gc-joystick>`, or project your own control into the **`left-control`** slot (events remain **`gcjoystick:*`** / **`gcdpad:*`**).
 
-Embedded hosts with a fixed height should set **`--gc-host-min-height: 100%`** and **`--gc-host-height: 100%`** on an ancestor (and give that chain a definite height) so `:host` does not insist on **`100dvh`** and overflow the panel.
+Embedded hosts with a fixed height should set **`--gc-host-min-height: 100%`** and **`--gc-host-height: 100%`** on an ancestor (and give that chain a definite height) so `:host` does not insist on **`100dvh`** and overflow the panel. **`--gc-host-max-height`** defaults to the same value as **`--gc-host-height`** when set.
 
 ### Events
 
