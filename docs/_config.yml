@@ -1,0 +1,5 @@
+# Legacy GitHub Pages still builds `/docs` with Jekyll (`pages-build-deployment`).
+# The real site (demo + Storybook) is published by `.github/workflows/deploy-storybook.yml`.
+# Keep this folder present so the Jekyll job can chdir and succeed.
+title: "@tamb/gamecontroller"
+description: A Gameboy-style virtual controller skin for the web.

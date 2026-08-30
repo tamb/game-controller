@@ -12,7 +12,8 @@
       "!!**/dist-site",
       "!!**/storybook-static",
       "!!**/node_modules",
-      "!!**/coverage"
+      "!!**/coverage",
+      "!!**/docs/_site"
     ]
   },
   "formatter": {

@@ -2,7 +2,9 @@
 # Triggers on pushes to `main` only (not feature branches).
 #
 # Repo setup: Settings → Pages → Build and deployment → Source: GitHub Actions
-# (not “Deploy from a branch”). Then push or use Actions → Run workflow.
+# (not “Deploy from a branch”). The legacy Jekyll builder still looks at `/docs`
+# when the repo source is `main` + `/docs`; keep that folder so that job can
+# succeed. Then push or use Actions → Run workflow.
 
 name: Deploy GitHub Pages (Storybook + site)
 
