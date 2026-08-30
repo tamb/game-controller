@@ -2,8 +2,10 @@ import { useRef } from "react";
 import { EVENTS } from "../../events";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
+import { immediatePressProps } from "../../lib/immediate-press";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import styles from "./gc-ancillary-buttons.css?raw";
 
 const HOST_CLASS = "gcancillary-host";
@@ -29,6 +31,7 @@ const BUTTONS: readonly { id: GcAncillaryId; part: string }[] = [
 export function GcAncillaryButtons({ container, onPress }: GcAncillaryButtonsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inShadow = isShadowContainer(container);
+  useDoubleTapZoomGuard(container, rootRef);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
 
   const emitPress = (id: GcAncillaryId) => {
@@ -54,7 +57,7 @@ export function GcAncillaryButtons({ container, onPress }: GcAncillaryButtonsPro
             className="gcancillary__btn"
             part={part}
             id={id === "fullscreen" ? "fullscreen" : undefined}
-            onClick={() => emitPress(id)}
+            {...immediatePressProps(() => emitPress(id))}
           >
             {id}
           </button>

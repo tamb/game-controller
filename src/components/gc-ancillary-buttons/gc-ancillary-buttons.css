@@ -34,7 +34,7 @@
   color: var(--gc-ancillary-btn-color, #000000);
   border: var(--gc-ancillary-btn-border, 1px solid #000000);
   border-radius: var(--gc-ancillary-btn-border-radius, 6px);
-  touch-action: manipulation;
+  touch-action: none;
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;

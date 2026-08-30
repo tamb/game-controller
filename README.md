@@ -89,10 +89,13 @@ document.body.appendChild(el);
 `<game-controller>` fills the **usable screen** — the visual viewport minus header / footer / side menus — via **`--gc-usable-height`** / **`--gc-usable-width`**. Those tokens default to **`100dvh` / `100dvw` minus `--gc-chrome-*`**. **`env(safe-area-inset-*)`** padding on the inner shell keeps controls off notches and home bars when the page uses **`viewport-fit=cover`**:
 
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover"
+/>
 ```
 
-The host uses **`touch-action: manipulation`** so double-tapping buttons or the d-pad does not zoom the page (pinch-zoom is still allowed). The **stage** (screen) clips overflow and scrolls the slotted content inside the frame — tall HUD / log content cannot spill over the controls.
+The host uses **`touch-action: manipulation`** (buttons use **`none`**) and **`installDoubleTapZoomGuard`** so double-tapping / double-clicking does not zoom the page. CSS alone is not enough: WebKit ignores `touch-action` for hits inside shadow trees. The GitHub Pages demo also sets **`maximum-scale=1`** / **`user-scalable=no`**. The **stage** (screen) clips overflow and scrolls the slotted content inside the frame — tall HUD / log content cannot spill over the controls.
 
 The **fullscreen** control calls **`this.requestFullscreen()`** on the element (not `<html>`), so **`:host(:fullscreen)`** fills the screen when the API succeeds. Escape exits fullscreen and keeps the layout in sync.
 

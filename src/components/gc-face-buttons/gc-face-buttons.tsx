@@ -3,8 +3,10 @@ import type { GameControllerActionKey } from "../../events";
 import { EVENTS } from "../../events";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
+import { immediatePressProps } from "../../lib/immediate-press";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import {
   gameControllerFaceButtonLabels,
   gcFaceButtonsInnerClass,
@@ -27,6 +29,7 @@ export type GcFaceButtonsProps = {
 export function GcFaceButtons({ actions = 2, container, onButton }: GcFaceButtonsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inShadow = isShadowContainer(container);
+  useDoubleTapZoomGuard(container, rootRef);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
   const labels = gameControllerFaceButtonLabels(actions);
   const cls = gcFaceButtonsInnerClass(actions);
@@ -49,7 +52,7 @@ export function GcFaceButtons({ actions = 2, container, onButton }: GcFaceButton
             type="button"
             className={`gcface__btn gcface__btn--${i + 1}`}
             part={`btn-${key}`}
-            onClick={() => emitFace(key)}
+            {...immediatePressProps(() => emitFace(key))}
           >
             {key.toUpperCase()}
           </button>

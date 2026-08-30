@@ -13,8 +13,9 @@ const ancillaryCss = readCss("..", "gc-ancillary-buttons", "gc-ancillary-buttons
 const joystickCss = readCss("..", "gc-joystick", "gc-joystick.css");
 
 describe("controller touch + stage overflow CSS", () => {
-  it("disables double-tap zoom on the controller host", () => {
+  it("disables double-tap zoom on the controller host and shadow descendants", () => {
     expect(controllerCss).toMatch(/:host\s*\{[^}]*touch-action:\s*manipulation/);
+    expect(controllerCss).toMatch(/:host \*\s*\{[^}]*touch-action:\s*manipulation/);
   });
 
   it("caps the host so the shell cannot grow past the viewport", () => {
@@ -43,9 +44,9 @@ describe("controller touch + stage overflow CSS", () => {
   });
 
   it("disables double-tap zoom on standalone controls", () => {
-    expect(faceCss).toMatch(/touch-action:\s*manipulation/);
-    expect(dpadCss).toMatch(/touch-action:\s*manipulation/);
-    expect(ancillaryCss).toMatch(/touch-action:\s*manipulation/);
+    expect(faceCss).toMatch(/touch-action:\s*none/);
+    expect(dpadCss).toMatch(/touch-action:\s*none/);
+    expect(ancillaryCss).toMatch(/touch-action:\s*none/);
     expect(joystickCss).toMatch(/touch-action:\s*none/);
   });
 });

@@ -2,8 +2,10 @@ import { useRef } from "react";
 import { EVENTS } from "../../events";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
+import { immediatePressProps } from "../../lib/immediate-press";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import styles from "./gc-dpad.css?raw";
 
 const HOST_CLASS = "gcdpad-host";
@@ -25,6 +27,7 @@ const DIRECTIONS: readonly GcDpadDirection[] = ["up", "left", "right", "down"];
 export function GcDpad({ container, onDirection }: GcDpadProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inShadow = isShadowContainer(container);
+  useDoubleTapZoomGuard(container, rootRef);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
 
   const emitDirection = (direction: GcDpadDirection) => {
@@ -46,7 +49,7 @@ export function GcDpad({ container, onDirection }: GcDpadProps) {
             className={`gcdpad__btn gcdpad__btn--${direction}`}
             aria-label={direction[0].toUpperCase() + direction.slice(1)}
             part={`btn-${direction}`}
-            onClick={() => emitDirection(direction)}
+            {...immediatePressProps(() => emitDirection(direction))}
           />
         ))}
       </div>

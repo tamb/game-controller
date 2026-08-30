@@ -7,6 +7,7 @@ import { dispatchComposed } from "../../lib/dispatch-event";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { unlockScreenOrientation } from "../../orientation";
+import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import {
   type GameControllerScale,
   parseUsableScreenChromeSource,
@@ -107,6 +108,7 @@ function GameControllerView({
   hooksRef.current = hooks;
 
   const inShadow = isShadowContainer(container);
+  useDoubleTapZoomGuard(container, rootRef);
   const css = resolveComponentCss(styleText, HOST_CLASS, inShadow);
   const vibrate = coerceVibrate(vibrateProp);
   const leftStickMode = resolveGameControllerLeftControl(leftControl);
