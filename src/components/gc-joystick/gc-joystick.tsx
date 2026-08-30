@@ -4,6 +4,7 @@ import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import styles from "./gc-joystick.css?raw";
 import {
   buildJoystickMoveSnapshot,
@@ -81,6 +82,7 @@ export function GcJoystick({
   const [knob, setKnob] = useState({ dx: 0, dy: 0 });
 
   const inShadow = isShadowContainer(container);
+  useDoubleTapZoomGuard(container, rootRef);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
   const doCardinal = coerceBool(emitCardinal);
   const doClock = coerceBool(emitClock);

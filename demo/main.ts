@@ -4,6 +4,7 @@ import type {
   GameControllerElement,
   GameControllerLeftControl,
 } from "../src/components/game-controller/game-controller";
+import { installDoubleTapZoomGuard } from "../src/prevent-double-tap-zoom";
 import {
   applyDemoLayout,
   type DemoLayoutState,
@@ -101,6 +102,8 @@ presetEl?.addEventListener("change", () => {
 leftControlEl?.addEventListener("change", syncControllerFromUi);
 actionsEl?.addEventListener("change", syncControllerFromUi);
 vibrateEl?.addEventListener("change", syncControllerFromUi);
+
+installDoubleTapZoomGuard(document);
 
 renderCapabilityStatus();
 

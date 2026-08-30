@@ -10,7 +10,8 @@
  * Layout fills the usable screen (`--gc-usable-height` / `--gc-usable-width`: dynamic
  * viewport minus `--gc-chrome-*` header, footer, and side menus) with safe-area insets
  * and does not grow past it. The stage clips overflow and scrolls slotted content.
- * `touch-action: manipulation` on the host disables double-tap zoom. Portrait
+ * `touch-action: manipulation` on the host and descendants, plus a JS tap guard,
+ * disable double-tap zoom (WebKit ignores `touch-action` inside shadow trees). Portrait
  * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then
  * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex
  * `order` + `display: contents` on `.gamecontroller__main-controls` so stick | center |
@@ -150,6 +151,14 @@
 :host *::before,
 :host *::after {
   box-sizing: inherit;
+}
+
+/**
+ * WebKit does not apply the host `touch-action` to hits inside the shadow tree.
+ * Repeat it on descendants; the JS guard is the fallback when this is ignored.
+ */
+:host * {
+  touch-action: manipulation;
 }
 
 .gamecontroller__shell {

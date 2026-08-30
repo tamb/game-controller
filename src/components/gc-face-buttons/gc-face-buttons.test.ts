@@ -78,6 +78,19 @@ describe("GcFaceButtonsElement", () => {
     expect((spy.mock.calls[0][0] as CustomEvent).detail.button).toBe(buttonKey);
   });
 
+  it("emits on pointerdown and does not double-fire the following click", async () => {
+    const el = await mount(2);
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gcFace.a, spy);
+    const btn = [...el.shadowRoot!.querySelectorAll("button")].find(
+      (b) => b.textContent?.trim() === "A",
+    );
+    if (!btn) throw new Error("missing A");
+    btn.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
+    btn.click();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
   it("exposes part names per face button", async () => {
     const el = await mount(4);
     const root = el.shadowRoot!;

@@ -451,4 +451,19 @@ describe("GameControllerElement", () => {
 
     expect(vibrate).toHaveBeenCalledWith(10);
   });
+
+  it("cancels a second tap so the page does not zoom", async () => {
+    const el = await mount();
+    const first = new Event("touchend", { bubbles: true, cancelable: true });
+    el.dispatchEvent(first);
+    expect(first.defaultPrevented).toBe(false);
+
+    const second = new Event("touchend", { bubbles: true, cancelable: true });
+    el.dispatchEvent(second);
+    expect(second.defaultPrevented).toBe(true);
+
+    const dblclick = new MouseEvent("dblclick", { bubbles: true, cancelable: true });
+    el.dispatchEvent(dblclick);
+    expect(dblclick.defaultPrevented).toBe(true);
+  });
 });

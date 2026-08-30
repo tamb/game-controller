@@ -56,6 +56,11 @@ export {
   SB_GC_FACE_EVENTS,
   SB_GC_JOYSTICK_EVENTS,
 } from "./events";
+export {
+  DOUBLE_TAP_ZOOM_WINDOW_MS,
+  installDoubleTapZoomGuard,
+  shouldPreventDoubleTapZoom,
+} from "./prevent-double-tap-zoom";
 export type {
   MeasureUsableScreenOptions,
   UsableScreenChromeSource,
