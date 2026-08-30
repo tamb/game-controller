@@ -6,7 +6,7 @@
     "moduleResolution": "bundler",
     "target": "ES2022",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "jsx": "react",
+    "jsx": "react-jsx",
     "allowJs": true,
     "declaration": true,
     "declarationMap": true,
@@ -17,5 +17,5 @@
     "types": ["vite/client"]
   },
   "exclude": ["node_modules"],
-  "include": ["src/**/*.ts", ".storybook/**/*.ts", "vite.config.ts"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", ".storybook/**/*.ts", "vite.config.ts"]
 }

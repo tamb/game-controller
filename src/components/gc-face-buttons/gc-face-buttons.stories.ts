@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
-import { html } from "lit";
 import "../../index";
+import { createEl } from "../../storybook/create-el";
 import "../story-event-log/story-event-log";
+import type { SbEventLogElement } from "../story-event-log/story-event-log";
 import { SB_GC_FACE_EVENTS } from "../story-event-log/story-event-log";
+import type { GcFaceButtonsElement } from "./gc-face-buttons";
 
 type StoryArgs = {
   actions: number;
@@ -15,7 +17,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Standalone `<gc-face-buttons>`. **`actions`** is `2` (A/B) or `4` (A/B/X/Y). Press a button — **`gcface:*`** lines appear in the log with full `detail` JSON (`controller` serializes as a tag name).",
+          "Standalone `<gc-face-buttons>` (React `GcFaceButtons`). **`actions`** is `2` (A/B) or `4` (A/B/X/Y). Press a button — **`gcface:*`** lines appear in the log with full `detail` JSON (`controller` serializes as a tag name).",
       },
     },
   },
@@ -29,10 +31,14 @@ const meta = {
       description: "Face button count",
     },
   },
-  render: (args: StoryArgs) =>
-    html`<sb-event-log heading="gcface:* events" .eventNames=${SB_GC_FACE_EVENTS}>
-      <gc-face-buttons .actions=${args.actions}></gc-face-buttons>
-    </sb-event-log>`,
+  render: (args: StoryArgs) => {
+    const log = createEl<SbEventLogElement>("sb-event-log", {
+      heading: "gcface:* events",
+      eventNames: SB_GC_FACE_EVENTS,
+    });
+    log.append(createEl<GcFaceButtonsElement>("gc-face-buttons", { actions: args.actions }));
+    return log;
+  },
 } satisfies Meta<StoryArgs>;
 
 export default meta;

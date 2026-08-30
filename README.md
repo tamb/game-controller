@@ -1,18 +1,58 @@
 # @tamb/gamecontroller
 
-A Lit-based Web Component: a Gameboy-style virtual controller skin. Styles are plain CSS (with variables on `:host`) inside the shadow root.
+A Gameboy-style virtual controller skin, written as **React components** and also exported as **native custom elements** via [`@r2wc/core`](https://www.npmjs.com/package/@r2wc/core). Styles are plain CSS (with variables on `:host`) inside the shadow root.
 
 ## Installation
 
 ```bash
-npm install @tamb/gamecontroller lit
+npm install @tamb/gamecontroller react react-dom
 ```
 
-`lit` is a peer dependency—install it alongside this package.
+`react` and `react-dom` are peer dependencies (v18 or v19).
 
 ## Usage
 
-Register the element once (side effect of the main entry):
+### React
+
+```tsx
+import {
+  GameController,
+  GcFaceButtons,
+  GcJoystick,
+} from "@tamb/gamecontroller";
+
+export function App() {
+  return (
+    <GameController
+      actions={4}
+      vibrate
+      hooks={{
+        a(controller) {
+          console.log("A pressed", controller);
+        },
+      }}
+    >
+      <GameController.Stage>
+        <p>Stage content</p>
+      </GameController.Stage>
+      <GameController.LeftControl>
+        <GcJoystick emitCardinal />
+      </GameController.LeftControl>
+      <GameController.Actions>
+        <GcFaceButtons actions={4} />
+      </GameController.Actions>
+    </GameController>
+  );
+}
+```
+
+Unnamed children still go to the **stage**. Omit a named region to keep the default control (`GcDpad` / `GcJoystick` from `leftControl`, `GcFaceButtons`, `GcAncillaryButtons`).
+
+The same components are available from the main entry (`GameController`, `GcDpad`, `GcJoystick`, `GcFaceButtons`, `GcAncillaryButtons`) along with the web component classes and slot helpers (`GameController.Stage`, `GameController.LeftControl`, `GameController.Actions`, `GameController.Ancillaries`, `GAME_CONTROLLER_SLOTS`).
+
+### Web component
+
+Register the elements once (side effect of the main entry):
 
 ```ts
 import "@tamb/gamecontroller";
@@ -21,8 +61,13 @@ import "@tamb/gamecontroller";
 Place it in HTML or create it in JavaScript:
 
 ```html
-<game-controller actions="4"></game-controller>
+<game-controller actions="4">
+  <div slot="stage">Stage content</div>
+  <gc-joystick slot="left-control" emit-cardinal></gc-joystick>
+</game-controller>
 ```
+
+Named slots are **`stage`**, **`ancillaries`**, **`left-control`**, and **`actions`**. Empty slots keep the built-in controls.
 
 ```ts
 import "@tamb/gamecontroller";
@@ -49,7 +94,7 @@ document.body.appendChild(el);
 
 The **fullscreen** control calls **`this.requestFullscreen()`** on the element (not `<html>`), so **`:host(:fullscreen)`** fills the screen when the API succeeds. Escape exits fullscreen and keeps the layout in sync.
 
-The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the d-pad for `<gc-joystick>` (events remain **`gcjoystick:*`**).
+The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the default d-pad for `<gc-joystick>`, or project your own control into the **`left-control`** slot (events remain **`gcjoystick:*`** / **`gcdpad:*`**).
 
 Embedded hosts with a fixed height should set **`--gc-host-min-height: 100%`** and **`--gc-host-height: 100%`** on an ancestor (and give that chain a definite height) so `:host` does not insist on **`100dvh`** and overflow the panel.
 
@@ -200,7 +245,7 @@ game-controller {
 }
 ```
 
-This replaces the previous imperative `GameController` class and `@tamb/utils` DOM helper.
+This replaces the previous Lit custom elements. Each view is a React component; `@r2wc/core` wraps it as a custom element so the HTML API stays the same.
 
 ## Development
 
@@ -212,6 +257,8 @@ npm run storybook
 ```
 
 Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Fill viewport (no event log)** for full **`100dvh`**. Portrait vs landscape controls follow **viewport orientation**—widen the browser or use device rotation / fullscreen to hit **`orientation: landscape`**.
+
+The playground still mounts the **custom elements**; the same components can be imported as React from `@tamb/gamecontroller` (or the `@tamb/gamecontroller/react` alias).
 
 ### GitHub Pages demo
 

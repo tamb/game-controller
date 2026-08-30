@@ -3,13 +3,23 @@
   "include": [
     "src/index.ts",
     "src/events.ts",
-    "src/components/game-controller/game-controller.ts",
-    "src/components/gc-ancillary-buttons/gc-ancillary-buttons.ts",
-    "src/components/gc-dpad/gc-dpad.ts",
-    "src/components/gc-face-buttons/gc-face-buttons.ts",
-    "src/components/gc-joystick/gc-joystick.ts",
+    "src/lib/r2wc-element.ts",
+    "src/lib/shadow-host.ts",
+    "src/lib/dispatch-event.ts",
+    "src/lib/component-css.ts",
+    "src/components/game-controller/game-controller.tsx",
+    "src/components/game-controller/game-controller-layout.ts",
+    "src/components/game-controller/game-controller-slots.tsx",
+    "src/components/gc-ancillary-buttons/gc-ancillary-buttons.tsx",
+    "src/components/gc-dpad/gc-dpad.tsx",
+    "src/components/gc-face-buttons/gc-face-buttons.tsx",
+    "src/components/gc-joystick/gc-joystick.tsx",
+    "src/components/gc-joystick/joystick-math.ts",
+    "src/capabilities.ts",
+    "src/haptics.ts",
+    "src/orientation.ts",
     "src/raw-imports.d.ts",
     "src/vite-env.d.ts"
   ],
-  "exclude": ["**/*.stories.ts", "**/*.test.ts", ".storybook"]
+  "exclude": ["**/*.stories.ts", "**/*.test.ts", "**/*.test.tsx", ".storybook"]
 }

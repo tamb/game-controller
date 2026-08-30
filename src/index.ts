@@ -1,14 +1,50 @@
-import "./components/gc-ancillary-buttons/gc-ancillary-buttons";
-import "./components/gc-dpad/gc-dpad";
-import "./components/gc-face-buttons/gc-face-buttons";
-import "./components/gc-joystick/gc-joystick";
-
 export type { DemoCapabilityStatus } from "./capabilities";
 export {
   getDemoCapabilityStatus,
   isFullscreenSupported,
   isHapticsSupported,
 } from "./capabilities";
+export type {
+  GameControllerHooks,
+  GameControllerLeftControl,
+  GameControllerProps,
+} from "./components/game-controller/game-controller";
+export {
+  GAME_CONTROLLER_SLOTS,
+  GameController,
+  GameControllerActions,
+  GameControllerAncillaries,
+  GameControllerElement,
+  GameControllerLeftControlSlot,
+  GameControllerStage,
+} from "./components/game-controller/game-controller";
+export type {
+  GcAncillaryButtonsProps,
+  GcAncillaryId,
+  GcAncillaryPressDetail,
+} from "./components/gc-ancillary-buttons/gc-ancillary-buttons";
+export {
+  GcAncillaryButtons,
+  GcAncillaryButtonsElement,
+} from "./components/gc-ancillary-buttons/gc-ancillary-buttons";
+export type { GcDpadDirection, GcDpadPressDetail, GcDpadProps } from "./components/gc-dpad/gc-dpad";
+export { GcDpad, GcDpadElement } from "./components/gc-dpad/gc-dpad";
+export type {
+  GcFaceButtonsProps,
+  GcFacePressDetail,
+} from "./components/gc-face-buttons/gc-face-buttons";
+export { GcFaceButtons, GcFaceButtonsElement } from "./components/gc-face-buttons/gc-face-buttons";
+export type {
+  GcJoystickCardinal,
+  GcJoystickMoveDetail,
+  GcJoystickProps,
+  JoystickSector,
+} from "./components/gc-joystick/gc-joystick";
+export {
+  DEFAULT_JOYSTICK_SECTORS,
+  GcJoystick,
+  GcJoystickElement,
+} from "./components/gc-joystick/gc-joystick";
 export type { GameControllerActionKey } from "./events";
 export {
   EVENTS,
@@ -20,35 +56,12 @@ export {
   SB_GC_JOYSTICK_EVENTS,
 } from "./events";
 
-import { GameControllerElement } from "./components/game-controller/game-controller";
+import type { GameControllerElement } from "./components/game-controller/game-controller";
+import { GameControllerElement as GameControllerCtor } from "./components/game-controller/game-controller";
 import type { GcAncillaryButtonsElement } from "./components/gc-ancillary-buttons/gc-ancillary-buttons";
 import type { GcDpadElement } from "./components/gc-dpad/gc-dpad";
 import type { GcFaceButtonsElement } from "./components/gc-face-buttons/gc-face-buttons";
 import type { GcJoystickElement } from "./components/gc-joystick/gc-joystick";
-
-export type {
-  GameControllerHooks,
-  GameControllerLeftControl,
-} from "./components/game-controller/game-controller";
-export type {
-  GcAncillaryId,
-  GcAncillaryPressDetail,
-} from "./components/gc-ancillary-buttons/gc-ancillary-buttons";
-export { GcAncillaryButtonsElement } from "./components/gc-ancillary-buttons/gc-ancillary-buttons";
-export type { GcDpadDirection, GcDpadPressDetail } from "./components/gc-dpad/gc-dpad";
-export { GcDpadElement } from "./components/gc-dpad/gc-dpad";
-export type { GcFacePressDetail } from "./components/gc-face-buttons/gc-face-buttons";
-export { GcFaceButtonsElement } from "./components/gc-face-buttons/gc-face-buttons";
-export type {
-  GcJoystickCardinal,
-  GcJoystickMoveDetail,
-  JoystickSector,
-} from "./components/gc-joystick/gc-joystick";
-export {
-  DEFAULT_JOYSTICK_SECTORS,
-  GcJoystickElement,
-} from "./components/gc-joystick/gc-joystick";
-export { GameControllerElement };
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -60,10 +73,4 @@ declare global {
   }
 }
 
-const TAG = "game-controller";
-
-if (!customElements.get(TAG)) {
-  customElements.define(TAG, GameControllerElement);
-}
-
-export default GameControllerElement;
+export default GameControllerCtor;
