@@ -49,4 +49,55 @@ describe("controller touch + stage overflow CSS", () => {
     expect(ancillaryCss).toMatch(/touch-action:\s*none/);
     expect(joystickCss).toMatch(/touch-action:\s*none/);
   });
+
+  it("lays out the d-pad as a 3×3 plus that scales with axis tokens", () => {
+    expect(dpadCss).toMatch(/\.gcdpad\s*\{[^}]*display:\s*grid/);
+    expect(dpadCss).toMatch(/grid-template-columns:\s*2fr 1fr 2fr/);
+    expect(dpadCss).toMatch(/grid-template-rows:\s*2fr 1fr 2fr/);
+    expect(dpadCss).toMatch(/aspect-ratio:\s*1/);
+    expect(dpadCss).toMatch(
+      /width:\s*calc\(\s*var\(--_gc-dpad-axis\)\s*\*\s*2\s*\+\s*var\(--_gc-dpad-half\)\)/,
+    );
+    expect(dpadCss).toMatch(/\.gcdpad__btn--up\s*\{[^}]*grid-column:\s*2/);
+    expect(dpadCss).toMatch(/\.gcdpad__btn--left\s*\{[^}]*grid-column:\s*1/);
+    expect(dpadCss).toMatch(/\.gcdpad__btn--right\s*\{[^}]*grid-column:\s*3/);
+    expect(dpadCss).toMatch(/\.gcdpad__btn--down\s*\{[^}]*grid-column:\s*2/);
+    expect(dpadCss).not.toMatch(/margin-left:\s*38%/);
+  });
+
+  it("pads the control strip on all sides and scales d-pad with face buttons", () => {
+    expect(controllerCss).toMatch(/--gc-controls-pad-block:/);
+    expect(controllerCss).toMatch(/--gc-controls-pad-inline:/);
+    expect(controllerCss).toMatch(
+      /\.gamecontroller__main-controls\s*\{[^}]*padding:\s*var\(--gc-controls-pad-block\)\s+var\(--gc-controls-pad-inline\)/,
+    );
+    expect(controllerCss).not.toMatch(/padding:\s*0\.75rem 2\.5% 0/);
+    expect(controllerCss).toMatch(/--gc-control-size-small:\s*120px/);
+    expect(controllerCss).toMatch(/--gc-control-size-normal:\s*165px/);
+    expect(controllerCss).toMatch(/--gc-control-size-large:\s*198px/);
+    expect(controllerCss).toMatch(/--gc-control-size:\s*var\(--gc-control-size-normal\)/);
+    expect(controllerCss).toMatch(/@media \(max-width:\s*360px\),\s*\(max-height:\s*360px\)/);
+    expect(controllerCss).toMatch(/@media \(min-width:\s*600px\) and \(min-height:\s*600px\)/);
+    expect(controllerCss).toMatch(/--gc-controls-pad-block:\s*0\.75rem/);
+    expect(controllerCss).toMatch(
+      /@media \(orientation:\s*landscape\)\s*\{[^}]*--gc-control-size-normal:\s*140px/,
+    );
+    expect(controllerCss).toMatch(/:host\(\[size="small"\]\)/);
+    expect(controllerCss).toMatch(/--gc-action-size:\s*calc\(\s*var\(--gc-control-size\)/);
+    expect(controllerCss).toMatch(/--gc-dpad-axis:\s*calc\(\s*var\(--gc-control-size\)/);
+    expect(dpadCss).not.toMatch(/:host\s*\{[^}]*--gc-dpad-axis:\s*66px/);
+    expect(controllerCss).toMatch(
+      /\.gamecontroller__d-pad-container \.gcdpad-host\s*\{[^}]*width:\s*var\(--gc-control-size\)/,
+    );
+    expect(controllerCss).toMatch(/flex:\s*0 0 auto/);
+    expect(controllerCss).not.toMatch(/flex:\s*0 1 26%/);
+    expect(joystickCss).not.toMatch(/--gc-joystick-knob-size:\s*28px/);
+    expect(faceCss).toMatch(/margin-bottom:\s*30%/);
+  });
+
+  it("does not force display:block on inner control layout classes", () => {
+    expect(controllerCss).not.toMatch(/\.gamecontroller__d-pad-container \.gcdpad\s*[,{]/);
+    expect(controllerCss).not.toMatch(/\.gamecontroller__actions \.gcface__actions\s*[,{]/);
+    expect(controllerCss).not.toMatch(/\.gamecontroller__ancillaries \.gcancillary\s*[,{]/);
+  });
 });

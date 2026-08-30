@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import "../../index";
 import { createEl } from "../../storybook/create-el";
+import { GC_STORY_VIEWPORTS } from "../../storybook/gc-viewports";
 import type { GameControllerElement } from "./game-controller";
 import "../story-event-log/story-event-log";
 import type { SbEventLogElement } from "../story-event-log/story-event-log";
@@ -38,6 +39,7 @@ type StoryArgs = {
   vibrate: boolean;
   leftControl: "dpad" | "joystick";
   scale: "usable" | "none";
+  size: "auto" | "small" | "normal" | "large";
 };
 
 function stageEventLog(): SbEventLogElement {
@@ -56,6 +58,7 @@ function controller(args: StoryArgs, extras?: { theme?: Readonly<Record<string, 
     vibrate: args.vibrate,
     leftControl: args.leftControl,
     scale: args.scale,
+    size: args.size,
   });
   if (extras?.theme) {
     for (const [name, value] of Object.entries(extras.theme)) {
@@ -73,7 +76,7 @@ const meta = {
     docs: {
       description: {
         component:
-          'React `<GameController>` also exported as the `<game-controller>` custom element (via `@r2wc/core`). **`scale="usable"`** (default) sizes the host to the visual viewport minus header/footer chrome (`--gc-usable-height`). **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.',
+          'React `<GameController>` also exported as the `<game-controller>` custom element (via `@r2wc/core`). **`scale="usable"`** (default) sizes the host to the visual viewport minus header/footer chrome (`--gc-usable-height`). **`size="auto"`** (default) picks **small / normal / large** from the **short axis** (small if either axis ≤360px; large only when both ≥600px). Landscape remaps those buckets smaller (100 / 140 / 168) so side hands leave room for the stage. Lock with **`size="small"`** etc. Use the **Portrait** and **Landscape** stories for the opinionated phone layouts; the canvas iframe follows the Storybook viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.',
       },
     },
   },
@@ -82,6 +85,7 @@ const meta = {
     vibrate: true,
     leftControl: "dpad" as const,
     scale: "usable" as const,
+    size: "auto" as const,
   },
   argTypes: {
     actions: {
@@ -105,6 +109,12 @@ const meta = {
       description:
         "Fit the remaining visual viewport after header/footer chrome (`scale`). `none` uses CSS tokens only.",
     },
+    size: {
+      control: "select",
+      options: ["auto", "small", "normal", "large"],
+      description:
+        "D-pad / stick / face-button cluster size (`size`). `auto` follows the short viewport axis; landscape uses smaller bucket pixels. The others lock `--gc-control-size`.",
+    },
   },
   render: (args: StoryArgs) => controller(args),
 } satisfies Meta<StoryArgs>;
@@ -121,6 +131,38 @@ export const TwoButtons: Story = {
 export const FourButtons: Story = {
   name: "Four buttons",
   args: { actions: 4, vibrate: true },
+};
+
+export const Portrait: Story = {
+  name: "Portrait",
+  args: { actions: 2, vibrate: true, size: "auto" },
+  globals: {
+    viewport: { value: "gc-portrait", isRotated: false },
+  },
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      description: {
+        story: `Phone portrait (**${GC_STORY_VIEWPORTS["gc-portrait"].styles.width} × ${GC_STORY_VIEWPORTS["gc-portrait"].styles.height}**). Stage above the hands. \`size="auto"\` is **normal** (165px) on this short axis.`,
+      },
+    },
+  },
+};
+
+export const Landscape: Story = {
+  name: "Landscape",
+  args: { actions: 2, vibrate: true, size: "auto" },
+  globals: {
+    viewport: { value: "gc-landscape", isRotated: false },
+  },
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      description: {
+        story: `Phone landscape (**${GC_STORY_VIEWPORTS["gc-landscape"].styles.width} × ${GC_STORY_VIEWPORTS["gc-landscape"].styles.height}**). Stick | stage | face buttons. \`size="auto"\` is **normal**, remapped to **140px** so the stage keeps the middle.`,
+      },
+    },
+  },
 };
 
 export const NoVibrate: Story = {
@@ -211,6 +253,7 @@ export const FillViewport: Story = {
       vibrate: args.vibrate,
       leftControl: args.leftControl,
       scale: args.scale,
+      size: args.size,
     }),
 };
 
@@ -245,6 +288,7 @@ export const UsableScreenWithChrome: Story = {
       vibrate: args.vibrate,
       leftControl: args.leftControl,
       scale: args.scale,
+      size: args.size,
     });
     el.style.flex = "1 1 auto";
     el.style.minHeight = "0";

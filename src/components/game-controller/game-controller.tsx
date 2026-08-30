@@ -22,7 +22,9 @@ import { GcFaceButtons } from "../gc-face-buttons/gc-face-buttons";
 import { GcJoystick } from "../gc-joystick/gc-joystick";
 import styleText from "./game-controller.css?raw";
 import {
+  type GameControllerControlSize,
   type GameControllerLeftControl,
+  resolveGameControllerControlSize,
   resolveGameControllerLeftControl,
 } from "./game-controller-layout";
 import {
@@ -35,7 +37,7 @@ import {
   partitionGameControllerSlots,
 } from "./game-controller-slots";
 
-export type { GameControllerLeftControl, GameControllerScale };
+export type { GameControllerControlSize, GameControllerLeftControl, GameControllerScale };
 export {
   GAME_CONTROLLER_SLOTS,
   GameControllerActions,
@@ -55,6 +57,8 @@ export type GameControllerProps = {
   leftControl?: string;
   /** `"usable"` (default) fits the remaining visual viewport after header/footer chrome. */
   scale?: string;
+  /** `"auto"` (default) picks small / normal / large from the short viewport axis. */
+  size?: string;
   /** Header menu: selector, `48` / `48px`, or an element outside the controller. */
   chromeHeader?: UsableScreenChromeSource;
   /** Footer menu: selector, pixel size, or element. */
@@ -95,6 +99,7 @@ function GameControllerView({
   vibrate: vibrateProp,
   leftControl,
   scale,
+  size: sizeProp,
   chromeHeader,
   chromeFooter,
   hooks = {},
@@ -112,6 +117,7 @@ function GameControllerView({
   const css = resolveComponentCss(styleText, HOST_CLASS, inShadow);
   const vibrate = coerceVibrate(vibrateProp);
   const leftStickMode = resolveGameControllerLeftControl(leftControl);
+  const controlSize = resolveGameControllerControlSize(sizeProp);
   const slots = partitionGameControllerSlots(children);
 
   useLayoutEffect(() => {
@@ -190,7 +196,18 @@ function GameControllerView({
     });
   }, [container, scale, chromeHeader, chromeFooter]);
 
+  useLayoutEffect(() => {
+    const host = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
+    if (!host) return;
+    if (controlSize === "auto") {
+      host.removeAttribute("data-gc-size");
+      return;
+    }
+    host.setAttribute("data-gc-size", controlSize);
+  }, [container, controlSize]);
+
   const rootClass = [inShadow ? undefined : HOST_CLASS, className].filter(Boolean).join(" ");
+  const sizeAttr = controlSize === "auto" ? undefined : controlSize;
 
   const body = (
     <div className="gamecontroller__shell">
@@ -239,7 +256,7 @@ function GameControllerView({
     <>
       <style>{css}</style>
       {rootClass ? (
-        <div ref={rootRef} className={rootClass} style={style}>
+        <div ref={rootRef} className={rootClass} style={style} data-gc-size={sizeAttr}>
           {body}
         </div>
       ) : (
@@ -264,6 +281,7 @@ export interface GameControllerElement extends HTMLElement {
   vibrate: boolean;
   leftControl: GameControllerLeftControl;
   scale: GameControllerScale;
+  size: GameControllerControlSize;
   chromeHeader: string;
   chromeFooter: string;
   hooks: GameControllerHooks;
@@ -278,6 +296,7 @@ export const GameControllerElement = defineReactElement<GameControllerProps, Gam
       vibrate: "boolean",
       leftControl: "string",
       scale: "string",
+      size: "string",
       chromeHeader: "string",
       chromeFooter: "string",
     },

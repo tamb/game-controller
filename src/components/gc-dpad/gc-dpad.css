@@ -1,15 +1,19 @@
 /**
  * D-pad shell. Inherits `--gc-dpad-*` from ancestors (e.g. `<game-controller>`).
  * Standalone defaults match neutral monochrome (transparent pads, black borders).
+ *
+ * Plus is a 3×3 grid: `--gc-dpad-axis` is each arm length, `--gc-dpad-half` is
+ * the crossbar thickness (and the center gap). Scales down to the container.
  */
 :host {
   display: block;
-  width: 100%;
+  /* Prefer the shell bucket; standalone falls back to the original 66+66+33 plus. */
+  width: var(--gc-control-size, calc(var(--gc-dpad-axis, 66px) * 2 + var(--gc-dpad-half, 33px)));
+  max-width: 100%;
+  aspect-ratio: 1;
   box-sizing: border-box;
   touch-action: manipulation;
 
-  --gc-dpad-axis: 66px;
-  --gc-dpad-half: 33px;
   --gc-dpad-btn-bg: transparent;
   --gc-dpad-btn-color: transparent;
   --gc-dpad-btn-border-width: 1px;
@@ -32,14 +36,25 @@
 }
 
 .gcdpad {
-  display: flex;
-  flex-wrap: wrap;
-  width: 100%;
-  justify-content: space-between;
+  --_gc-dpad-axis: var(--gc-dpad-axis, calc(var(--gc-control-size, 165px) * 66 / 165));
+  --_gc-dpad-half: var(--gc-dpad-half, calc(var(--gc-control-size, 165px) * 33 / 165));
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  grid-template-rows: 2fr 1fr 2fr;
+  width: calc(var(--_gc-dpad-axis) * 2 + var(--_gc-dpad-half));
+  max-width: 100%;
+  aspect-ratio: 1;
+  justify-content: stretch;
+  align-content: stretch;
 }
 
 .gcdpad__btn {
-  margin-bottom: 5%;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+  min-height: 0;
+  appearance: none;
+  -webkit-appearance: none;
   background: var(--gc-dpad-btn-bg);
   color: var(--gc-dpad-btn-color);
   border: var(--gc-dpad-btn-border);
@@ -52,39 +67,35 @@
 }
 
 .gcdpad__btn--up {
+  grid-column: 2;
+  grid-row: 1;
   background: var(--gc-dpad-btn-up-bg, var(--gc-dpad-btn-bg));
   color: var(--gc-dpad-btn-up-color, var(--gc-dpad-btn-color));
   border: var(--gc-dpad-btn-up-border, var(--gc-dpad-btn-border));
-  height: var(--gc-dpad-axis);
-  width: 25%;
-  margin-left: 38%;
-  margin-right: 38%;
 }
 
 .gcdpad__btn--right {
+  grid-column: 3;
+  grid-row: 2;
   background: var(--gc-dpad-btn-right-bg, var(--gc-dpad-btn-bg));
   color: var(--gc-dpad-btn-right-color, var(--gc-dpad-btn-color));
   border: var(--gc-dpad-btn-right-border, var(--gc-dpad-btn-border));
-  width: 38%;
-  height: var(--gc-dpad-half);
 }
 
 .gcdpad__btn--down {
+  grid-column: 2;
+  grid-row: 3;
   background: var(--gc-dpad-btn-down-bg, var(--gc-dpad-btn-bg));
   color: var(--gc-dpad-btn-down-color, var(--gc-dpad-btn-color));
   border: var(--gc-dpad-btn-down-border, var(--gc-dpad-btn-border));
-  height: var(--gc-dpad-axis);
-  width: 25%;
-  margin-left: 38%;
-  margin-right: 38%;
 }
 
 .gcdpad__btn--left {
+  grid-column: 1;
+  grid-row: 2;
   background: var(--gc-dpad-btn-left-bg, var(--gc-dpad-btn-bg));
   color: var(--gc-dpad-btn-left-color, var(--gc-dpad-btn-color));
   border: var(--gc-dpad-btn-left-border, var(--gc-dpad-btn-border));
-  width: 38%;
-  height: var(--gc-dpad-half);
 }
 
 .gcdpad__btn:focus {

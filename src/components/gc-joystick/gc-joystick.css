@@ -1,7 +1,7 @@
 :host {
   display: block;
   width: 100%;
-  max-width: 140px;
+  max-width: var(--gc-control-size, 140px);
   aspect-ratio: 1;
   box-sizing: border-box;
   touch-action: none;
@@ -14,7 +14,6 @@
 
   --gc-joystick-knob-bg: #ffffff;
   --gc-joystick-knob-border: 1px solid #000000;
-  --gc-joystick-knob-size: 28px;
 
   --gc-focus-ring-width: 2px;
   --gc-focus-ring-style: solid;
@@ -47,8 +46,8 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  width: var(--gc-joystick-knob-size);
-  height: var(--gc-joystick-knob-size);
+  width: var(--gc-joystick-knob-size, 28px);
+  height: var(--gc-joystick-knob-size, 28px);
   border-radius: 50%;
   background: var(--gc-joystick-knob-bg);
   border: var(--gc-joystick-knob-border);

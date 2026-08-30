@@ -99,7 +99,7 @@ The host uses **`touch-action: manipulation`** (buttons use **`none`**) and **`i
 
 The **fullscreen** control calls **`this.requestFullscreen()`** on the element (not `<html>`), so **`:host(:fullscreen)`** fills the screen when the API succeeds. Escape exits fullscreen and keeps the layout in sync.
 
-The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the default d-pad for `<gc-joystick>`, or project your own control into the **`left-control`** slot (events remain **`gcjoystick:*`** / **`gcdpad:*`**).
+The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right, with **smaller size buckets** and **tighter insets** so the stage keeps the middle. Set **`left-control="joystick"`** on `<game-controller>` to swap the default d-pad for `<gc-joystick>`, or project your own control into the **`left-control`** slot (events remain **`gcjoystick:*`** / **`gcdpad:*`**).
 
 **`scale="usable"`** (default) measures the visual viewport and any page chrome, then writes **`--gc-usable-*`** and **`--gc-chrome-*`** so the shell stays in the remaining space. Mark menus with **`data-gc-chrome="header"`** / **`"footer"`** (or **`"left"`** / **`"right"`**), use a previous-sibling **`<header>`** / next-sibling **`<footer>`**, or point at them with **`chrome-header`** / **`chrome-footer`** (CSS selector or pixel size, e.g. **`chrome-header="56"`**). Stage content (the Gameboy screen) is ignored. **`scale="none"`** turns off measurement so only the CSS tokens apply.
 
@@ -179,6 +179,7 @@ Also: **`dead-zone`** (default `0.12`), **`sectors-json`** (`[{ id, startDeg, en
 - **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, joystick grab, and joystick **cardinal** changes where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`).
 - **`leftControl`**: `"dpad"` (default) or `"joystick"` — attribute **`left-control`** swaps `<gc-dpad>` for `<gc-joystick>` with **`emit-cardinal`** enabled (listen for **`gcjoystick:*`**; no automatic **`gamecontroller:dpad:*`** mapping).
 - **`scale`**: `"usable"` (default) or `"none"` — attribute **`scale`**. Usable mode sizes the host to the remaining visual viewport after header / footer menus (`measureUsableScreen` / `--gc-usable-height`). **`none`** (also `false` / `0` / `off`) leaves sizing to CSS tokens only.
+- **`size`**: `"auto"` (default), `"small"`, `"normal"`, or `"large"` — attribute **`size`**. Auto picks a D-pad / stick / face-button cluster from the **short axis** (**small** if either axis is **≤360px**, **large** only when **both** are **≥600px**, otherwise **normal**). Portrait pixels are **120 / 165 / 198**; landscape remaps the same names to **100 / 140 / 168**. Axis, action diameter, and knob stay in the original 165px ratio. **`scale`** is how much of the screen the shell fills; **`size`** is how big the hands are.
 - **`chromeHeader`** / **`chromeFooter`**: optional chrome sources — attributes **`chrome-header`** / **`chrome-footer`**. CSS selector, pixel size (`48` or `48px`), or (from JS/React) an element outside the controller. Auto-detects **`data-gc-chrome`** and sibling **`<header>`** / **`<footer>`** when omitted.
 - **`hooks`**: optional `Record<string, (controller) => void>` keyed by control name (`select`, `start`, `a`, …); not an HTML attribute.
 
@@ -198,6 +199,8 @@ Set custom properties on `<game-controller>`. They apply on `:host` and drive co
 | `--gc-shell-border-width` / `--gc-shell-border-style` / `--gc-shell-border-color` | Shell outline pieces |
 | `--gc-shell-border` | Shorthand (defaults compose from the three parts above) |
 | `--gc-main-controls-bg` | Strip behind d-pad + face buttons (`transparent` by default) |
+| `--gc-control-size` | D-pad / stick / face cluster width. Default follows **`size`** / short-axis buckets |
+| `--gc-control-size-small` / `-normal` / `-large` | Bucket widths (portrait 120 / 165 / 198; landscape 100 / 140 / 168) |
 
 **Stage (screen)**
 
@@ -211,7 +214,7 @@ Set custom properties on `<game-controller>`. They apply on `:host` and drive co
 
 | Variable | Role |
 | --- | --- |
-| `--gc-action-size` | Diameter |
+| `--gc-action-size` | Diameter (`calc` of `--gc-control-size` × 50 / 165 unless you override it) |
 | `--gc-action-btn-bg` / `--gc-action-btn-color` | Default fill & label |
 | `--gc-action-btn-border-width` / `-style` / `-color` | Default border pieces |
 | `--gc-action-btn-border` | Default border shorthand |
@@ -289,7 +292,7 @@ npm install
 npm run storybook
 ```
 
-Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Fill viewport (no event log)** for the usable screen, or **Usable screen (header + footer)** to see chrome subtracted. Portrait vs landscape controls follow **viewport orientation**—widen the browser or use device rotation / fullscreen to hit **`orientation: landscape`**.
+Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Portrait** / **Landscape** for the opinionated phone layouts (390×844 and 844×390), **Fill viewport (no event log)** for the usable screen, or **Usable screen (header + footer)** to see chrome subtracted.
 
 The playground still mounts the **custom elements**; the same components can be imported as React from `@tamb/gamecontroller` (or the `@tamb/gamecontroller/react` alias).
 

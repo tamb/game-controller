@@ -15,7 +15,10 @@
  * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then
  * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex
  * `order` + `display: contents` on `.gamecontroller__main-controls` so stick | center |
- * actions read left to right. Fullscreen uses `requestFullscreen()` on `<game-controller>`.
+ * actions read left to right. Control hands use named **`--gc-control-size`** groups
+ * (`size="auto"` → small if either axis ≤360px, large only when both ≥600px).
+ * Landscape remaps those buckets smaller and uses tighter insets. Fullscreen uses
+ * `requestFullscreen()` on `<game-controller>`.
  */
 :host {
   /**
@@ -80,8 +83,18 @@
   /* Control bands (behind d-pad / face buttons) */
   --gc-main-controls-bg: transparent;
 
+  /**
+   * Named cluster sizes. `size="auto"` (default) uses the short axis (see
+   * media queries below); `size="small|normal|large"` locks one. Landscape
+   * remaps the bucket pixels. Derived tokens keep the 165 / 50 / 66 / 33 / 28 ratios.
+   */
+  --gc-control-size-small: 120px;
+  --gc-control-size-normal: 165px;
+  --gc-control-size-large: 198px;
+  --gc-control-size: var(--gc-control-size-normal);
+
   /* Face buttons (default + optional --gc-action-btn-{1-4}-* ) */
-  --gc-action-size: 50px;
+  --gc-action-size: calc(var(--gc-control-size) * 50 / 165);
   --gc-action-btn-bg: #ffffff;
   --gc-action-btn-color: #000000;
   --gc-action-btn-border-width: 1px;
@@ -100,12 +113,18 @@
   --gc-ancillary-btn-border: var(--gc-ancillary-btn-border-width)
     var(--gc-ancillary-btn-border-style) var(--gc-ancillary-btn-border-color);
   --gc-ancillary-btn-border-radius: 6px;
-  --gc-ancillary-margin: 5%;
-  --gc-ancillary-padding: 1% 5%;
+  --gc-ancillary-margin: 0.35rem 0.5rem;
+  --gc-ancillary-padding: 0.3rem 0.65rem;
 
-  /* D-pad */
-  --gc-dpad-axis: 66px;
-  --gc-dpad-half: 33px;
+  /* Control strip inset (portrait). Safe-area padding on the container stacks under this. */
+  --gc-controls-pad-block: 0.75rem;
+  --gc-controls-pad-inline: 0.85rem;
+
+  --gc-joystick-knob-size: calc(var(--gc-control-size) * 28 / 165);
+
+  /* D-pad — axis / half stay in the original 66 / 33 ratio of --gc-control-size */
+  --gc-dpad-axis: calc(var(--gc-control-size) * 66 / 165);
+  --gc-dpad-half: calc(var(--gc-control-size) * 33 / 165);
   --gc-dpad-btn-bg: transparent;
   --gc-dpad-btn-color: transparent;
   --gc-dpad-btn-border-width: 1px;
@@ -114,8 +133,8 @@
   --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)
     var(--gc-dpad-btn-border-color);
   --gc-dpad-btn-border-radius: 4px;
-  --gc-dpad-axis-landscape: 66px;
-  --gc-dpad-half-landscape: 33px;
+  --gc-dpad-axis-landscape: calc(var(--gc-control-size) * 66 / 165);
+  --gc-dpad-half-landscape: calc(var(--gc-control-size) * 33 / 165);
 
   /* Focus ring (keyboard) */
   --gc-focus-ring-width: 2px;
@@ -125,6 +144,35 @@
 
   color: var(--gc-color-text);
   font-family: var(--gc-font-family);
+}
+
+/* Phone short axis — portrait width or landscape height. */
+@media (max-width: 360px), (max-height: 360px) {
+  :host {
+    --gc-control-size: var(--gc-control-size-small);
+  }
+}
+
+/* Large only when both axes can take 198px hands plus stage. */
+@media (min-width: 600px) and (min-height: 600px) {
+  :host {
+    --gc-control-size: var(--gc-control-size-large);
+  }
+}
+
+:host([size="small"]),
+:host([data-gc-size="small"]) {
+  --gc-control-size: var(--gc-control-size-small);
+}
+
+:host([size="normal"]),
+:host([data-gc-size="normal"]) {
+  --gc-control-size: var(--gc-control-size-normal);
+}
+
+:host([size="large"]),
+:host([data-gc-size="large"]) {
+  --gc-control-size: var(--gc-control-size-large);
 }
 
 /* iOS Safari legacy full-height when parent chain lacks height */
@@ -280,15 +328,15 @@
   flex-direction: row;
   justify-content: space-between;
   align-items: flex-end;
-  gap: 0.5rem;
-  padding: 0.75rem 2.5% 0;
+  gap: 0.4rem;
+  padding: var(--gc-controls-pad-block) var(--gc-controls-pad-inline);
   margin-bottom: 0;
   background: var(--gc-main-controls-bg);
 }
 
 .gamecontroller__d-pad-container {
   flex: 0 0 auto;
-  width: 45%;
+  width: auto;
   max-width: 50%;
   margin-left: 0;
   margin-top: 0;
@@ -299,61 +347,86 @@
   min-width: 0;
 }
 
+/**
+ * Size slotted custom elements and React host wrappers only. Do not set
+ * `display` on `.gcdpad`, `.gcface__actions`, or `.gcancillary` — those
+ * classes share the host node when nested via React, and a `display: block`
+ * here wins over the control stylesheet (flex / grid plus layouts collapse).
+ */
+.gamecontroller__d-pad-container gc-joystick,
+.gamecontroller__d-pad-container gc-dpad {
+  display: block;
+}
+
 .gamecontroller__d-pad-container gc-joystick,
 .gamecontroller__d-pad-container .gcjoystick,
 .gamecontroller__d-pad-container .gcjoystick-host,
 .gamecontroller__d-pad-container ::slotted(*) {
-  display: block;
-  width: 100%;
-  max-width: 140px;
+  width: var(--gc-control-size);
+  max-width: 100%;
   margin-bottom: 4px;
 }
 
+.gamecontroller__ancillaries gc-ancillary-buttons {
+  display: block;
+}
+
 .gamecontroller__ancillaries gc-ancillary-buttons,
-.gamecontroller__ancillaries .gcancillary,
 .gamecontroller__ancillaries .gcancillary-host,
 .gamecontroller__ancillaries ::slotted(*) {
-  display: block;
   width: 100%;
 }
 
 .gamecontroller__d-pad-container gc-dpad,
-.gamecontroller__d-pad-container .gcdpad,
 .gamecontroller__d-pad-container .gcdpad-host {
-  display: block;
-  width: 100%;
+  width: var(--gc-control-size);
+  max-width: 100%;
 }
 
 .gamecontroller__actions {
   flex: 0 0 auto;
-  width: 45%;
+  width: auto;
   max-width: 50%;
   align-self: flex-end;
   margin-right: 0;
   min-width: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+}
+
+.gamecontroller__actions gc-face-buttons {
+  display: block;
 }
 
 .gamecontroller__actions gc-face-buttons,
 .gamecontroller__actions .gcface-host,
-.gamecontroller__actions .gcface__actions,
 .gamecontroller__actions ::slotted(*) {
-  display: block;
-  width: 100%;
+  width: var(--gc-control-size);
+  max-width: 100%;
 }
 
 @media (orientation: landscape) {
+  :host {
+    --gc-control-size-small: 100px;
+    --gc-control-size-normal: 140px;
+    --gc-control-size-large: 168px;
+    --gc-controls-pad-block: 0.45rem;
+    --gc-controls-pad-inline: 0.45rem;
+    --gc-ancillary-margin: 0.2rem 0.35rem;
+    --gc-ancillary-padding: 0.2rem 0.55rem;
+  }
+
   .gamecontroller__shell {
     --gc-dpad-axis: var(--gc-dpad-axis-landscape);
     --gc-dpad-half: var(--gc-dpad-half-landscape);
-    --gc-ancillary-margin: 0 1%;
-    --gc-ancillary-padding: 0.25% 5%;
   }
 
   .gamecontroller__container {
     flex-direction: row;
     align-items: stretch;
-    column-gap: clamp(0.25rem, 2vmin, 0.75rem);
-    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);
+    column-gap: 0.35rem;
+    row-gap: 0.25rem;
   }
 
   /**
@@ -366,13 +439,13 @@
 
   .gamecontroller__d-pad-container {
     order: 1;
-    flex: 0 1 26%;
+    flex: 0 0 auto;
     width: auto;
     max-width: none;
     align-self: stretch;
     align-items: center;
     justify-content: center;
-    padding: clamp(0.15rem, 1.2vmin, 0.45rem);
+    padding: var(--gc-controls-pad-block) var(--gc-controls-pad-inline);
     /* `display: contents` on main-controls drops its background; paint sides instead. */
     background: var(--gc-main-controls-bg);
   }
@@ -382,7 +455,8 @@
   .gamecontroller__d-pad-container .gcjoystick-host,
   .gamecontroller__d-pad-container ::slotted(*) {
     margin-bottom: 0;
-    max-width: min(140px, 100%);
+    width: var(--gc-control-size);
+    max-width: 100%;
   }
 
   .gamecontroller__center {
@@ -390,7 +464,7 @@
     flex: 1 1 0;
     min-width: 0;
     min-height: 0;
-    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);
+    row-gap: 0.25rem;
     --gc-stage-max-height: none;
   }
 
@@ -409,14 +483,14 @@
 
   .gamecontroller__actions {
     order: 3;
-    flex: 0 1 26%;
+    flex: 0 0 auto;
     width: auto;
     max-width: none;
     align-self: stretch;
     align-items: center;
     justify-content: center;
     display: flex;
-    padding: clamp(0.15rem, 1.2vmin, 0.45rem);
+    padding: var(--gc-controls-pad-block) var(--gc-controls-pad-inline);
     background: var(--gc-main-controls-bg);
   }
 
