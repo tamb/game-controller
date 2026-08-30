@@ -5,6 +5,7 @@ export {
   isHapticsSupported,
 } from "./capabilities";
 export type {
+  GameControllerControlSize,
   GameControllerHooks,
   GameControllerLeftControl,
   GameControllerProps,

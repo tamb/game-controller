@@ -166,6 +166,11 @@ export function GcJoystick({
   };
 
   const knobHalfPx = () => {
+    const knobEl = rootRef.current?.querySelector(".gcjoystick__knob");
+    if (knobEl instanceof HTMLElement) {
+      const w = knobEl.getBoundingClientRect().width;
+      if (w > 0) return w / 2;
+    }
     const el = host() ?? rootRef.current;
     if (!el) return 14;
     const raw = getComputedStyle(el).getPropertyValue("--gc-joystick-knob-size").trim();

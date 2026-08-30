@@ -88,6 +88,21 @@ describe("GameControllerElement", () => {
     expect(el.scale).toBe("none");
   });
 
+  it("locks data-gc-size when size is small and clears it for auto", async () => {
+    const el = document.createElement("game-controller") as GameControllerElement;
+    document.body.appendChild(el);
+    await el.updateComplete;
+    expect(el.getAttribute("data-gc-size")).toBeNull();
+
+    el.size = "small";
+    await el.updateComplete;
+    expect(el.getAttribute("data-gc-size")).toBe("small");
+
+    el.size = "auto";
+    await el.updateComplete;
+    expect(el.getAttribute("data-gc-size")).toBeNull();
+  });
+
   it("projects custom named slots and keeps defaults when empty", async () => {
     const el = document.createElement("game-controller") as GameControllerElement;
     const stick = document.createElement("gc-joystick");
