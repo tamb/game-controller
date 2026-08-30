@@ -6,6 +6,7 @@
   display: block;
   width: 100%;
   box-sizing: border-box;
+  touch-action: manipulation;
 
   --gc-dpad-axis: 66px;
   --gc-dpad-half: 33px;
@@ -44,6 +45,10 @@
   border: var(--gc-dpad-btn-border);
   border-radius: var(--gc-dpad-btn-border-radius);
   cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .gcdpad__btn--up {

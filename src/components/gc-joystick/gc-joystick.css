@@ -4,6 +4,7 @@
   max-width: 140px;
   aspect-ratio: 1;
   box-sizing: border-box;
+  touch-action: none;
 
   --gc-joystick-ring-bg: transparent;
   --gc-joystick-ring-border-width: 1px;

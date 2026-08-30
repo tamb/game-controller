@@ -9,6 +9,7 @@
   box-sizing: border-box;
   color: var(--gc-color-text, #000000);
   font-family: var(--gc-font-family, system-ui, sans-serif);
+  touch-action: manipulation;
 }
 
 :host *,
@@ -31,6 +32,10 @@
   font-size: var(--gc-action-font-size, 0.75rem);
   font-weight: 600;
   border-radius: var(--gc-action-btn-border-radius, 50%);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .gcface__btn:focus {

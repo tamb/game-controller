@@ -7,11 +7,13 @@
  *     --gc-action-btn-bg: #333;
  *   }
  *
- * Layout fills the dynamic viewport (`100dvh` / `100dvw`) with safe-area insets. Portrait
- * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then
- * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex `order` +
- * `display: contents` on `.gamecontroller__main-controls` so stick | center | actions read left
- * to right. Fullscreen uses `requestFullscreen()` on `<game-controller>`.
+ * Layout fills the dynamic viewport (`100dvh` / `100dvw`) with safe-area insets and does not
+ * grow past it. The stage clips overflow and scrolls slotted content. `touch-action:
+ * manipulation` on the host disables double-tap zoom. Portrait (`orientation: portrait`):
+ * `.gamecontroller__center` (stage → ancillary), then `.gamecontroller__main-controls` row
+ * (stick | face buttons). Landscape uses flex `order` + `display: contents` on
+ * `.gamecontroller__main-controls` so stick | center | actions read left to right. Fullscreen
+ * uses `requestFullscreen()` on `<game-controller>`.
  */
 :host {
   display: flex;
@@ -20,13 +22,25 @@
   width: 100%;
   max-width: 100%;
   /**
-   * Default fills the dynamic viewport. For embedded previews, set on an ancestor:
-   * `--gc-host-min-height: 100%` and `--gc-host-height: 100%`.
+   * Default fills the dynamic viewport and will not grow past it. For embedded
+   * previews, set on an ancestor: `--gc-host-min-height: 100%` and
+   * `--gc-host-height: 100%` (`--gc-host-max-height` follows height when unset).
    */
   min-height: var(--gc-host-min-height, 100vh);
   /* biome-ignore lint/suspicious/noDuplicateProperties: progressive enhancement */
   min-height: var(--gc-host-min-height, 100dvh);
   height: var(--gc-host-height, auto);
+  max-height: var(--gc-host-max-height, var(--gc-host-height, 100vh));
+  max-height: var(--gc-host-max-height, var(--gc-host-height, 100dvh));
+  overflow: hidden;
+  /**
+   * `manipulation` keeps panning/pinch but disables double-tap zoom so rapid
+   * button taps do not scale the page.
+   */
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
 
   /* Typography */
   --gc-font-family: system-ui, sans-serif;
@@ -106,6 +120,7 @@
 @supports (-webkit-touch-callout: none) {
   :host {
     min-height: var(--gc-host-min-height, -webkit-fill-available);
+    max-height: var(--gc-host-max-height, var(--gc-host-height, -webkit-fill-available));
   }
 }
 
@@ -177,7 +192,7 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
-  min-height: min(40dvh, 50%);
+  min-height: 0;
   max-height: var(--gc-stage-max-height);
   overflow: hidden;
   background: var(--gc-stage-bg);
@@ -186,18 +201,43 @@
   max-width: 100%;
   position: relative;
   z-index: 1;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
-.gamecontroller__stage ::slotted(*),
+/**
+ * `<slot>` defaults to `display: contents`, which drops the scrollport. Make the
+ * slot (shadow) or direct child (React light DOM) the clipping scroller so tall
+ * stage content cannot paint outside the screen frame.
+ */
+.gamecontroller__stage > slot,
 .gamecontroller__stage > * {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 0;
+  min-height: 0;
+  min-width: 0;
+  width: 100%;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.gamecontroller__stage ::slotted(*) {
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
   width: 100%;
+  max-width: 100%;
   align-self: stretch;
-  overflow: auto;
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
+}
+
+.gamecontroller__ancillaries,
+.gamecontroller__main-controls {
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
 }
 
 .gamecontroller__ancillaries {
