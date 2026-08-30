@@ -10,8 +10,13 @@ export type {
   GameControllerProps,
 } from "./components/game-controller/game-controller";
 export {
+  GAME_CONTROLLER_SLOTS,
   GameController,
+  GameControllerActions,
+  GameControllerAncillaries,
   GameControllerElement,
+  GameControllerLeftControlSlot,
+  GameControllerStage,
 } from "./components/game-controller/game-controller";
 export type {
   GcAncillaryButtonsProps,

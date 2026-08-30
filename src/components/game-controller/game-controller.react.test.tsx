@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { createRoot, type Root } from "react-dom/client";
 import { afterEach, describe, expect, it } from "vitest";
+import { GcJoystick } from "../gc-joystick/gc-joystick";
 import { GameController } from "./game-controller";
 
 describe("GameController React component", () => {
@@ -43,5 +44,29 @@ describe("GameController React component", () => {
     await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
 
     expect(host.querySelector(".gamecontroller__stage .stage-child")?.textContent).toBe("hello");
+  });
+
+  it("places named slot components into their regions", async () => {
+    host = document.createElement("div");
+    document.body.append(host);
+    root = createRoot(host);
+    root.render(
+      createElement(
+        GameController,
+        { actions: 2 },
+        createElement(GameController.Stage, { className: "named-stage" }, "hud"),
+        createElement(
+          GameController.LeftControl,
+          null,
+          createElement(GcJoystick, { emitCardinal: true }),
+        ),
+      ),
+    );
+    await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    expect(host.querySelector(".gamecontroller__stage .named-stage")?.textContent).toBe("hud");
+    expect(host.querySelector(".gamecontroller__d-pad-container .gcjoystick")).toBeTruthy();
+    expect(host.querySelector(".gcdpad")).toBeNull();
+    expect(host.querySelector(".gcface__actions--two")).toBeTruthy();
   });
 });

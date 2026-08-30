@@ -6,7 +6,7 @@ import { GcJoystickElement } from './components/gc-joystick/gc-joystick';
 export type { DemoCapabilityStatus } from './capabilities';
 export { getDemoCapabilityStatus, isFullscreenSupported, isHapticsSupported, } from './capabilities';
 export type { GameControllerHooks, GameControllerLeftControl, GameControllerProps, } from './components/game-controller/game-controller';
-export { GameController, GameControllerElement, } from './components/game-controller/game-controller';
+export { GAME_CONTROLLER_SLOTS, GameController, GameControllerActions, GameControllerAncillaries, GameControllerElement, GameControllerLeftControlSlot, GameControllerStage, } from './components/game-controller/game-controller';
 export type { GcAncillaryButtonsProps, GcAncillaryId, GcAncillaryPressDetail, } from './components/gc-ancillary-buttons/gc-ancillary-buttons';
 export { GcAncillaryButtons, GcAncillaryButtonsElement, } from './components/gc-ancillary-buttons/gc-ancillary-buttons';
 export type { GcDpadDirection, GcDpadPressDetail, GcDpadProps } from './components/gc-dpad/gc-dpad';

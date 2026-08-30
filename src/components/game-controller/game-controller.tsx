@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode, useEffect, useRef } from "react";
+import { type CSSProperties, type ReactNode, useLayoutEffect, useRef } from "react";
 import type { GameControllerActionKey } from "../../events";
 import { EVENTS } from "../../events";
 import { parseVibrateAttribute, pulseHaptics } from "../../haptics";
@@ -8,6 +8,7 @@ import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { unlockScreenOrientation } from "../../orientation";
 import { GcAncillaryButtons } from "../gc-ancillary-buttons/gc-ancillary-buttons";
+import type { GcDpadDirection } from "../gc-dpad/gc-dpad";
 import { GcDpad } from "../gc-dpad/gc-dpad";
 import { GcFaceButtons } from "../gc-face-buttons/gc-face-buttons";
 import { GcJoystick } from "../gc-joystick/gc-joystick";
@@ -16,8 +17,24 @@ import {
   type GameControllerLeftControl,
   resolveGameControllerLeftControl,
 } from "./game-controller-layout";
+import {
+  GAME_CONTROLLER_SLOTS,
+  GameControllerActions,
+  GameControllerAncillaries,
+  GameControllerStage,
+  hasAssignedSlot,
+  GameControllerLeftControl as LeftControlSlot,
+  partitionGameControllerSlots,
+} from "./game-controller-slots";
 
 export type { GameControllerLeftControl };
+export {
+  GAME_CONTROLLER_SLOTS,
+  GameControllerActions,
+  GameControllerAncillaries,
+  GameControllerStage,
+  LeftControlSlot as GameControllerLeftControlSlot,
+};
 
 const HOST_CLASS = "game-controller";
 const TAG = "game-controller";
@@ -42,7 +59,24 @@ function coerceVibrate(value: unknown): boolean {
   return Boolean(value);
 }
 
-export function GameController({
+function NamedRegion({
+  name,
+  inShadow,
+  assigned,
+  fallback,
+}: {
+  name: string;
+  inShadow: boolean;
+  assigned: ReactNode[];
+  fallback: ReactNode;
+}) {
+  if (inShadow) {
+    return <slot name={name}>{fallback}</slot>;
+  }
+  return <>{hasAssignedSlot(assigned) ? assigned : fallback}</>;
+}
+
+function GameControllerView({
   actions = 2,
   vibrate: vibrateProp,
   leftControl,
@@ -53,65 +87,80 @@ export function GameController({
   style,
 }: GameControllerProps) {
   const rootRef = useRef<HTMLDivElement>(null);
+  const hooksRef = useRef(hooks);
+  hooksRef.current = hooks;
+
   const inShadow = isShadowContainer(container);
   const css = resolveComponentCss(styleText, HOST_CLASS, inShadow);
   const vibrate = coerceVibrate(vibrateProp);
   const leftStickMode = resolveGameControllerLeftControl(leftControl);
+  const slots = partitionGameControllerSlots(children);
 
-  const hostEl = () => getCustomElementHost(container, rootRef.current);
-
-  const emit = (name: string, data: Record<string, unknown> = {}) => {
-    const controller = hostEl();
+  useLayoutEffect(() => {
+    const controller = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
     if (!controller) return;
-    dispatchComposed(controller, name, { ...data, controller });
-  };
 
-  const pulse = (durationMs?: number) => {
-    pulseHaptics(vibrate, durationMs);
-  };
+    const named = (refName: string, eventName: string) => {
+      pulseHaptics(vibrate);
+      hooksRef.current[refName]?.(controller);
+      dispatchComposed(controller, eventName, { controller });
+    };
 
-  const handleNamed = (refName: string, eventName: string) => {
-    pulse();
-    const controller = hostEl();
-    if (controller) hooks[refName]?.(controller);
-    emit(eventName);
-  };
-
-  const toggleFullscreen = async () => {
-    const controller = hostEl();
-    if (!controller) return;
-    try {
-      if (document.fullscreenElement === controller) {
-        await document.exitFullscreen();
-      } else {
-        await controller.requestFullscreen();
-        await unlockScreenOrientation();
+    const toggleFullscreen = async () => {
+      try {
+        if (document.fullscreenElement === controller) {
+          await document.exitFullscreen();
+        } else {
+          await controller.requestFullscreen();
+          await unlockScreenOrientation();
+        }
+      } catch {
+        /* unsupported or denied */
       }
-    } catch {
-      /* unsupported or denied */
-    }
-  };
+    };
 
-  const handleAncillary = (id: string) => {
-    if (id === "fullscreen") {
-      handleNamed("fullscreen", EVENTS.gameController.ancillary.fullscreen);
+    const onDpad = (direction: GcDpadDirection) => () => {
+      named(direction, EVENTS.gameController.dpad[direction]);
+    };
+    const onFace = (button: GameControllerActionKey) => () => {
+      named(button, EVENTS.gameController.action[button]);
+    };
+    const onAncillaryFullscreen = () => {
+      named("fullscreen", EVENTS.gameController.ancillary.fullscreen);
       void toggleFullscreen();
-      return;
-    }
-    if (id === "select") {
-      handleNamed("select", EVENTS.gameController.ancillary.select);
-      return;
-    }
-    handleNamed("start", EVENTS.gameController.ancillary.start);
-  };
+    };
+    const onSelect = () => named("select", EVENTS.gameController.ancillary.select);
+    const onStart = () => named("start", EVENTS.gameController.ancillary.start);
+    const onPulse = () => pulseHaptics(vibrate);
 
-  const handleAction = (buttonKey: GameControllerActionKey) => {
-    handleNamed(buttonKey, EVENTS.gameController.action[buttonKey]);
-  };
+    const bindings: Array<[string, EventListener]> = [
+      [EVENTS.gcDpad.up, onDpad("up")],
+      [EVENTS.gcDpad.down, onDpad("down")],
+      [EVENTS.gcDpad.left, onDpad("left")],
+      [EVENTS.gcDpad.right, onDpad("right")],
+      [EVENTS.gcFace.a, onFace("a")],
+      [EVENTS.gcFace.b, onFace("b")],
+      [EVENTS.gcFace.x, onFace("x")],
+      [EVENTS.gcFace.y, onFace("y")],
+      [EVENTS.gcAncillary.fullscreen, onAncillaryFullscreen],
+      [EVENTS.gcAncillary.select, onSelect],
+      [EVENTS.gcAncillary.start, onStart],
+      [EVENTS.gcJoystick.pointerDown, onPulse],
+      ...Object.values(EVENTS.gcJoystick.cardinal).map((type): [string, EventListener] => [
+        type,
+        onPulse,
+      ]),
+    ];
 
-  const handleDpad = (direction: "up" | "down" | "left" | "right") => {
-    handleNamed(direction, EVENTS.gameController.dpad[direction]);
-  };
+    for (const [type, listener] of bindings) {
+      controller.addEventListener(type, listener);
+    }
+    return () => {
+      for (const [type, listener] of bindings) {
+        controller.removeEventListener(type, listener);
+      }
+    };
+  }, [container, vibrate]);
 
   const rootClass = [inShadow ? undefined : HOST_CLASS, className].filter(Boolean).join(" ");
 
@@ -120,43 +169,43 @@ export function GameController({
       <div className="gamecontroller__container">
         <div className="gamecontroller__center">
           <div className="gamecontroller__stage">
-            <slot name="stage">{children}</slot>
+            <NamedRegion
+              name={GAME_CONTROLLER_SLOTS.stage}
+              inShadow={inShadow}
+              assigned={slots.stage}
+              fallback={null}
+            />
           </div>
           <div className="gamecontroller__ancillaries">
-            <GcAncillaryButtons onPress={(detail) => handleAncillary(detail.id)} />
+            <NamedRegion
+              name={GAME_CONTROLLER_SLOTS.ancillaries}
+              inShadow={inShadow}
+              assigned={slots.ancillaries}
+              fallback={<GcAncillaryButtons />}
+            />
           </div>
         </div>
         <div className="gamecontroller__main-controls">
           <div className="gamecontroller__d-pad-container">
-            {leftStickMode === "joystick" ? (
-              <GcJoystick emitCardinal onPointerDown={() => pulse()} />
-            ) : (
-              <GcDpad onDirection={(detail) => handleDpad(detail.direction)} />
-            )}
+            <NamedRegion
+              name={GAME_CONTROLLER_SLOTS.leftControl}
+              inShadow={inShadow}
+              assigned={slots.leftControl}
+              fallback={leftStickMode === "joystick" ? <GcJoystick emitCardinal /> : <GcDpad />}
+            />
           </div>
           <div className="gamecontroller__actions">
-            <GcFaceButtons actions={actions} onButton={(detail) => handleAction(detail.button)} />
+            <NamedRegion
+              name={GAME_CONTROLLER_SLOTS.actions}
+              inShadow={inShadow}
+              assigned={slots.actions}
+              fallback={<GcFaceButtons actions={actions} />}
+            />
           </div>
         </div>
       </div>
     </div>
   );
-
-  useEffect(() => {
-    const controller = getCustomElementHost(container, rootRef.current);
-    if (!controller || leftStickMode !== "joystick") return;
-
-    const onCardinal = () => pulseHaptics(vibrate);
-    const types = Object.values(EVENTS.gcJoystick.cardinal);
-    for (const type of types) {
-      controller.addEventListener(type, onCardinal);
-    }
-    return () => {
-      for (const type of types) {
-        controller.removeEventListener(type, onCardinal);
-      }
-    };
-  }, [container, leftStickMode, vibrate]);
 
   return (
     <>
@@ -173,6 +222,14 @@ export function GameController({
     </>
   );
 }
+
+export const GameController = Object.assign(GameControllerView, {
+  Stage: GameControllerStage,
+  Ancillaries: GameControllerAncillaries,
+  LeftControl: LeftControlSlot,
+  Actions: GameControllerActions,
+});
+GameControllerView.displayName = "GameController";
 
 export interface GameControllerElement extends HTMLElement {
   actions: number;

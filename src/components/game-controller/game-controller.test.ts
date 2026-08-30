@@ -39,6 +39,49 @@ describe("GameControllerElement", () => {
     expect(customElements.get("game-controller")).toBeDefined();
   });
 
+  it("projects custom named slots and keeps defaults when empty", async () => {
+    const el = document.createElement("game-controller") as GameControllerElement;
+    const stick = document.createElement("gc-joystick");
+    stick.slot = "left-control";
+    const faces = document.createElement("div");
+    faces.slot = "actions";
+    faces.textContent = "custom-faces";
+    el.append(stick, faces);
+    document.body.appendChild(el);
+    await el.updateComplete;
+
+    const left = el.shadowRoot?.querySelector('slot[name="left-control"]') as
+      | HTMLSlotElement
+      | undefined;
+    const actions = el.shadowRoot?.querySelector('slot[name="actions"]') as
+      | HTMLSlotElement
+      | undefined;
+    const ancillaries = el.shadowRoot?.querySelector('slot[name="ancillaries"]') as
+      | HTMLSlotElement
+      | undefined;
+    expect(left?.assignedElements()[0]).toBe(stick);
+    expect(actions?.assignedElements()[0]).toBe(faces);
+    expect(ancillaries?.assignedElements()).toEqual([]);
+    expect(el.shadowRoot?.querySelector(".gcancillary")).toBeTruthy();
+  });
+
+  it("forwards gamecontroller:dpad:* from a slotted gc-dpad", async () => {
+    const el = document.createElement("game-controller") as GameControllerElement;
+    const dpad = document.createElement("gc-dpad");
+    dpad.slot = "left-control";
+    el.append(dpad);
+    document.body.appendChild(el);
+    await el.updateComplete;
+    await dpad.updateComplete;
+
+    const spy = vi.fn();
+    document.addEventListener(EVENTS.gameController.dpad.up, spy);
+    const upBtn = dpad.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    upBtn.click();
+    expect(spy).toHaveBeenCalledTimes(1);
+    document.removeEventListener(EVENTS.gameController.dpad.up, spy);
+  });
+
   it("renders slotted stage content in the stage slot", async () => {
     document.body.replaceChildren();
     const el = document.createElement("game-controller") as GameControllerElement;

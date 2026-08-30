@@ -15,27 +15,40 @@ npm install @tamb/gamecontroller react react-dom
 ### React
 
 ```tsx
-import { GameController, EVENTS } from "@tamb/gamecontroller";
+import {
+  GameController,
+  GcFaceButtons,
+  GcJoystick,
+} from "@tamb/gamecontroller";
 
 export function App() {
   return (
     <GameController
       actions={4}
       vibrate
-      leftControl="dpad"
       hooks={{
         a(controller) {
           console.log("A pressed", controller);
         },
       }}
     >
-      <p>Stage content</p>
+      <GameController.Stage>
+        <p>Stage content</p>
+      </GameController.Stage>
+      <GameController.LeftControl>
+        <GcJoystick emitCardinal />
+      </GameController.LeftControl>
+      <GameController.Actions>
+        <GcFaceButtons actions={4} />
+      </GameController.Actions>
     </GameController>
   );
 }
 ```
 
-The same components are available from the main entry (`GameController`, `GcDpad`, `GcJoystick`, `GcFaceButtons`, `GcAncillaryButtons`) along with the web component classes.
+Unnamed children still go to the **stage**. Omit a named region to keep the default control (`GcDpad` / `GcJoystick` from `leftControl`, `GcFaceButtons`, `GcAncillaryButtons`).
+
+The same components are available from the main entry (`GameController`, `GcDpad`, `GcJoystick`, `GcFaceButtons`, `GcAncillaryButtons`) along with the web component classes and slot helpers (`GameController.Stage`, `GameController.LeftControl`, `GameController.Actions`, `GameController.Ancillaries`, `GAME_CONTROLLER_SLOTS`).
 
 ### Web component
 
@@ -48,8 +61,13 @@ import "@tamb/gamecontroller";
 Place it in HTML or create it in JavaScript:
 
 ```html
-<game-controller actions="4"></game-controller>
+<game-controller actions="4">
+  <div slot="stage">Stage content</div>
+  <gc-joystick slot="left-control" emit-cardinal></gc-joystick>
+</game-controller>
 ```
+
+Named slots are **`stage`**, **`ancillaries`**, **`left-control`**, and **`actions`**. Empty slots keep the built-in controls.
 
 ```ts
 import "@tamb/gamecontroller";
@@ -76,7 +94,7 @@ document.body.appendChild(el);
 
 The **fullscreen** control calls **`this.requestFullscreen()`** on the element (not `<html>`), so **`:host(:fullscreen)`** fills the screen when the API succeeds. Escape exits fullscreen and keeps the layout in sync.
 
-The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the d-pad for `<gc-joystick>` (events remain **`gcjoystick:*`**).
+The shell switches layout with **`@media (orientation: landscape)`**. **Portrait:** **screen column** (stage then ancillary), then a **row** of d-pad/joystick and face buttons. **Landscape:** flexbox **`order`** plus **`display: contents`** on the hands strip yields **stick | screen column | face buttons** left to right. Set **`left-control="joystick"`** on `<game-controller>` to swap the default d-pad for `<gc-joystick>`, or project your own control into the **`left-control`** slot (events remain **`gcjoystick:*`** / **`gcdpad:*`**).
 
 Embedded hosts with a fixed height should set **`--gc-host-min-height: 100%`** and **`--gc-host-height: 100%`** on an ancestor (and give that chain a definite height) so `:host` does not insist on **`100dvh`** and overflow the panel.
 

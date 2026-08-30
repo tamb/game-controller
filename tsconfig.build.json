@@ -9,6 +9,7 @@
     "src/lib/component-css.ts",
     "src/components/game-controller/game-controller.tsx",
     "src/components/game-controller/game-controller-layout.ts",
+    "src/components/game-controller/game-controller-slots.tsx",
     "src/components/gc-ancillary-buttons/gc-ancillary-buttons.tsx",
     "src/components/gc-dpad/gc-dpad.tsx",
     "src/components/gc-face-buttons/gc-face-buttons.tsx",
