@@ -188,7 +188,8 @@
   z-index: 1;
 }
 
-.gamecontroller__stage ::slotted(*) {
+.gamecontroller__stage ::slotted(*),
+.gamecontroller__stage > * {
   flex: 1 1 auto;
   min-height: 0;
   min-width: 0;
@@ -234,19 +235,25 @@
   min-width: 0;
 }
 
-.gamecontroller__d-pad-container gc-joystick {
+.gamecontroller__d-pad-container gc-joystick,
+.gamecontroller__d-pad-container .gcjoystick,
+.gamecontroller__d-pad-container .gcjoystick-host {
   display: block;
   width: 100%;
   max-width: 140px;
   margin-bottom: 4px;
 }
 
-.gamecontroller__ancillaries gc-ancillary-buttons {
+.gamecontroller__ancillaries gc-ancillary-buttons,
+.gamecontroller__ancillaries .gcancillary,
+.gamecontroller__ancillaries .gcancillary-host {
   display: block;
   width: 100%;
 }
 
-.gamecontroller__d-pad-container gc-dpad {
+.gamecontroller__d-pad-container gc-dpad,
+.gamecontroller__d-pad-container .gcdpad,
+.gamecontroller__d-pad-container .gcdpad-host {
   display: block;
   width: 100%;
 }
@@ -260,7 +267,9 @@
   min-width: 0;
 }
 
-.gamecontroller__actions gc-face-buttons {
+.gamecontroller__actions gc-face-buttons,
+.gamecontroller__actions .gcface-host,
+.gamecontroller__actions .gcface__actions {
   display: block;
   width: 100%;
 }
@@ -301,7 +310,9 @@
     background: var(--gc-main-controls-bg);
   }
 
-  .gamecontroller__d-pad-container gc-joystick {
+  .gamecontroller__d-pad-container gc-joystick,
+  .gamecontroller__d-pad-container .gcjoystick,
+  .gamecontroller__d-pad-container .gcjoystick-host {
     margin-bottom: 0;
     max-width: min(140px, 100%);
   }

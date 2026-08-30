@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     dts({
       tsconfigPath: "./tsconfig.build.json",
-      exclude: ["**/*.stories.ts", "**/*.test.ts", ".storybook/**"],
+      exclude: ["**/*.stories.ts", "**/*.test.ts", "**/*.test.tsx", ".storybook/**"],
     }),
   ],
   build: {
@@ -16,7 +16,7 @@ export default defineConfig({
       fileName: "main",
     },
     rollupOptions: {
-      external: ["lit", /^lit\/.*/],
+      external: ["react", "react-dom", "react/jsx-runtime", "react-dom/client", "@r2wc/core"],
       output: {
         preserveModules: false,
       },

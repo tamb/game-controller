@@ -1,6 +1,25 @@
-import { LitElement as e, css as t, html as n, unsafeCSS as r } from "lit";
+import { createElement as e, useEffect as t, useMemo as n, useRef as r, useState as i } from "react";
+import a from "@r2wc/core";
+import { createRoot as o } from "react-dom/client";
+import { Fragment as s, jsx as c, jsxs as l } from "react/jsx-runtime";
+//#region src/capabilities.ts
+function u(e = typeof navigator < "u" ? navigator : void 0) {
+	return typeof e?.vibrate == "function";
+}
+function d(e = typeof document < "u" ? document : void 0, t = typeof document < "u" ? document.documentElement : void 0) {
+	if (!e) return !1;
+	let n = e.fullscreenEnabled ?? e.webkitFullscreenEnabled;
+	return typeof n == "boolean" ? n : typeof t?.requestFullscreen == "function" || typeof t?.webkitRequestFullscreen == "function";
+}
+function f(e = typeof document < "u" ? document : void 0, t = typeof navigator < "u" ? navigator : void 0, n = typeof document < "u" ? document.documentElement : void 0) {
+	return {
+		fullscreen: d(e, n),
+		haptics: u(t)
+	};
+}
+//#endregion
 //#region src/events.ts
-var i = {
+var p = {
 	gameController: {
 		ancillary: {
 			fullscreen: "gamecontroller:ancillary:fullscreen",
@@ -51,194 +70,262 @@ var i = {
 		y: "gcface:y"
 	}
 };
-function a(e) {
-	return `${i.gcJoystick.clock}:${e}`;
+function m(e) {
+	return `${p.gcJoystick.clock}:${e}`;
 }
-var o = [
-	...Object.values(i.gameController.ancillary),
-	...Object.values(i.gameController.dpad),
-	...Object.values(i.gameController.action),
-	...Object.values(i.gcDpad),
-	...Object.values(i.gcAncillary),
-	...Object.values(i.gcFace),
-	i.gcJoystick.pointerDown,
-	i.gcJoystick.move,
-	i.gcJoystick.sector,
-	i.gcJoystick.clock,
-	...Object.values(i.gcJoystick.cardinal)
-], s = Object.values(i.gcDpad), c = Object.values(i.gcFace), l = Object.values(i.gcAncillary), u = [
-	i.gcJoystick.pointerDown,
-	i.gcJoystick.move,
-	i.gcJoystick.sector,
-	i.gcJoystick.clock,
-	...Array.from({ length: 12 }, (e, t) => a(t + 1)),
-	...Object.values(i.gcJoystick.cardinal)
-], d = "/**\n * Standalone ancillary row (fullscreen / select / start). `var(--gc-*, fallback)` matches\n * `<game-controller>` defaults for Storybook / embeds; inherited tokens override when set.\n */\n:host {\n  display: block;\n  width: 100%;\n  box-sizing: border-box;\n  color: var(--gc-color-text, #000000);\n  font-family: var(--gc-font-family, system-ui, sans-serif);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcancillary {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-wrap: wrap;\n  width: 100%;\n}\n\n.gcancillary__btn {\n  margin: var(--gc-ancillary-margin, 5%);\n  padding: var(--gc-ancillary-padding, 1% 5%);\n  font-family: inherit;\n  font-size: var(--gc-ancillary-font-size, 0.8rem);\n  background: var(--gc-ancillary-btn-bg, transparent);\n  color: var(--gc-ancillary-btn-color, #000000);\n  border: var(--gc-ancillary-btn-border, 1px solid #000000);\n  border-radius: var(--gc-ancillary-btn-border-radius, 6px);\n}\n\n.gcancillary__btn:focus {\n  outline: none;\n}\n\n.gcancillary__btn:focus-visible {\n  outline: var(--gc-focus-ring, 2px solid #000000);\n  outline-offset: 2px;\n}\n", f = "gc-ancillary-buttons", p = class extends e {
-	static {
-		this.styles = t`
-    ${r(d)}
-  `;
+var h = [
+	...Object.values(p.gameController.ancillary),
+	...Object.values(p.gameController.dpad),
+	...Object.values(p.gameController.action),
+	...Object.values(p.gcDpad),
+	...Object.values(p.gcAncillary),
+	...Object.values(p.gcFace),
+	p.gcJoystick.pointerDown,
+	p.gcJoystick.move,
+	p.gcJoystick.sector,
+	p.gcJoystick.clock,
+	...Object.values(p.gcJoystick.cardinal)
+], g = Object.values(p.gcDpad), _ = Object.values(p.gcFace), v = Object.values(p.gcAncillary), y = [
+	p.gcJoystick.pointerDown,
+	p.gcJoystick.move,
+	p.gcJoystick.sector,
+	p.gcJoystick.clock,
+	...Array.from({ length: 12 }, (e, t) => m(t + 1)),
+	...Object.values(p.gcJoystick.cardinal)
+];
+function b(e, t = 10) {
+	e && navigator.vibrate?.(t);
+}
+function x(e) {
+	if (e === null) return !0;
+	let t = e.trim().toLowerCase();
+	return !(t === "false" || t === "0" || t === "off");
+}
+//#endregion
+//#region src/lib/component-css.ts
+function S(e, t) {
+	let n = t.startsWith(".") ? t : `.${t}`;
+	return e.replace(/:host(\([^)]+\))?/g, (e, t) => t ? `${n}${t.slice(1, -1)}` : n);
+}
+function C(e, t, n) {
+	return n ? e : S(e, t);
+}
+//#endregion
+//#region src/lib/dispatch-event.ts
+function w(e, t, n) {
+	e && e.dispatchEvent(new CustomEvent(t, {
+		detail: n,
+		bubbles: !0,
+		composed: !0
+	}));
+}
+//#endregion
+//#region src/lib/r2wc-element.ts
+var T = Symbol.for("r2wc.render"), E = Symbol.for("r2wc.props");
+function D() {
+	return new Promise((e) => {
+		queueMicrotask(() => {
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					queueMicrotask(e);
+				});
+			});
+		});
+	});
+}
+function O(e, t) {
+	for (let n of t) e.hasAttribute(n) && e.getAttribute(n) === "" && e.setAttribute(n, "true");
+}
+function k(t, n = {}) {
+	let { objectProps: r = [], emptyBooleanAttributes: i = [], ...s } = n, c = a(t, {
+		shadow: "open",
+		...s
+	}, {
+		mount(t, n, r) {
+			let i = o(t);
+			return i.render(e(n, r)), {
+				root: i,
+				Component: n
+			};
+		},
+		update({ root: t, Component: n }, r) {
+			t.render(e(n, r));
+		},
+		unmount({ root: e }) {
+			e.unmount();
+		}
+	});
+	class l extends c {
+		get updateComplete() {
+			return D();
+		}
+		connectedCallback() {
+			O(this, i), c.prototype.connectedCallback.call(this);
+		}
 	}
-	emitPress(e) {
-		this.dispatchEvent(new CustomEvent(i.gcAncillary[e], {
-			detail: {
-				controller: this,
-				id: e
-			},
-			bubbles: !0,
-			composed: !0
-		}));
+	for (let e of r) Object.defineProperty(l.prototype, e, {
+		enumerable: !0,
+		configurable: !0,
+		get() {
+			return this[E][e];
+		},
+		set(t) {
+			this[E][e] = t, this[T]();
+		}
+	});
+	return l;
+}
+function A(e, t) {
+	customElements.get(e) || customElements.define(e, t);
+}
+//#endregion
+//#region src/lib/shadow-host.ts
+function j(e) {
+	return e ? e.host instanceof HTMLElement : !1;
+}
+function M(e, t) {
+	if (e) {
+		let t = e.host;
+		if (t instanceof HTMLElement) return t;
+		if (e instanceof HTMLElement) return e;
 	}
-	render() {
-		return n`
-      <div class="gcancillary" part="row">
-        <button
-          type="button"
-          class="gcancillary__btn"
-          part="btn-fullscreen"
-          id="fullscreen"
-          @click=${() => this.emitPress("fullscreen")}
-        >
-          fullscreen
-        </button>
-        <button
-          type="button"
-          class="gcancillary__btn"
-          part="btn-select"
-          @click=${() => this.emitPress("select")}
-        >
-          select
-        </button>
-        <button
-          type="button"
-          class="gcancillary__btn"
-          part="btn-start"
-          @click=${() => this.emitPress("start")}
-        >
-          start
-        </button>
-      </div>
-    `;
+	if (t) {
+		let e = t.getRootNode();
+		if (e instanceof ShadowRoot && e.host instanceof HTMLElement) return e.host;
+		if (t instanceof HTMLElement) return t;
 	}
-};
-customElements.get(f) || customElements.define(f, p);
+	return null;
+}
+//#endregion
+//#region src/orientation.ts
+async function N() {
+	try {
+		(globalThis.screen?.orientation)?.unlock?.();
+	} catch {}
+}
+//#endregion
+//#region src/components/gc-ancillary-buttons/gc-ancillary-buttons.css?raw
+var P = "/**\n * Standalone ancillary row (fullscreen / select / start). `var(--gc-*, fallback)` matches\n * `<game-controller>` defaults for Storybook / embeds; inherited tokens override when set.\n */\n:host {\n  display: block;\n  width: 100%;\n  box-sizing: border-box;\n  color: var(--gc-color-text, #000000);\n  font-family: var(--gc-font-family, system-ui, sans-serif);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcancillary {\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-wrap: wrap;\n  width: 100%;\n}\n\n.gcancillary__btn {\n  margin: var(--gc-ancillary-margin, 5%);\n  padding: var(--gc-ancillary-padding, 1% 5%);\n  font-family: inherit;\n  font-size: var(--gc-ancillary-font-size, 0.8rem);\n  background: var(--gc-ancillary-btn-bg, transparent);\n  color: var(--gc-ancillary-btn-color, #000000);\n  border: var(--gc-ancillary-btn-border, 1px solid #000000);\n  border-radius: var(--gc-ancillary-btn-border-radius, 6px);\n}\n\n.gcancillary__btn:focus {\n  outline: none;\n}\n\n.gcancillary__btn:focus-visible {\n  outline: var(--gc-focus-ring, 2px solid #000000);\n  outline-offset: 2px;\n}\n", F = "gcancillary-host", I = [
+	{
+		id: "fullscreen",
+		part: "btn-fullscreen"
+	},
+	{
+		id: "select",
+		part: "btn-select"
+	},
+	{
+		id: "start",
+		part: "btn-start"
+	}
+];
+function L({ container: e, onPress: t }) {
+	let n = r(null), i = j(e), a = C(P, F, i), o = (r) => {
+		let i = M(e, n.current);
+		if (!i) return;
+		let a = {
+			controller: i,
+			id: r
+		};
+		t?.(a), w(i, p.gcAncillary[r], a);
+	};
+	return /* @__PURE__ */ l(s, { children: [/* @__PURE__ */ c("style", { children: a }), /* @__PURE__ */ c("div", {
+		ref: n,
+		className: i ? "gcancillary" : `${F} gcancillary`,
+		part: "row",
+		children: I.map(({ id: e, part: t }) => /* @__PURE__ */ c("button", {
+			type: "button",
+			className: "gcancillary__btn",
+			part: t,
+			id: e === "fullscreen" ? "fullscreen" : void 0,
+			onClick: () => o(e),
+			children: e
+		}, e))
+	})] });
+}
+var R = k(L);
+A("gc-ancillary-buttons", R);
 //#endregion
 //#region src/components/gc-dpad/gc-dpad.css?raw
-var m = "/**\n * D-pad shell. Inherits `--gc-dpad-*` from ancestors (e.g. `<game-controller>`).\n * Standalone defaults match neutral monochrome (transparent pads, black borders).\n */\n:host {\n  display: block;\n  width: 100%;\n  box-sizing: border-box;\n\n  --gc-dpad-axis: 66px;\n  --gc-dpad-half: 33px;\n  --gc-dpad-btn-bg: transparent;\n  --gc-dpad-btn-color: transparent;\n  --gc-dpad-btn-border-width: 1px;\n  --gc-dpad-btn-border-style: solid;\n  --gc-dpad-btn-border-color: #000000;\n  --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)\n    var(--gc-dpad-btn-border-color);\n  --gc-dpad-btn-border-radius: 4px;\n\n  --gc-focus-ring-width: 2px;\n  --gc-focus-ring-style: solid;\n  --gc-focus-ring-color: #000000;\n  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcdpad {\n  display: flex;\n  flex-wrap: wrap;\n  width: 100%;\n  justify-content: space-between;\n}\n\n.gcdpad__btn {\n  margin-bottom: 5%;\n  background: var(--gc-dpad-btn-bg);\n  color: var(--gc-dpad-btn-color);\n  border: var(--gc-dpad-btn-border);\n  border-radius: var(--gc-dpad-btn-border-radius);\n  cursor: pointer;\n}\n\n.gcdpad__btn--up {\n  background: var(--gc-dpad-btn-up-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-up-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-up-border, var(--gc-dpad-btn-border));\n  height: var(--gc-dpad-axis);\n  width: 25%;\n  margin-left: 38%;\n  margin-right: 38%;\n}\n\n.gcdpad__btn--right {\n  background: var(--gc-dpad-btn-right-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-right-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-right-border, var(--gc-dpad-btn-border));\n  width: 38%;\n  height: var(--gc-dpad-half);\n}\n\n.gcdpad__btn--down {\n  background: var(--gc-dpad-btn-down-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-down-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-down-border, var(--gc-dpad-btn-border));\n  height: var(--gc-dpad-axis);\n  width: 25%;\n  margin-left: 38%;\n  margin-right: 38%;\n}\n\n.gcdpad__btn--left {\n  background: var(--gc-dpad-btn-left-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-left-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-left-border, var(--gc-dpad-btn-border));\n  width: 38%;\n  height: var(--gc-dpad-half);\n}\n\n.gcdpad__btn:focus {\n  outline: none;\n}\n\n.gcdpad__btn:focus-visible {\n  outline: var(--gc-focus-ring);\n  outline-offset: 2px;\n}\n", h = class extends e {
-	static {
-		this.styles = t`
-    ${r(m)}
-  `;
-	}
-	emitDirection(e) {
-		this.dispatchEvent(new CustomEvent(i.gcDpad[e], {
-			detail: {
-				controller: this,
-				direction: e
-			},
-			bubbles: !0,
-			composed: !0
-		}));
-	}
-	render() {
-		return n`
-      <div class="gcdpad" part="base">
-        <button
-          type="button"
-          class="gcdpad__btn gcdpad__btn--up"
-          aria-label="Up"
-          part="btn-up"
-          @click=${() => this.emitDirection("up")}
-        ></button>
-        <button
-          type="button"
-          class="gcdpad__btn gcdpad__btn--left"
-          aria-label="Left"
-          part="btn-left"
-          @click=${() => this.emitDirection("left")}
-        ></button>
-        <button
-          type="button"
-          class="gcdpad__btn gcdpad__btn--right"
-          aria-label="Right"
-          part="btn-right"
-          @click=${() => this.emitDirection("right")}
-        ></button>
-        <button
-          type="button"
-          class="gcdpad__btn gcdpad__btn--down"
-          aria-label="Down"
-          part="btn-down"
-          @click=${() => this.emitDirection("down")}
-        ></button>
-      </div>
-    `;
-	}
-}, g = "gc-dpad";
-customElements.get(g) || customElements.define(g, h);
+var ee = "/**\n * D-pad shell. Inherits `--gc-dpad-*` from ancestors (e.g. `<game-controller>`).\n * Standalone defaults match neutral monochrome (transparent pads, black borders).\n */\n:host {\n  display: block;\n  width: 100%;\n  box-sizing: border-box;\n\n  --gc-dpad-axis: 66px;\n  --gc-dpad-half: 33px;\n  --gc-dpad-btn-bg: transparent;\n  --gc-dpad-btn-color: transparent;\n  --gc-dpad-btn-border-width: 1px;\n  --gc-dpad-btn-border-style: solid;\n  --gc-dpad-btn-border-color: #000000;\n  --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)\n    var(--gc-dpad-btn-border-color);\n  --gc-dpad-btn-border-radius: 4px;\n\n  --gc-focus-ring-width: 2px;\n  --gc-focus-ring-style: solid;\n  --gc-focus-ring-color: #000000;\n  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcdpad {\n  display: flex;\n  flex-wrap: wrap;\n  width: 100%;\n  justify-content: space-between;\n}\n\n.gcdpad__btn {\n  margin-bottom: 5%;\n  background: var(--gc-dpad-btn-bg);\n  color: var(--gc-dpad-btn-color);\n  border: var(--gc-dpad-btn-border);\n  border-radius: var(--gc-dpad-btn-border-radius);\n  cursor: pointer;\n}\n\n.gcdpad__btn--up {\n  background: var(--gc-dpad-btn-up-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-up-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-up-border, var(--gc-dpad-btn-border));\n  height: var(--gc-dpad-axis);\n  width: 25%;\n  margin-left: 38%;\n  margin-right: 38%;\n}\n\n.gcdpad__btn--right {\n  background: var(--gc-dpad-btn-right-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-right-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-right-border, var(--gc-dpad-btn-border));\n  width: 38%;\n  height: var(--gc-dpad-half);\n}\n\n.gcdpad__btn--down {\n  background: var(--gc-dpad-btn-down-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-down-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-down-border, var(--gc-dpad-btn-border));\n  height: var(--gc-dpad-axis);\n  width: 25%;\n  margin-left: 38%;\n  margin-right: 38%;\n}\n\n.gcdpad__btn--left {\n  background: var(--gc-dpad-btn-left-bg, var(--gc-dpad-btn-bg));\n  color: var(--gc-dpad-btn-left-color, var(--gc-dpad-btn-color));\n  border: var(--gc-dpad-btn-left-border, var(--gc-dpad-btn-border));\n  width: 38%;\n  height: var(--gc-dpad-half);\n}\n\n.gcdpad__btn:focus {\n  outline: none;\n}\n\n.gcdpad__btn:focus-visible {\n  outline: var(--gc-focus-ring);\n  outline-offset: 2px;\n}\n", z = "gcdpad-host", B = [
+	"up",
+	"left",
+	"right",
+	"down"
+];
+function V({ container: e, onDirection: t }) {
+	let n = r(null), i = j(e), a = C(ee, z, i), o = (r) => {
+		let i = M(e, n.current);
+		if (!i) return;
+		let a = {
+			controller: i,
+			direction: r
+		};
+		t?.(a), w(i, p.gcDpad[r], a);
+	};
+	return /* @__PURE__ */ l(s, { children: [/* @__PURE__ */ c("style", { children: a }), /* @__PURE__ */ c("div", {
+		ref: n,
+		className: i ? "gcdpad" : `${z} gcdpad`,
+		part: "base",
+		children: B.map((e) => /* @__PURE__ */ c("button", {
+			type: "button",
+			className: `gcdpad__btn gcdpad__btn--${e}`,
+			"aria-label": e[0].toUpperCase() + e.slice(1),
+			part: `btn-${e}`,
+			onClick: () => o(e)
+		}, e))
+	})] });
+}
+var H = k(V);
+A("gc-dpad", H);
 //#endregion
 //#region src/components/game-controller/game-controller-layout.ts
-var _ = [
+var te = [
 	"y",
 	"x",
 	"b",
 	"a"
-], v = ["a", "b"];
-function y(e) {
-	return e === 2 ? v : _;
+], U = ["a", "b"];
+function W(e) {
+	return e === 2 ? U : te;
 }
-function b(e) {
+function G(e) {
 	return e === 2 ? "gcface__actions gcface__actions--two" : "gcface__actions gcface__actions--four";
 }
-function x(e) {
+function ne(e) {
 	return e === "joystick" ? "joystick" : "dpad";
 }
 //#endregion
 //#region src/components/gc-face-buttons/gc-face-buttons.css?raw
-var S = "/**\n * Face / action buttons (A/B or Y/X/B/A). `var(--gc-*, fallback)` uses the same defaults as\n * `<game-controller>` so Storybook / embeds work without a shell; inherited tokens from an\n * ancestor still override when set.\n */\n:host {\n  display: block;\n  width: 100%;\n  box-sizing: border-box;\n  color: var(--gc-color-text, #000000);\n  font-family: var(--gc-font-family, system-ui, sans-serif);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcface__actions {\n  width: 100%;\n  display: flex;\n  flex-direction: column-reverse;\n  justify-content: flex-end;\n}\n\n.gcface__btn {\n  width: var(--gc-action-size, 50px);\n  height: var(--gc-action-size, 50px);\n  font-family: inherit;\n  font-size: var(--gc-action-font-size, 0.75rem);\n  font-weight: 600;\n  border-radius: var(--gc-action-btn-border-radius, 50%);\n}\n\n.gcface__btn:focus {\n  outline: none;\n}\n\n.gcface__btn:focus-visible {\n  outline: var(--gc-focus-ring, 2px solid #000000);\n  outline-offset: 2px;\n}\n\n.gcface__btn--1 {\n  margin-left: auto;\n  background: var(--gc-action-btn-1-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-1-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-1-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__btn--2 {\n  margin-left: calc(50% - var(--gc-action-size, 50px));\n  background: var(--gc-action-btn-2-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-2-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-2-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__btn--3 {\n  background: var(--gc-action-btn-3-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-3-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-3-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__btn--4 {\n  background: var(--gc-action-btn-4-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-4-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-4-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__actions--four {\n  margin-left: 5%;\n  flex-wrap: wrap;\n  flex-direction: column;\n  justify-content: initial;\n}\n\n.gcface__actions--four .gcface__btn--1 {\n  margin-left: calc(50% - var(--gc-action-size, 50px) / 4);\n}\n\n.gcface__actions--four .gcface__btn--3 {\n  margin-left: auto;\n  margin-top: calc(-1 * var(--gc-action-size, 50px));\n}\n\n.gcface__actions--four .gcface__btn--4 {\n  margin-left: calc(50% - var(--gc-action-size, 50px) / 4);\n  margin-bottom: 30%;\n}\n\n/** Landscape viewport: diamond margins match `<game-controller>` landscape flex row. */\n@media (orientation: landscape) {\n  .gcface__actions--four .gcface__btn--1 {\n    margin-left: calc(50% - var(--gc-action-size, 50px) / 8);\n  }\n\n  .gcface__actions--four .gcface__btn--2 {\n    margin-right: auto;\n  }\n\n  .gcface__actions--four .gcface__btn--3 {\n    margin-left: auto;\n  }\n\n  .gcface__actions--four .gcface__btn--4 {\n    margin-left: calc(50% - var(--gc-action-size, 50px) / 8);\n  }\n}\n", C = "gc-face-buttons", w = class extends e {
-	constructor(...e) {
-		super(...e), this.actions = 2;
-	}
-	static {
-		this.styles = t`
-    ${r(S)}
-  `;
-	}
-	static {
-		this.properties = { actions: { type: Number } };
-	}
-	emitFace(e) {
-		this.dispatchEvent(new CustomEvent(i.gcFace[e], {
-			detail: {
-				controller: this,
-				button: e
-			},
-			bubbles: !0,
-			composed: !0
-		}));
-	}
-	render() {
-		let e = y(this.actions);
-		return n`
-      <div class="${b(this.actions)}" part="actions">
-        ${e.map((e, t) => n`
-            <button
-              type="button"
-              class="gcface__btn gcface__btn--${t + 1}"
-              part="btn-${e}"
-              @click=${() => this.emitFace(e)}
-            >
-              ${e.toUpperCase()}
-            </button>
-          `)}
-      </div>
-    `;
-	}
-};
-customElements.get(C) || customElements.define(C, w);
+var re = "/**\n * Face / action buttons (A/B or Y/X/B/A). `var(--gc-*, fallback)` uses the same defaults as\n * `<game-controller>` so Storybook / embeds work without a shell; inherited tokens from an\n * ancestor still override when set.\n */\n:host {\n  display: block;\n  width: 100%;\n  box-sizing: border-box;\n  color: var(--gc-color-text, #000000);\n  font-family: var(--gc-font-family, system-ui, sans-serif);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcface__actions {\n  width: 100%;\n  display: flex;\n  flex-direction: column-reverse;\n  justify-content: flex-end;\n}\n\n.gcface__btn {\n  width: var(--gc-action-size, 50px);\n  height: var(--gc-action-size, 50px);\n  font-family: inherit;\n  font-size: var(--gc-action-font-size, 0.75rem);\n  font-weight: 600;\n  border-radius: var(--gc-action-btn-border-radius, 50%);\n}\n\n.gcface__btn:focus {\n  outline: none;\n}\n\n.gcface__btn:focus-visible {\n  outline: var(--gc-focus-ring, 2px solid #000000);\n  outline-offset: 2px;\n}\n\n.gcface__btn--1 {\n  margin-left: auto;\n  background: var(--gc-action-btn-1-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-1-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-1-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__btn--2 {\n  margin-left: calc(50% - var(--gc-action-size, 50px));\n  background: var(--gc-action-btn-2-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-2-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-2-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__btn--3 {\n  background: var(--gc-action-btn-3-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-3-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-3-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__btn--4 {\n  background: var(--gc-action-btn-4-bg, var(--gc-action-btn-bg, #ffffff));\n  color: var(--gc-action-btn-4-color, var(--gc-action-btn-color, #000000));\n  border: var(--gc-action-btn-4-border, var(--gc-action-btn-border, 1px solid #000000));\n}\n\n.gcface__actions--four {\n  margin-left: 5%;\n  flex-wrap: wrap;\n  flex-direction: column;\n  justify-content: initial;\n}\n\n.gcface__actions--four .gcface__btn--1 {\n  margin-left: calc(50% - var(--gc-action-size, 50px) / 4);\n}\n\n.gcface__actions--four .gcface__btn--3 {\n  margin-left: auto;\n  margin-top: calc(-1 * var(--gc-action-size, 50px));\n}\n\n.gcface__actions--four .gcface__btn--4 {\n  margin-left: calc(50% - var(--gc-action-size, 50px) / 4);\n  margin-bottom: 30%;\n}\n\n/** Landscape viewport: diamond margins match `<game-controller>` landscape flex row. */\n@media (orientation: landscape) {\n  .gcface__actions--four .gcface__btn--1 {\n    margin-left: calc(50% - var(--gc-action-size, 50px) / 8);\n  }\n\n  .gcface__actions--four .gcface__btn--2 {\n    margin-right: auto;\n  }\n\n  .gcface__actions--four .gcface__btn--3 {\n    margin-left: auto;\n  }\n\n  .gcface__actions--four .gcface__btn--4 {\n    margin-left: calc(50% - var(--gc-action-size, 50px) / 8);\n  }\n}\n", ie = "gcface-host";
+function K({ actions: e = 2, container: t, onButton: n }) {
+	let i = r(null), a = j(t), o = C(re, ie, a), u = W(e), d = G(e), f = (e) => {
+		let r = M(t, i.current);
+		if (!r) return;
+		let a = {
+			controller: r,
+			button: e
+		};
+		n?.(a), w(r, p.gcFace[e], a);
+	};
+	return /* @__PURE__ */ l(s, { children: [/* @__PURE__ */ c("style", { children: o }), /* @__PURE__ */ c("div", {
+		ref: i,
+		className: a ? d : `${ie} ${d}`,
+		part: "actions",
+		children: u.map((e, t) => /* @__PURE__ */ c("button", {
+			type: "button",
+			className: `gcface__btn gcface__btn--${t + 1}`,
+			part: `btn-${e}`,
+			onClick: () => f(e),
+			children: e.toUpperCase()
+		}, e))
+	})] });
+}
+var ae = k(K, { props: { actions: "number" } });
+A("gc-face-buttons", ae);
 //#endregion
 //#region src/components/gc-joystick/gc-joystick.css?raw
-var T = ":host {\n  display: block;\n  width: 100%;\n  max-width: 140px;\n  aspect-ratio: 1;\n  box-sizing: border-box;\n\n  --gc-joystick-ring-bg: transparent;\n  --gc-joystick-ring-border-width: 1px;\n  --gc-joystick-ring-border-color: #000000;\n  --gc-joystick-ring-border: var(--gc-joystick-ring-border-width) solid\n    var(--gc-joystick-ring-border-color);\n\n  --gc-joystick-knob-bg: #ffffff;\n  --gc-joystick-knob-border: 1px solid #000000;\n  --gc-joystick-knob-size: 28px;\n\n  --gc-focus-ring-width: 2px;\n  --gc-focus-ring-style: solid;\n  --gc-focus-ring-color: #000000;\n  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcjoystick {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  touch-action: none;\n}\n\n.gcjoystick__ring {\n  position: absolute;\n  inset: 0;\n  border-radius: 50%;\n  background: var(--gc-joystick-ring-bg);\n  border: var(--gc-joystick-ring-border);\n}\n\n.gcjoystick__knob {\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  width: var(--gc-joystick-knob-size);\n  height: var(--gc-joystick-knob-size);\n  border-radius: 50%;\n  background: var(--gc-joystick-knob-bg);\n  border: var(--gc-joystick-knob-border);\n  cursor: grab;\n  box-shadow: none;\n}\n\n.gcjoystick__knob:active {\n  cursor: grabbing;\n}\n\n.gcjoystick__knob:focus {\n  outline: none;\n}\n\n.gcjoystick__knob:focus-visible {\n  outline: var(--gc-focus-ring);\n  outline-offset: 2px;\n}\n", E = [
+var oe = ":host {\n  display: block;\n  width: 100%;\n  max-width: 140px;\n  aspect-ratio: 1;\n  box-sizing: border-box;\n\n  --gc-joystick-ring-bg: transparent;\n  --gc-joystick-ring-border-width: 1px;\n  --gc-joystick-ring-border-color: #000000;\n  --gc-joystick-ring-border: var(--gc-joystick-ring-border-width) solid\n    var(--gc-joystick-ring-border-color);\n\n  --gc-joystick-knob-bg: #ffffff;\n  --gc-joystick-knob-border: 1px solid #000000;\n  --gc-joystick-knob-size: 28px;\n\n  --gc-focus-ring-width: 2px;\n  --gc-focus-ring-style: solid;\n  --gc-focus-ring-color: #000000;\n  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gcjoystick {\n  position: relative;\n  width: 100%;\n  height: 100%;\n  touch-action: none;\n}\n\n.gcjoystick__ring {\n  position: absolute;\n  inset: 0;\n  border-radius: 50%;\n  background: var(--gc-joystick-ring-bg);\n  border: var(--gc-joystick-ring-border);\n}\n\n.gcjoystick__knob {\n  position: absolute;\n  left: 50%;\n  top: 50%;\n  width: var(--gc-joystick-knob-size);\n  height: var(--gc-joystick-knob-size);\n  border-radius: 50%;\n  background: var(--gc-joystick-knob-bg);\n  border: var(--gc-joystick-knob-border);\n  cursor: grab;\n  box-shadow: none;\n}\n\n.gcjoystick__knob:active {\n  cursor: grabbing;\n}\n\n.gcjoystick__knob:focus {\n  outline: none;\n}\n\n.gcjoystick__knob:focus-visible {\n  outline: var(--gc-focus-ring);\n  outline-offset: 2px;\n}\n", q = [
 	{
 		id: "n",
 		startDeg: 337.5,
@@ -280,33 +367,33 @@ var T = ":host {\n  display: block;\n  width: 100%;\n  max-width: 140px;\n  aspe
 		endDeg: 337.5
 	}
 ];
-function D(e) {
+function J(e) {
 	let t = e % 360;
 	return t < 0 && (t += 360), t;
 }
-function O(e, t) {
-	return D(Math.atan2(e, -t) * 180 / Math.PI);
+function se(e, t) {
+	return J(Math.atan2(e, -t) * 180 / Math.PI);
 }
-function k(e, t, n) {
-	let r = D(e), i = D(t), a = D(n);
+function ce(e, t, n) {
+	let r = J(e), i = J(t), a = J(n);
 	return i <= a ? r >= i && r <= a : r >= i || r <= a;
 }
-function A(e, t) {
-	for (let n of e) if (k(t, n.startDeg, n.endDeg)) return n.id;
+function le(e, t) {
+	for (let n of e) if (ce(t, n.startDeg, n.endDeg)) return n.id;
 	return null;
 }
-function j(e) {
-	let t = D(e);
+function ue(e) {
+	let t = J(e);
 	return t >= 315 || t < 45 ? "up" : t < 135 ? "right" : t < 225 ? "down" : "left";
 }
-function M(e) {
-	let t = D(e + 15), n = Math.floor(t / 30);
+function de(e) {
+	let t = J(e + 15), n = Math.floor(t / 30);
 	return n === 0 ? 12 : n;
 }
-function N(e) {
+function Y(e) {
 	return `${e}-oclock`;
 }
-function P(e, t, n) {
+function fe(e, t, n) {
 	let r = Math.hypot(e, t);
 	return r > n && r > 0 ? {
 		dx: e / r * n,
@@ -316,8 +403,8 @@ function P(e, t, n) {
 		dy: t
 	};
 }
-function F(e) {
-	let { pointerDx: t, pointerDy: n, maxTravel: r, deadZone: i } = e, { dx: a, dy: o } = P(t, n, r), s = r > 0 ? a / r : 0, c = r > 0 ? o / r : 0, l = Math.min(1, Math.hypot(s, c));
+function pe(e) {
+	let { pointerDx: t, pointerDy: n, maxTravel: r, deadZone: i } = e, { dx: a, dy: o } = fe(t, n, r), s = r > 0 ? a / r : 0, c = r > 0 ? o / r : 0, l = Math.min(1, Math.hypot(s, c));
 	return l < i ? {
 		knobDx: 0,
 		knobDy: 0,
@@ -331,11 +418,11 @@ function F(e) {
 		nx: s,
 		ny: c,
 		mag: l,
-		angleDeg: O(a, o)
+		angleDeg: se(a, o)
 	};
 }
-function I(e, t) {
-	let n = e.angleDeg, r = n === null ? null : A(t, n), i = n === null ? "none" : j(n), a = n === null ? null : M(n), o = a === null ? null : N(a);
+function me(e, t) {
+	let n = e.angleDeg, r = n === null ? null : le(t, n), i = n === null ? "none" : ue(n), a = n === null ? null : de(n), o = a === null ? null : Y(a);
 	return {
 		x: e.nx,
 		y: e.ny,
@@ -348,7 +435,7 @@ function I(e, t) {
 		clockLabel: o
 	};
 }
-function L(e) {
+function he(e) {
 	if (!e) return null;
 	try {
 		let t = JSON.parse(e);
@@ -358,348 +445,296 @@ function L(e) {
 	}
 }
 //#endregion
-//#region src/components/gc-joystick/gc-joystick.ts
-var R = "gc-joystick", z = class extends e {
-	constructor(...e) {
-		super(...e), this.deadZone = .12, this.emitCardinal = !1, this.emitClock = !1, this.emitSectors = !1, this.sectorsJson = null, this.sectors = [...E], this.dragging = !1, this.nx = 0, this.ny = 0, this.mag = 0, this.angleDeg = null, this.knobDx = 0, this.knobDy = 0, this.lastCardinal = "none", this.lastSectorId = null, this.lastClockHour = null, this.onPointerDown = (e) => {
-			e.preventDefault(), this.dragging = !0, e.currentTarget.setPointerCapture(e.pointerId), this.emit(i.gcJoystick.pointerDown, { controller: this }), this.updateStick(e.clientX, e.clientY);
-		}, this.onPointerMove = (e) => {
-			this.dragging && (e.preventDefault(), this.updateStick(e.clientX, e.clientY));
-		}, this.onPointerUp = (e) => {
-			if (this.dragging) {
-				e.preventDefault();
-				try {
-					e.currentTarget.releasePointerCapture(e.pointerId);
-				} catch {}
-				this.resetStick();
-			}
-		}, this.onLostCapture = () => {
-			this.dragging && this.resetStick();
-		};
-	}
-	static {
-		this.styles = t`
-    ${r(T)}
-  `;
-	}
-	static {
-		this.properties = {
-			deadZone: { type: Number },
-			emitCardinal: {
-				type: Boolean,
-				attribute: "emit-cardinal"
-			},
-			emitClock: {
-				type: Boolean,
-				attribute: "emit-clock"
-			},
-			emitSectors: {
-				type: Boolean,
-				attribute: "emit-sectors"
-			},
-			sectorsJson: {
-				type: String,
-				attribute: "sectors-json"
-			}
-		};
-	}
-	updated(e) {
-		if (super.updated(e), !e.has("sectorsJson")) return;
-		if (!this.sectorsJson) {
-			this.sectors = [...E];
-			return;
-		}
-		let t = L(this.sectorsJson);
-		t && (this.sectors = t);
-	}
-	emit(e, t) {
-		this.dispatchEvent(new CustomEvent(e, {
-			detail: t,
-			bubbles: !0,
-			composed: !0
-		}));
-	}
-	kinState() {
-		return {
-			knobDx: this.knobDx,
-			knobDy: this.knobDy,
-			nx: this.nx,
-			ny: this.ny,
-			mag: this.mag,
-			angleDeg: this.angleDeg
-		};
-	}
-	buildDetail() {
-		return {
-			controller: this,
-			...I(this.kinState(), this.sectors)
-		};
-	}
-	emitMoveAlways() {
-		let e = this.buildDetail();
-		return this.emit(i.gcJoystick.move, { ...e }), e;
-	}
-	emitAuxiliary(e) {
-		if (this.emitCardinal && e.cardinal !== this.lastCardinal) {
-			let t = this.lastCardinal;
-			this.lastCardinal = e.cardinal, this.emit(i.gcJoystick.cardinal[e.cardinal], {
+//#region src/components/gc-joystick/gc-joystick.tsx
+var ge = "gcjoystick-host", _e = "gc-joystick";
+function X(e, t = !1) {
+	return e === !0 ? !0 : e === !1 || e == null ? t : typeof e == "string" ? e === "" || /^[ty1-9]/i.test(e) : !!e;
+}
+function ve(e, t) {
+	return e ? he(e) ?? [...q] : Array.isArray(t) && t.length > 0 ? t : [...q];
+}
+function Z({ deadZone: e = .12, emitCardinal: t, emitClock: a, emitSectors: o, sectorsJson: u, sectors: d, container: f, onPointerDown: h, onMove: g }) {
+	let _ = r(null), v = r(null), y = r("none"), b = r(null), x = r(null), S = r(!1), [T, E] = i({
+		dx: 0,
+		dy: 0
+	}), D = j(f), O = C(oe, ge, D), k = X(t), A = X(a), N = X(o), P = n(() => ve(u, d), [u, d]), F = () => M(f, _.current), I = (e) => e, L = (e) => {
+		let t = F();
+		return t ? {
+			controller: t,
+			...me(e, P)
+		} : null;
+	}, R = (e) => {
+		let t = L(e);
+		return t ? (g?.(t), w(t.controller, p.gcJoystick.move, { ...t }), t) : null;
+	}, ee = (e) => {
+		if (k && e.cardinal !== y.current) {
+			let t = y.current;
+			y.current = e.cardinal, w(e.controller, p.gcJoystick.cardinal[e.cardinal], {
 				...e,
 				previousCardinal: t
 			});
 		}
-		if (this.emitSectors) {
+		if (N) {
 			let t = e.sectorId;
-			if (t !== this.lastSectorId) {
-				let n = this.lastSectorId;
-				this.lastSectorId = t, this.emit(i.gcJoystick.sector, {
+			if (t !== b.current) {
+				let n = b.current;
+				b.current = t, w(e.controller, p.gcJoystick.sector, {
 					...e,
 					previousSectorId: n
 				});
 			}
 		}
-		if (this.emitClock) {
+		if (A) {
 			let t = e.clockHour;
-			if (t !== this.lastClockHour) {
-				let n = this.lastClockHour;
-				this.lastClockHour = t, t !== null && this.emit(a(t), {
+			if (t !== x.current) {
+				let n = x.current;
+				x.current = t, t !== null && w(e.controller, m(t), {
 					...e,
 					hour: t,
 					previousHour: n
-				}), this.emit(i.gcJoystick.clock, {
+				}), w(e.controller, p.gcJoystick.clock, {
 					...e,
 					hour: t,
 					previousHour: n,
 					label: e.clockLabel,
-					previousLabel: n === null ? null : N(n)
+					previousLabel: n === null ? null : Y(n)
 				});
 			}
 		}
-	}
-	knobHalfPx() {
-		let e = getComputedStyle(this).getPropertyValue("--gc-joystick-knob-size").trim();
-		return (Number.parseFloat(e || "28") || 28) / 2;
-	}
-	updateStick(e, t) {
-		let n = this.renderRoot.querySelector(".gcjoystick__ring");
-		if (!n) return;
-		let r = n.getBoundingClientRect(), i = r.left + r.width / 2, a = r.top + r.height / 2, o = this.knobHalfPx(), s = Math.max(8, Math.min(r.width, r.height) / 2 - o - 2), c = F({
-			pointerDx: e - i,
-			pointerDy: t - a,
-			maxTravel: s,
-			deadZone: this.deadZone
+	}, z = () => {
+		let e = F() ?? _.current;
+		if (!e) return 14;
+		let t = getComputedStyle(e).getPropertyValue("--gc-joystick-knob-size").trim();
+		return (Number.parseFloat(t || "28") || 28) / 2;
+	}, B = (t, n) => {
+		let r = v.current;
+		if (!r) return;
+		let i = r.getBoundingClientRect(), a = i.left + i.width / 2, o = i.top + i.height / 2, s = z(), c = Math.max(8, Math.min(i.width, i.height) / 2 - s - 2), l = pe({
+			pointerDx: t - a,
+			pointerDy: n - o,
+			maxTravel: c,
+			deadZone: e
 		});
-		this.knobDx = c.knobDx, this.knobDy = c.knobDy, this.nx = c.nx, this.ny = c.ny, this.mag = c.mag, this.angleDeg = c.angleDeg;
-		let l = this.emitMoveAlways();
-		this.emitAuxiliary(l), this.requestUpdate();
-	}
-	resetStick() {
-		this.dragging = !1, this.nx = 0, this.ny = 0, this.mag = 0, this.angleDeg = null, this.knobDx = 0, this.knobDy = 0;
-		let e = this.emitMoveAlways();
-		if (this.emitCardinal && this.lastCardinal !== "none") {
-			let t = this.lastCardinal;
-			this.lastCardinal = "none", this.emit(i.gcJoystick.cardinal.none, {
-				...e,
-				previousCardinal: t
-			});
+		E({
+			dx: l.knobDx,
+			dy: l.knobDy
+		});
+		let u = R(I(l));
+		u && ee(u);
+	}, V = () => {
+		S.current = !1;
+		let e = I({
+			knobDx: 0,
+			knobDy: 0,
+			nx: 0,
+			ny: 0,
+			mag: 0,
+			angleDeg: null
+		});
+		E({
+			dx: 0,
+			dy: 0
+		});
+		let t = R(e);
+		if (t) {
+			if (k && y.current !== "none") {
+				let e = y.current;
+				y.current = "none", w(t.controller, p.gcJoystick.cardinal.none, {
+					...t,
+					previousCardinal: e
+				});
+			}
+			if (N && b.current !== null) {
+				let e = b.current;
+				b.current = null, w(t.controller, p.gcJoystick.sector, {
+					...t,
+					sectorId: null,
+					previousSectorId: e
+				});
+			}
+			if (A && x.current !== null) {
+				let e = x.current;
+				x.current = null, w(t.controller, p.gcJoystick.clock, {
+					...t,
+					hour: null,
+					previousHour: e,
+					label: null,
+					previousLabel: e === null ? null : Y(e)
+				});
+			}
 		}
-		if (this.emitSectors && this.lastSectorId !== null) {
-			let t = this.lastSectorId;
-			this.lastSectorId = null, this.emit(i.gcJoystick.sector, {
-				...e,
-				sectorId: null,
-				previousSectorId: t
-			});
+	}, H = (e) => {
+		e.preventDefault(), S.current = !0, e.currentTarget.setPointerCapture(e.pointerId);
+		let t = F();
+		t && (h?.({ controller: t }), w(t, p.gcJoystick.pointerDown, { controller: t })), B(e.clientX, e.clientY);
+	}, te = (e) => {
+		S.current && (e.preventDefault(), B(e.clientX, e.clientY));
+	}, U = (e) => {
+		if (S.current) {
+			e.preventDefault();
+			try {
+				e.currentTarget.releasePointerCapture(e.pointerId);
+			} catch {}
+			V();
 		}
-		if (this.emitClock && this.lastClockHour !== null) {
-			let t = this.lastClockHour;
-			this.lastClockHour = null, this.emit(i.gcJoystick.clock, {
-				...e,
-				hour: null,
-				previousHour: t,
-				label: null,
-				previousLabel: t === null ? null : N(t)
-			});
-		}
-		this.requestUpdate();
+	}, W = () => {
+		S.current && V();
+	}, G = `translate(calc(-50% + ${T.dx}px), calc(-50% + ${T.dy}px))`;
+	return /* @__PURE__ */ l(s, { children: [/* @__PURE__ */ c("style", { children: O }), /* @__PURE__ */ l("div", {
+		ref: _,
+		className: D ? "gcjoystick" : `${ge} gcjoystick`,
+		part: "base",
+		"data-emit-cardinal": k ? "" : void 0,
+		children: [/* @__PURE__ */ c("div", {
+			ref: v,
+			className: "gcjoystick__ring",
+			part: "ring"
+		}), /* @__PURE__ */ c("button", {
+			type: "button",
+			className: "gcjoystick__knob",
+			part: "knob",
+			"aria-label": "Joystick",
+			style: { transform: G },
+			onPointerDown: H,
+			onPointerMove: te,
+			onPointerUp: U,
+			onPointerCancel: U,
+			onLostPointerCapture: W
+		})]
+	})] });
+}
+var Q = k(Z, {
+	props: {
+		deadZone: "number",
+		emitCardinal: "boolean",
+		emitClock: "boolean",
+		emitSectors: "boolean",
+		sectorsJson: "string"
+	},
+	objectProps: ["sectors"],
+	emptyBooleanAttributes: [
+		"emit-cardinal",
+		"emit-clock",
+		"emit-sectors"
+	]
+}), ye = Object.getOwnPropertyDescriptor(Q.prototype, "sectors"), be = Symbol.for("r2wc.props");
+Object.defineProperty(Q.prototype, "sectors", {
+	enumerable: !0,
+	configurable: !0,
+	get() {
+		let e = this[be];
+		return ve(e?.sectorsJson, e?.sectors);
+	},
+	set(e) {
+		ye?.set?.call(this, e);
 	}
-	render() {
-		return n`
-      <div class="gcjoystick" part="base">
-        <div class="gcjoystick__ring" part="ring"></div>
-        <button
-          type="button"
-          class="gcjoystick__knob"
-          part="knob"
-          aria-label="Joystick"
-          style="transform: ${`translate(calc(-50% + ${this.knobDx}px), calc(-50% + ${this.knobDy}px))`}"
-          @pointerdown=${this.onPointerDown}
-          @pointermove=${this.onPointerMove}
-          @pointerup=${this.onPointerUp}
-          @pointercancel=${this.onPointerUp}
-          @lostpointercapture=${this.onLostCapture}
-        ></button>
-      </div>
-    `;
-	}
-};
-customElements.get(R) || customElements.define(R, z);
-function B(e, t = 10) {
-	e && navigator.vibrate?.(t);
-}
-function V(e) {
-	if (e === null) return !0;
-	let t = e.trim().toLowerCase();
-	return !(t === "false" || t === "0" || t === "off");
-}
-//#endregion
-//#region src/orientation.ts
-async function H() {
-	try {
-		(globalThis.screen?.orientation)?.unlock?.();
-	} catch {}
-}
+}), A(_e, Q);
 //#endregion
 //#region src/components/game-controller/game-controller.css?raw
-var U = "/**\n * All tokens use the `--gc-` prefix (game controller). Defaults are neutral monochrome\n * (black strokes/text, white or transparent fills). Set overrides on `<game-controller>`:\n *\n *   game-controller {\n *     --gc-shell-bg: #111;\n *     --gc-action-btn-bg: #333;\n *   }\n *\n * Layout fills the dynamic viewport (`100dvh` / `100dvw`) with safe-area insets. Portrait\n * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then\n * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex `order` +\n * `display: contents` on `.gamecontroller__main-controls` so stick | center | actions read left\n * to right. Fullscreen uses `requestFullscreen()` on `<game-controller>`.\n */\n:host {\n  display: flex;\n  flex-direction: column;\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 100%;\n  /**\n   * Default fills the dynamic viewport. For embedded previews, set on an ancestor:\n   * `--gc-host-min-height: 100%` and `--gc-host-height: 100%`.\n   */\n  min-height: var(--gc-host-min-height, 100vh);\n  /* biome-ignore lint/suspicious/noDuplicateProperties: progressive enhancement */\n  min-height: var(--gc-host-min-height, 100dvh);\n  height: var(--gc-host-height, auto);\n\n  /* Typography */\n  --gc-font-family: system-ui, sans-serif;\n  --gc-color-text: #000000;\n  --gc-action-font-size: 0.75rem;\n  --gc-ancillary-font-size: 0.8rem;\n\n  /* Shell (outer device / viewport chrome) */\n  --gc-shell-bg: #ffffff;\n  --gc-shell-border-width: 0;\n  --gc-shell-border-style: solid;\n  --gc-shell-border-color: transparent;\n  --gc-shell-border: var(--gc-shell-border-width) var(--gc-shell-border-style)\n    var(--gc-shell-border-color);\n\n  /* Stage (“screen”) */\n  --gc-stage-bg: transparent;\n  --gc-stage-border-width: 1px;\n  --gc-stage-border-style: solid;\n  --gc-stage-border-color: #000000;\n  --gc-stage-border: var(--gc-stage-border-width) var(--gc-stage-border-style)\n    var(--gc-stage-border-color);\n\n  /* Control bands (behind d-pad / face buttons) */\n  --gc-main-controls-bg: transparent;\n\n  /* Face buttons (default + optional --gc-action-btn-{1-4}-* ) */\n  --gc-action-size: 50px;\n  --gc-action-btn-bg: #ffffff;\n  --gc-action-btn-color: #000000;\n  --gc-action-btn-border-width: 1px;\n  --gc-action-btn-border-style: solid;\n  --gc-action-btn-border-color: #000000;\n  --gc-action-btn-border: var(--gc-action-btn-border-width) var(--gc-action-btn-border-style)\n    var(--gc-action-btn-border-color);\n  --gc-action-btn-border-radius: 50%;\n\n  /* Ancillary row (fullscreen / select / start) */\n  --gc-ancillary-btn-bg: transparent;\n  --gc-ancillary-btn-color: #000000;\n  --gc-ancillary-btn-border-width: 1px;\n  --gc-ancillary-btn-border-style: solid;\n  --gc-ancillary-btn-border-color: #000000;\n  --gc-ancillary-btn-border: var(--gc-ancillary-btn-border-width)\n    var(--gc-ancillary-btn-border-style) var(--gc-ancillary-btn-border-color);\n  --gc-ancillary-btn-border-radius: 6px;\n  --gc-ancillary-margin: 5%;\n  --gc-ancillary-padding: 1% 5%;\n\n  /* D-pad */\n  --gc-dpad-axis: 66px;\n  --gc-dpad-half: 33px;\n  --gc-dpad-btn-bg: transparent;\n  --gc-dpad-btn-color: transparent;\n  --gc-dpad-btn-border-width: 1px;\n  --gc-dpad-btn-border-style: solid;\n  --gc-dpad-btn-border-color: #000000;\n  --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)\n    var(--gc-dpad-btn-border-color);\n  --gc-dpad-btn-border-radius: 4px;\n  --gc-dpad-axis-landscape: 66px;\n  --gc-dpad-half-landscape: 33px;\n\n  /* Focus ring (keyboard) */\n  --gc-focus-ring-width: 2px;\n  --gc-focus-ring-style: solid;\n  --gc-focus-ring-color: #000000;\n  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);\n\n  color: var(--gc-color-text);\n  font-family: var(--gc-font-family);\n}\n\n/* iOS Safari legacy full-height when parent chain lacks height */\n@supports (-webkit-touch-callout: none) {\n  :host {\n    min-height: var(--gc-host-min-height, -webkit-fill-available);\n  }\n}\n\n:host(:fullscreen) {\n  width: 100%;\n  height: 100%;\n  min-height: 100%;\n  max-height: 100%;\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gamecontroller__shell {\n  flex: 1 1 auto;\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  min-width: 0;\n  min-height: 0;\n}\n\n.gamecontroller__container {\n  flex: 1 1 auto;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  width: 100%;\n  min-width: 0;\n  min-height: 0;\n  overflow: hidden;\n  padding-top: env(safe-area-inset-top, 0px);\n  padding-right: env(safe-area-inset-right, 0px);\n  padding-bottom: env(safe-area-inset-bottom, 0px);\n  padding-left: env(safe-area-inset-left, 0px);\n  background: var(--gc-shell-bg);\n  border: var(--gc-shell-border);\n}\n\n:host(:fullscreen) .gamecontroller__shell {\n  flex: 1 1 auto;\n  min-height: 0;\n}\n\n:host(:fullscreen) .gamecontroller__container {\n  min-height: 0;\n}\n\n/**\n * Screen stack: stage then ancillary row (portrait reading order; landscape this column sits\n * between stick and actions via flex order).\n */\n.gamecontroller__center {\n  display: flex;\n  flex-direction: column;\n  flex: 1 1 auto;\n  min-width: 0;\n  min-height: 0;\n}\n\n.gamecontroller__stage {\n  flex: 1 1 auto;\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  overflow: hidden;\n  background: var(--gc-stage-bg);\n  border: var(--gc-stage-border);\n  min-height: min(40dvh, 50%);\n  width: 100%;\n  max-width: 100%;\n  position: relative;\n  z-index: 1;\n}\n\n.gamecontroller__stage ::slotted(*) {\n  flex: 1 1 auto;\n  min-height: 0;\n  min-width: 0;\n  width: 100%;\n  align-self: stretch;\n}\n\n.gamecontroller__ancillaries {\n  flex: 0 0 auto;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-wrap: wrap;\n}\n\n.gamecontroller__main-controls {\n  flex: 0 0 auto;\n  width: 100%;\n  display: flex;\n  flex-direction: row;\n  justify-content: space-between;\n  align-items: flex-end;\n  gap: 0.5rem;\n  padding: 0.75rem 2.5% 0;\n  margin-bottom: 0;\n  background: var(--gc-main-controls-bg);\n}\n\n.gamecontroller__d-pad-container {\n  flex: 0 0 auto;\n  width: 45%;\n  max-width: 50%;\n  margin-left: 0;\n  margin-top: 0;\n  align-self: flex-end;\n  display: flex;\n  align-items: flex-end;\n  justify-content: flex-start;\n  min-width: 0;\n}\n\n.gamecontroller__d-pad-container gc-joystick {\n  display: block;\n  width: 100%;\n  max-width: 140px;\n  margin-bottom: 4px;\n}\n\n.gamecontroller__ancillaries gc-ancillary-buttons {\n  display: block;\n  width: 100%;\n}\n\n.gamecontroller__d-pad-container gc-dpad {\n  display: block;\n  width: 100%;\n}\n\n.gamecontroller__actions {\n  flex: 0 0 auto;\n  width: 45%;\n  max-width: 50%;\n  align-self: flex-end;\n  margin-right: 0;\n  min-width: 0;\n}\n\n.gamecontroller__actions gc-face-buttons {\n  display: block;\n  width: 100%;\n}\n\n@media (orientation: landscape) {\n  .gamecontroller__shell {\n    --gc-dpad-axis: var(--gc-dpad-axis-landscape);\n    --gc-dpad-half: var(--gc-dpad-half-landscape);\n    --gc-ancillary-margin: 0 1%;\n    --gc-ancillary-padding: 0.25% 5%;\n  }\n\n  .gamecontroller__container {\n    flex-direction: row;\n    align-items: stretch;\n    column-gap: clamp(0.25rem, 2vmin, 0.75rem);\n    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);\n  }\n\n  /**\n   * Hoist d-pad + actions to siblings of `.gamecontroller__center` so flex `order` can place:\n   * stick (1) | center column (2) | face buttons (3).\n   */\n  .gamecontroller__main-controls {\n    display: contents;\n  }\n\n  .gamecontroller__d-pad-container {\n    order: 1;\n    flex: 0 1 26%;\n    width: auto;\n    max-width: none;\n    align-self: stretch;\n    align-items: center;\n    justify-content: center;\n    padding: clamp(0.15rem, 1.2vmin, 0.45rem);\n    /* `display: contents` on main-controls drops its background; paint sides instead. */\n    background: var(--gc-main-controls-bg);\n  }\n\n  .gamecontroller__d-pad-container gc-joystick {\n    margin-bottom: 0;\n    max-width: min(140px, 100%);\n  }\n\n  .gamecontroller__center {\n    order: 2;\n    flex: 1 1 auto;\n    min-width: 0;\n    min-height: 0;\n    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);\n  }\n\n  .gamecontroller__stage {\n    flex: 1 1 auto;\n    min-height: 0;\n    width: auto;\n    max-width: none;\n  }\n\n  .gamecontroller__ancillaries {\n    flex: 0 0 auto;\n    width: 100%;\n  }\n\n  .gamecontroller__actions {\n    order: 3;\n    flex: 0 1 26%;\n    width: auto;\n    max-width: none;\n    align-self: stretch;\n    align-items: center;\n    justify-content: center;\n    display: flex;\n    padding: clamp(0.15rem, 1.2vmin, 0.45rem);\n    background: var(--gc-main-controls-bg);\n  }\n\n  :host(:fullscreen) .gamecontroller__container {\n    /* Fullscreen + landscape: keep the three-column band edge-to-edge. */\n    min-height: 100%;\n  }\n}\n", W = {
-	fromAttribute(e) {
-		return V(e);
-	},
-	toAttribute(e) {
-		return e ? null : "false";
-	}
-}, G = class extends e {
-	constructor(...e) {
-		super(...e), this.actions = 2, this.vibrate = !0, this.leftControl = "dpad", this.hooks = {}, this.onFullscreenChange = () => {
-			this.requestUpdate();
-		}, this.onGcAncillaryFullscreen = () => {
-			this.handleAncillary("fullscreen", i.gameController.ancillary.fullscreen), this.toggleFullscreen();
-		}, this.onGcAncillarySelect = () => {
-			this.handleAncillary("select", i.gameController.ancillary.select);
-		}, this.onGcAncillaryStart = () => {
-			this.handleAncillary("start", i.gameController.ancillary.start);
-		}, this.onJoystickPointerDown = () => {
-			this.pulse();
-		}, this.onJoystickCardinal = () => {
-			this.pulse();
-		};
-	}
-	static {
-		this.styles = t`
-    ${r(U)}
-  `;
-	}
-	static {
-		this.properties = {
-			actions: { type: Number },
-			vibrate: {
-				type: Boolean,
-				attribute: "vibrate",
-				reflect: !0,
-				converter: W
-			},
-			hooks: {
-				type: Object,
-				attribute: !1
-			},
-			leftControl: {
-				type: String,
-				attribute: "left-control"
-			}
-		};
-	}
-	connectedCallback() {
-		super.connectedCallback(), document.addEventListener("fullscreenchange", this.onFullscreenChange);
-	}
-	disconnectedCallback() {
-		document.removeEventListener("fullscreenchange", this.onFullscreenChange), super.disconnectedCallback();
-	}
-	emit(e, t = {}) {
-		this.dispatchEvent(new CustomEvent(e, {
-			detail: {
-				...t,
-				controller: this
-			},
-			bubbles: !0,
-			composed: !0
-		}));
-	}
-	pulse(e) {
-		B(this.vibrate, e);
-	}
-	handleAncillary(e, t) {
-		this.pulse(), this.hooks[e]?.(this), this.emit(t);
-	}
-	async toggleFullscreen() {
-		try {
-			document.fullscreenElement === this ? await document.exitFullscreen() : (await this.requestFullscreen(), await H());
+var xe = "/**\n * All tokens use the `--gc-` prefix (game controller). Defaults are neutral monochrome\n * (black strokes/text, white or transparent fills). Set overrides on `<game-controller>`:\n *\n *   game-controller {\n *     --gc-shell-bg: #111;\n *     --gc-action-btn-bg: #333;\n *   }\n *\n * Layout fills the dynamic viewport (`100dvh` / `100dvw`) with safe-area insets. Portrait\n * (`orientation: portrait`): `.gamecontroller__center` (stage → ancillary), then\n * `.gamecontroller__main-controls` row (stick | face buttons). Landscape uses flex `order` +\n * `display: contents` on `.gamecontroller__main-controls` so stick | center | actions read left\n * to right. Fullscreen uses `requestFullscreen()` on `<game-controller>`.\n */\n:host {\n  display: flex;\n  flex-direction: column;\n  box-sizing: border-box;\n  width: 100%;\n  max-width: 100%;\n  /**\n   * Default fills the dynamic viewport. For embedded previews, set on an ancestor:\n   * `--gc-host-min-height: 100%` and `--gc-host-height: 100%`.\n   */\n  min-height: var(--gc-host-min-height, 100vh);\n  /* biome-ignore lint/suspicious/noDuplicateProperties: progressive enhancement */\n  min-height: var(--gc-host-min-height, 100dvh);\n  height: var(--gc-host-height, auto);\n\n  /* Typography */\n  --gc-font-family: system-ui, sans-serif;\n  --gc-color-text: #000000;\n  --gc-action-font-size: 0.75rem;\n  --gc-ancillary-font-size: 0.8rem;\n\n  /* Shell (outer device / viewport chrome) */\n  --gc-shell-bg: #ffffff;\n  --gc-shell-border-width: 0;\n  --gc-shell-border-style: solid;\n  --gc-shell-border-color: transparent;\n  --gc-shell-border: var(--gc-shell-border-width) var(--gc-shell-border-style)\n    var(--gc-shell-border-color);\n\n  /* Stage (“screen”) */\n  --gc-stage-bg: transparent;\n  --gc-stage-border-width: 1px;\n  --gc-stage-border-style: solid;\n  --gc-stage-border-color: #000000;\n  --gc-stage-border: var(--gc-stage-border-width) var(--gc-stage-border-style)\n    var(--gc-stage-border-color);\n  /** Cap stage height in portrait; unset in landscape via media query. */\n  --gc-stage-max-height: 100%;\n\n  /* Control bands (behind d-pad / face buttons) */\n  --gc-main-controls-bg: transparent;\n\n  /* Face buttons (default + optional --gc-action-btn-{1-4}-* ) */\n  --gc-action-size: 50px;\n  --gc-action-btn-bg: #ffffff;\n  --gc-action-btn-color: #000000;\n  --gc-action-btn-border-width: 1px;\n  --gc-action-btn-border-style: solid;\n  --gc-action-btn-border-color: #000000;\n  --gc-action-btn-border: var(--gc-action-btn-border-width) var(--gc-action-btn-border-style)\n    var(--gc-action-btn-border-color);\n  --gc-action-btn-border-radius: 50%;\n\n  /* Ancillary row (fullscreen / select / start) */\n  --gc-ancillary-btn-bg: transparent;\n  --gc-ancillary-btn-color: #000000;\n  --gc-ancillary-btn-border-width: 1px;\n  --gc-ancillary-btn-border-style: solid;\n  --gc-ancillary-btn-border-color: #000000;\n  --gc-ancillary-btn-border: var(--gc-ancillary-btn-border-width)\n    var(--gc-ancillary-btn-border-style) var(--gc-ancillary-btn-border-color);\n  --gc-ancillary-btn-border-radius: 6px;\n  --gc-ancillary-margin: 5%;\n  --gc-ancillary-padding: 1% 5%;\n\n  /* D-pad */\n  --gc-dpad-axis: 66px;\n  --gc-dpad-half: 33px;\n  --gc-dpad-btn-bg: transparent;\n  --gc-dpad-btn-color: transparent;\n  --gc-dpad-btn-border-width: 1px;\n  --gc-dpad-btn-border-style: solid;\n  --gc-dpad-btn-border-color: #000000;\n  --gc-dpad-btn-border: var(--gc-dpad-btn-border-width) var(--gc-dpad-btn-border-style)\n    var(--gc-dpad-btn-border-color);\n  --gc-dpad-btn-border-radius: 4px;\n  --gc-dpad-axis-landscape: 66px;\n  --gc-dpad-half-landscape: 33px;\n\n  /* Focus ring (keyboard) */\n  --gc-focus-ring-width: 2px;\n  --gc-focus-ring-style: solid;\n  --gc-focus-ring-color: #000000;\n  --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);\n\n  color: var(--gc-color-text);\n  font-family: var(--gc-font-family);\n}\n\n/* iOS Safari legacy full-height when parent chain lacks height */\n@supports (-webkit-touch-callout: none) {\n  :host {\n    min-height: var(--gc-host-min-height, -webkit-fill-available);\n  }\n}\n\n:host(:fullscreen) {\n  width: 100%;\n  height: 100%;\n  min-height: 100%;\n  max-height: 100%;\n}\n\n:host *,\n:host *::before,\n:host *::after {\n  box-sizing: inherit;\n}\n\n.gamecontroller__shell {\n  flex: 1 1 auto;\n  display: flex;\n  flex-direction: column;\n  width: 100%;\n  min-width: 0;\n  min-height: 0;\n}\n\n.gamecontroller__container {\n  flex: 1 1 auto;\n  display: flex;\n  flex-direction: column;\n  flex-wrap: nowrap;\n  justify-content: flex-start;\n  align-items: stretch;\n  width: 100%;\n  min-width: 0;\n  min-height: 0;\n  overflow: hidden;\n  padding-top: env(safe-area-inset-top, 0px);\n  padding-right: env(safe-area-inset-right, 0px);\n  padding-bottom: env(safe-area-inset-bottom, 0px);\n  padding-left: env(safe-area-inset-left, 0px);\n  background: var(--gc-shell-bg);\n  border: var(--gc-shell-border);\n}\n\n:host(:fullscreen) .gamecontroller__shell {\n  flex: 1 1 auto;\n  min-height: 0;\n}\n\n:host(:fullscreen) .gamecontroller__container {\n  min-height: 0;\n}\n\n/**\n * Screen stack: stage then ancillary row (portrait reading order; landscape this column sits\n * between stick and actions via flex order).\n */\n.gamecontroller__center {\n  display: flex;\n  flex-direction: column;\n  flex: 1 1 0;\n  min-width: 0;\n  min-height: 0;\n  overflow: hidden;\n}\n\n.gamecontroller__stage {\n  flex: 1 1 0;\n  display: flex;\n  flex-direction: column;\n  min-width: 0;\n  min-height: min(40dvh, 50%);\n  max-height: var(--gc-stage-max-height);\n  overflow: hidden;\n  background: var(--gc-stage-bg);\n  border: var(--gc-stage-border);\n  width: 100%;\n  max-width: 100%;\n  position: relative;\n  z-index: 1;\n}\n\n.gamecontroller__stage ::slotted(*),\n.gamecontroller__stage > * {\n  flex: 1 1 auto;\n  min-height: 0;\n  min-width: 0;\n  width: 100%;\n  align-self: stretch;\n  overflow: auto;\n  -webkit-overflow-scrolling: touch;\n  overscroll-behavior: contain;\n}\n\n.gamecontroller__ancillaries {\n  flex: 0 0 auto;\n  width: 100%;\n  display: flex;\n  justify-content: center;\n  align-items: center;\n  flex-wrap: wrap;\n}\n\n.gamecontroller__main-controls {\n  flex: 0 0 auto;\n  width: 100%;\n  display: flex;\n  flex-direction: row;\n  justify-content: space-between;\n  align-items: flex-end;\n  gap: 0.5rem;\n  padding: 0.75rem 2.5% 0;\n  margin-bottom: 0;\n  background: var(--gc-main-controls-bg);\n}\n\n.gamecontroller__d-pad-container {\n  flex: 0 0 auto;\n  width: 45%;\n  max-width: 50%;\n  margin-left: 0;\n  margin-top: 0;\n  align-self: flex-end;\n  display: flex;\n  align-items: flex-end;\n  justify-content: flex-start;\n  min-width: 0;\n}\n\n.gamecontroller__d-pad-container gc-joystick,\n.gamecontroller__d-pad-container .gcjoystick,\n.gamecontroller__d-pad-container .gcjoystick-host {\n  display: block;\n  width: 100%;\n  max-width: 140px;\n  margin-bottom: 4px;\n}\n\n.gamecontroller__ancillaries gc-ancillary-buttons,\n.gamecontroller__ancillaries .gcancillary,\n.gamecontroller__ancillaries .gcancillary-host {\n  display: block;\n  width: 100%;\n}\n\n.gamecontroller__d-pad-container gc-dpad,\n.gamecontroller__d-pad-container .gcdpad,\n.gamecontroller__d-pad-container .gcdpad-host {\n  display: block;\n  width: 100%;\n}\n\n.gamecontroller__actions {\n  flex: 0 0 auto;\n  width: 45%;\n  max-width: 50%;\n  align-self: flex-end;\n  margin-right: 0;\n  min-width: 0;\n}\n\n.gamecontroller__actions gc-face-buttons,\n.gamecontroller__actions .gcface-host,\n.gamecontroller__actions .gcface__actions {\n  display: block;\n  width: 100%;\n}\n\n@media (orientation: landscape) {\n  .gamecontroller__shell {\n    --gc-dpad-axis: var(--gc-dpad-axis-landscape);\n    --gc-dpad-half: var(--gc-dpad-half-landscape);\n    --gc-ancillary-margin: 0 1%;\n    --gc-ancillary-padding: 0.25% 5%;\n  }\n\n  .gamecontroller__container {\n    flex-direction: row;\n    align-items: stretch;\n    column-gap: clamp(0.25rem, 2vmin, 0.75rem);\n    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);\n  }\n\n  /**\n   * Hoist d-pad + actions to siblings of `.gamecontroller__center` so flex `order` can place:\n   * stick (1) | center column (2) | face buttons (3).\n   */\n  .gamecontroller__main-controls {\n    display: contents;\n  }\n\n  .gamecontroller__d-pad-container {\n    order: 1;\n    flex: 0 1 26%;\n    width: auto;\n    max-width: none;\n    align-self: stretch;\n    align-items: center;\n    justify-content: center;\n    padding: clamp(0.15rem, 1.2vmin, 0.45rem);\n    /* `display: contents` on main-controls drops its background; paint sides instead. */\n    background: var(--gc-main-controls-bg);\n  }\n\n  .gamecontroller__d-pad-container gc-joystick,\n  .gamecontroller__d-pad-container .gcjoystick,\n  .gamecontroller__d-pad-container .gcjoystick-host {\n    margin-bottom: 0;\n    max-width: min(140px, 100%);\n  }\n\n  .gamecontroller__center {\n    order: 2;\n    flex: 1 1 0;\n    min-width: 0;\n    min-height: 0;\n    row-gap: clamp(0.25rem, 1.5vh, 0.5rem);\n    --gc-stage-max-height: none;\n  }\n\n  .gamecontroller__stage {\n    flex: 1 1 0;\n    min-height: 0;\n    max-height: none;\n    width: auto;\n    max-width: none;\n  }\n\n  .gamecontroller__ancillaries {\n    flex: 0 0 auto;\n    width: 100%;\n  }\n\n  .gamecontroller__actions {\n    order: 3;\n    flex: 0 1 26%;\n    width: auto;\n    max-width: none;\n    align-self: stretch;\n    align-items: center;\n    justify-content: center;\n    display: flex;\n    padding: clamp(0.15rem, 1.2vmin, 0.45rem);\n    background: var(--gc-main-controls-bg);\n  }\n\n  :host(:fullscreen) .gamecontroller__container {\n    /* Fullscreen + landscape: keep the three-column band edge-to-edge. */\n    min-height: 100%;\n  }\n}\n", Se = "game-controller", Ce = "game-controller";
+function we(e) {
+	return e === !1 ? !1 : e === !0 || e == null ? !0 : typeof e == "string" ? x(e) : !!e;
+}
+function Te({ actions: e = 2, vibrate: n, leftControl: i, hooks: a = {}, children: o, container: u, className: d, style: f }) {
+	let m = r(null), h = j(u), g = C(xe, Se, h), _ = we(n), v = ne(i), y = () => M(u, m.current), x = (e, t = {}) => {
+		let n = y();
+		n && w(n, e, {
+			...t,
+			controller: n
+		});
+	}, S = (e) => {
+		b(_, e);
+	}, T = (e, t) => {
+		S();
+		let n = y();
+		n && a[e]?.(n), x(t);
+	}, E = async () => {
+		let e = y();
+		if (e) try {
+			document.fullscreenElement === e ? await document.exitFullscreen() : (await e.requestFullscreen(), await N());
 		} catch {}
-		this.requestUpdate();
-	}
-	handleAction(e) {
-		this.pulse(), this.hooks[e]?.(this), this.emit(i.gameController.action[e]);
-	}
-	get leftStickMode() {
-		return x(this.leftControl);
-	}
-	dpadTemplate() {
-		return n`
-      <gc-dpad
-        @gcdpad:up=${() => this.handleAncillary("up", i.gameController.dpad.up)}
-        @gcdpad:left=${() => this.handleAncillary("left", i.gameController.dpad.left)}
-        @gcdpad:right=${() => this.handleAncillary("right", i.gameController.dpad.right)}
-        @gcdpad:down=${() => this.handleAncillary("down", i.gameController.dpad.down)}
-      ></gc-dpad>
-    `;
-	}
-	joystickTemplate() {
-		return n`
-      <gc-joystick
-        emit-cardinal
-        @gcjoystick:pointerdown=${this.onJoystickPointerDown}
-        @gcjoystick:cardinal:up=${this.onJoystickCardinal}
-        @gcjoystick:cardinal:right=${this.onJoystickCardinal}
-        @gcjoystick:cardinal:down=${this.onJoystickCardinal}
-        @gcjoystick:cardinal:left=${this.onJoystickCardinal}
-        @gcjoystick:cardinal:none=${this.onJoystickCardinal}
-      ></gc-joystick>
-    `;
-	}
-	render() {
-		return n`
-      <div class="gamecontroller__shell">
-        <div class="gamecontroller__container">
-          <div class="gamecontroller__center">
-            <div class="gamecontroller__stage">
-              <slot name="stage"></slot>
-            </div>
-            <div class="gamecontroller__ancillaries">
-              <gc-ancillary-buttons
-                @gcancillary:fullscreen=${this.onGcAncillaryFullscreen}
-                @gcancillary:select=${this.onGcAncillarySelect}
-                @gcancillary:start=${this.onGcAncillaryStart}
-              ></gc-ancillary-buttons>
-            </div>
-          </div>
-          <div class="gamecontroller__main-controls">
-            <div class="gamecontroller__d-pad-container">
-              ${this.leftStickMode === "joystick" ? this.joystickTemplate() : this.dpadTemplate()}
-            </div>
-            <div class="gamecontroller__actions">
-              <gc-face-buttons
-                .actions=${this.actions}
-                @gcface:a=${() => this.handleAction("a")}
-                @gcface:b=${() => this.handleAction("b")}
-                @gcface:x=${() => this.handleAction("x")}
-                @gcface:y=${() => this.handleAction("y")}
-              ></gc-face-buttons>
-            </div>
-          </div>
-        </div>
-      </div>
-    `;
-	}
-}, K = "game-controller";
-customElements.get(K) || customElements.define(K, G);
-var q = G;
+	}, D = (e) => {
+		if (e === "fullscreen") {
+			T("fullscreen", p.gameController.ancillary.fullscreen), E();
+			return;
+		}
+		if (e === "select") {
+			T("select", p.gameController.ancillary.select);
+			return;
+		}
+		T("start", p.gameController.ancillary.start);
+	}, O = (e) => {
+		T(e, p.gameController.action[e]);
+	}, k = (e) => {
+		T(e, p.gameController.dpad[e]);
+	}, A = [h ? void 0 : Se, d].filter(Boolean).join(" "), P = /* @__PURE__ */ c("div", {
+		className: "gamecontroller__shell",
+		children: /* @__PURE__ */ l("div", {
+			className: "gamecontroller__container",
+			children: [/* @__PURE__ */ l("div", {
+				className: "gamecontroller__center",
+				children: [/* @__PURE__ */ c("div", {
+					className: "gamecontroller__stage",
+					children: /* @__PURE__ */ c("slot", {
+						name: "stage",
+						children: o
+					})
+				}), /* @__PURE__ */ c("div", {
+					className: "gamecontroller__ancillaries",
+					children: /* @__PURE__ */ c(L, { onPress: (e) => D(e.id) })
+				})]
+			}), /* @__PURE__ */ l("div", {
+				className: "gamecontroller__main-controls",
+				children: [/* @__PURE__ */ c("div", {
+					className: "gamecontroller__d-pad-container",
+					children: v === "joystick" ? /* @__PURE__ */ c(Z, {
+						emitCardinal: !0,
+						onPointerDown: () => S()
+					}) : /* @__PURE__ */ c(V, { onDirection: (e) => k(e.direction) })
+				}), /* @__PURE__ */ c("div", {
+					className: "gamecontroller__actions",
+					children: /* @__PURE__ */ c(K, {
+						actions: e,
+						onButton: (e) => O(e.button)
+					})
+				})]
+			})]
+		})
+	});
+	return t(() => {
+		let e = M(u, m.current);
+		if (!e || v !== "joystick") return;
+		let t = () => b(_), n = Object.values(p.gcJoystick.cardinal);
+		for (let r of n) e.addEventListener(r, t);
+		return () => {
+			for (let r of n) e.removeEventListener(r, t);
+		};
+	}, [
+		u,
+		v,
+		_
+	]), /* @__PURE__ */ l(s, { children: [/* @__PURE__ */ c("style", { children: g }), A ? /* @__PURE__ */ c("div", {
+		ref: m,
+		className: A,
+		style: f,
+		children: P
+	}) : /* @__PURE__ */ c("div", {
+		ref: m,
+		style: { display: "contents" },
+		children: P
+	})] });
+}
+var $ = k(Te, {
+	props: {
+		actions: "number",
+		vibrate: "boolean",
+		leftControl: "string"
+	},
+	objectProps: ["hooks"]
+});
+A(Ce, $);
 //#endregion
-export { E as DEFAULT_JOYSTICK_SECTORS, i as EVENTS, G as GameControllerElement, p as GcAncillaryButtonsElement, h as GcDpadElement, w as GcFaceButtonsElement, z as GcJoystickElement, o as SB_GAME_CONTROLLER_EVENTS, l as SB_GC_ANCILLARY_EVENTS, s as SB_GC_DPAD_EVENTS, c as SB_GC_FACE_EVENTS, u as SB_GC_JOYSTICK_EVENTS, q as default, a as gcJoystickClockHourEvent };
+//#region src/index.ts
+var Ee = $;
+//#endregion
+export { q as DEFAULT_JOYSTICK_SECTORS, p as EVENTS, Te as GameController, $ as GameControllerElement, L as GcAncillaryButtons, R as GcAncillaryButtonsElement, V as GcDpad, H as GcDpadElement, K as GcFaceButtons, ae as GcFaceButtonsElement, Z as GcJoystick, Q as GcJoystickElement, h as SB_GAME_CONTROLLER_EVENTS, v as SB_GC_ANCILLARY_EVENTS, g as SB_GC_DPAD_EVENTS, _ as SB_GC_FACE_EVENTS, y as SB_GC_JOYSTICK_EVENTS, Ee as default, m as gcJoystickClockHourEvent, f as getDemoCapabilityStatus, d as isFullscreenSupported, u as isHapticsSupported };

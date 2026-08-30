@@ -1,18 +1,45 @@
 # @tamb/gamecontroller
 
-A Lit-based Web Component: a Gameboy-style virtual controller skin. Styles are plain CSS (with variables on `:host`) inside the shadow root.
+A Gameboy-style virtual controller skin, written as **React components** and also exported as **native custom elements** via [`@r2wc/core`](https://www.npmjs.com/package/@r2wc/core). Styles are plain CSS (with variables on `:host`) inside the shadow root.
 
 ## Installation
 
 ```bash
-npm install @tamb/gamecontroller lit
+npm install @tamb/gamecontroller react react-dom
 ```
 
-`lit` is a peer dependency—install it alongside this package.
+`react` and `react-dom` are peer dependencies (v18 or v19).
 
 ## Usage
 
-Register the element once (side effect of the main entry):
+### React
+
+```tsx
+import { GameController, EVENTS } from "@tamb/gamecontroller";
+
+export function App() {
+  return (
+    <GameController
+      actions={4}
+      vibrate
+      leftControl="dpad"
+      hooks={{
+        a(controller) {
+          console.log("A pressed", controller);
+        },
+      }}
+    >
+      <p>Stage content</p>
+    </GameController>
+  );
+}
+```
+
+The same components are available from the main entry (`GameController`, `GcDpad`, `GcJoystick`, `GcFaceButtons`, `GcAncillaryButtons`) along with the web component classes.
+
+### Web component
+
+Register the elements once (side effect of the main entry):
 
 ```ts
 import "@tamb/gamecontroller";
@@ -200,7 +227,7 @@ game-controller {
 }
 ```
 
-This replaces the previous imperative `GameController` class and `@tamb/utils` DOM helper.
+This replaces the previous Lit custom elements. Each view is a React component; `@r2wc/core` wraps it as a custom element so the HTML API stays the same.
 
 ## Development
 
@@ -212,6 +239,8 @@ npm run storybook
 ```
 
 Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Fill viewport (no event log)** for full **`100dvh`**. Portrait vs landscape controls follow **viewport orientation**—widen the browser or use device rotation / fullscreen to hit **`orientation: landscape`**.
+
+The playground still mounts the **custom elements**; the same components can be imported as React from `@tamb/gamecontroller` (or the `@tamb/gamecontroller/react` alias).
 
 ### GitHub Pages demo
 

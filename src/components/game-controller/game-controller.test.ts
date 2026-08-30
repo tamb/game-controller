@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EVENTS } from "../../events";
 import "../../index";
-import type { GcDpadElement } from "../gc-dpad/gc-dpad";
 import type { GameControllerElement } from "./game-controller";
 
 async function mount(actions = 2) {
@@ -65,8 +64,7 @@ describe("GameControllerElement", () => {
     const spy = vi.fn();
     document.addEventListener(EVENTS.gcDpad.up, spy);
 
-    const dpad = el.shadowRoot?.querySelector("gc-dpad") as GcDpadElement;
-    const upBtn = dpad.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    const upBtn = el.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
     upBtn.click();
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -77,16 +75,16 @@ describe("GameControllerElement", () => {
     const el = await mount();
     el.leftControl = "joystick";
     await el.updateComplete;
-    expect(el.shadowRoot?.querySelector("gc-joystick")).toBeTruthy();
-    expect(el.shadowRoot?.querySelector("gc-dpad")).toBeNull();
+    expect(el.shadowRoot?.querySelector(".gcjoystick")).toBeTruthy();
+    expect(el.shadowRoot?.querySelector(".gcdpad")).toBeNull();
   });
 
   it("falls back to d-pad for unknown left-control attribute values", async () => {
     const el = await mount();
     el.setAttribute("left-control", "trackball");
     await el.updateComplete;
-    expect(el.shadowRoot?.querySelector("gc-dpad")).toBeTruthy();
-    expect(el.shadowRoot?.querySelector("gc-joystick")).toBeNull();
+    expect(el.shadowRoot?.querySelector(".gcdpad")).toBeTruthy();
+    expect(el.shadowRoot?.querySelector(".gcjoystick")).toBeNull();
   });
 
   it("forwards nested gcdpad presses as gamecontroller:dpad:*", async () => {
@@ -94,8 +92,7 @@ describe("GameControllerElement", () => {
     const spy = vi.fn();
     document.addEventListener(EVENTS.gameController.dpad.up, spy);
 
-    const dpad = el.shadowRoot?.querySelector("gc-dpad") as GcDpadElement;
-    const upBtn = dpad.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    const upBtn = el.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
     upBtn.click();
 
     expect(spy).toHaveBeenCalledTimes(1);
@@ -252,8 +249,7 @@ describe("GameControllerElement", () => {
     });
 
     const el = await mount();
-    const dpad = el.shadowRoot?.querySelector("gc-dpad") as GcDpadElement;
-    const upBtn = dpad.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    const upBtn = el.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
     upBtn.click();
 
     expect(vibrate).toHaveBeenCalledWith(10);
@@ -277,10 +273,8 @@ describe("GameControllerElement", () => {
     const el = await mount();
     el.leftControl = "joystick";
     await el.updateComplete;
-    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement & {
-      emitCardinal?: boolean;
-    };
-    expect(joystick?.hasAttribute("emit-cardinal")).toBe(true);
+    const joystick = el.shadowRoot?.querySelector(".gcjoystick") as HTMLElement | null;
+    expect(joystick?.hasAttribute("data-emit-cardinal")).toBe(true);
   });
 
   it("unlocks screen orientation after requesting fullscreen", async () => {
@@ -313,10 +307,7 @@ describe("GameControllerElement", () => {
     el.leftControl = "joystick";
     await el.updateComplete;
 
-    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement | undefined;
-    const knob = joystick?.shadowRoot?.querySelector(".gcjoystick__knob") as
-      | HTMLButtonElement
-      | undefined;
+    const knob = el.shadowRoot?.querySelector(".gcjoystick__knob") as HTMLButtonElement | undefined;
     if (!knob) throw new Error("joystick knob not found");
 
     knob.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
@@ -337,10 +328,7 @@ describe("GameControllerElement", () => {
     el.vibrate = false;
     await el.updateComplete;
 
-    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement | undefined;
-    const knob = joystick?.shadowRoot?.querySelector(".gcjoystick__knob") as
-      | HTMLButtonElement
-      | undefined;
+    const knob = el.shadowRoot?.querySelector(".gcjoystick__knob") as HTMLButtonElement | undefined;
     if (!knob) throw new Error("joystick knob not found");
 
     knob.dispatchEvent(new PointerEvent("pointerdown", { bubbles: true, cancelable: true }));
@@ -360,11 +348,8 @@ describe("GameControllerElement", () => {
     el.leftControl = "joystick";
     await el.updateComplete;
 
-    const joystick = el.shadowRoot?.querySelector("gc-joystick") as HTMLElement | undefined;
-    if (!joystick) throw new Error("joystick not found");
-
     vibrate.mockClear();
-    joystick.dispatchEvent(
+    el.dispatchEvent(
       new CustomEvent(EVENTS.gcJoystick.cardinal.up, {
         bubbles: true,
         composed: true,

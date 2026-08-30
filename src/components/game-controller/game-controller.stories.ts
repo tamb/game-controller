@@ -1,8 +1,9 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
-import { html, LitElement } from "lit";
-import { styleMap } from "lit/directives/style-map.js";
 import "../../index";
+import { createEl } from "../../storybook/create-el";
+import type { GameControllerElement } from "./game-controller";
 import "../story-event-log/story-event-log";
+import type { SbEventLogElement } from "../story-event-log/story-event-log";
 import { SB_GAME_CONTROLLER_EVENTS } from "../story-event-log/story-event-log";
 
 /** Example palette: set on `<game-controller>` so `:host` tokens pick them up. */
@@ -38,14 +39,30 @@ type StoryArgs = {
   leftControl: "dpad" | "joystick";
 };
 
-const stageEventLog = () => html`
-  <sb-event-log
-    embed-stage
-    slot="stage"
-    heading="Emitted events"
-    .eventNames=${SB_GAME_CONTROLLER_EVENTS}
-  ></sb-event-log>
-`;
+function stageEventLog(): SbEventLogElement {
+  const log = createEl<SbEventLogElement>("sb-event-log", {
+    heading: "Emitted events",
+    eventNames: SB_GAME_CONTROLLER_EVENTS,
+  });
+  log.setAttribute("embed-stage", "");
+  log.slot = "stage";
+  return log;
+}
+
+function controller(args: StoryArgs, extras?: { theme?: Readonly<Record<string, string>> }) {
+  const el = createEl<GameControllerElement>("game-controller", {
+    actions: args.actions,
+    vibrate: args.vibrate,
+    leftControl: args.leftControl,
+  });
+  if (extras?.theme) {
+    for (const [name, value] of Object.entries(extras.theme)) {
+      el.style.setProperty(name, value);
+    }
+  }
+  el.append(stageEventLog());
+  return el;
+}
 
 const meta = {
   title: "Game controller",
@@ -54,7 +71,7 @@ const meta = {
     docs: {
       description: {
         component:
-          "Lit `<game-controller>` custom element. **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.",
+          "React `<GameController>` also exported as the `<game-controller>` custom element (via `@r2wc/core`). **Portrait / landscape** follow the viewport: **`@media (orientation: landscape)`** uses flex **`order`** so controls read left-to-right: stick | stage + ancillary | face buttons. Resize the **browser window** or rotate a device to change orientation—the Storybook canvas iframe follows the viewport. Fullscreen also unlocks screen orientation so landscape is allowed. Stories embed a scrollable **event log** in the stage (includes **`gcjoystick:*`** when using the left stick). In **Cycle actions**, press **Space** or **C** while the demo is focused to toggle between 2 and 4 face buttons.",
       },
     },
   },
@@ -80,14 +97,7 @@ const meta = {
       description: "Left-hand control (`left-control`)",
     },
   },
-  render: (args: StoryArgs) =>
-    html`<game-controller
-      .actions=${args.actions}
-      .vibrate=${args.vibrate}
-      .leftControl=${args.leftControl}
-    >
-      ${stageEventLog()}
-    </game-controller>`,
+  render: (args: StoryArgs) => controller(args),
 } satisfies Meta<StoryArgs>;
 
 export default meta;
@@ -117,20 +127,12 @@ export const JoystickLeft: Story = {
 export const CustomGcTheme: Story = {
   name: "Custom colors (--gc-*)",
   args: { actions: 4, vibrate: true },
-  render: (args) =>
-    html`<game-controller
-      style=${styleMap(INDIGO_RETRO_THEME)}
-      .actions=${args.actions}
-      .vibrate=${args.vibrate}
-      .leftControl=${args.leftControl}
-    >
-      ${stageEventLog()}
-    </game-controller>`,
+  render: (args) => controller(args, { theme: INDIGO_RETRO_THEME }),
   parameters: {
     docs: {
       description: {
         story:
-          "Uses Lit `styleMap` to set `--gc-*` tokens on the host. Copy `INDIGO_RETRO_THEME` from `src/components/game-controller/game-controller.stories.ts` or set the same variables in your own CSS.",
+          "Sets `--gc-*` tokens on the host. Copy `INDIGO_RETRO_THEME` from `src/components/game-controller/game-controller.stories.ts` or set the same variables in your own CSS.",
       },
     },
   },
@@ -138,37 +140,29 @@ export const CustomGcTheme: Story = {
 
 const CYCLE_TAG = "sb-game-controller-cycle-host";
 
-class CycleDemoHost extends LitElement {
-  static properties = {
-    actions: { type: Number },
-  };
+class CycleDemoHost extends HTMLElement {
+  #actions = 2;
+  #gc: GameControllerElement | null = null;
 
-  declare actions: number;
-
-  constructor() {
-    super();
-    this.actions = 2;
-  }
-
-  render() {
-    return html`<game-controller .actions=${this.actions}>${stageEventLog()}</game-controller>`;
-  }
-
-  override connectedCallback(): void {
-    super.connectedCallback();
+  connectedCallback(): void {
     this.tabIndex = 0;
     this.addEventListener("keydown", this.onKeyDown);
+    const gc = createEl<GameControllerElement>("game-controller", { actions: this.#actions });
+    gc.append(stageEventLog());
+    this.replaceChildren(gc);
+    this.#gc = gc;
   }
 
-  override disconnectedCallback(): void {
+  disconnectedCallback(): void {
     this.removeEventListener("keydown", this.onKeyDown);
-    super.disconnectedCallback();
+    this.#gc = null;
   }
 
   private readonly onKeyDown = (e: KeyboardEvent) => {
     if (e.code === "Space" || e.code === "KeyC") {
       e.preventDefault();
-      this.actions = this.actions === 2 ? 4 : 2;
+      this.#actions = this.#actions === 2 ? 4 : 2;
+      if (this.#gc) this.#gc.actions = this.#actions;
     }
   };
 }
@@ -187,7 +181,7 @@ export const CycleActionsOnStageClick: StoryObj = {
       },
     },
   },
-  render: () => html`<sb-game-controller-cycle-host></sb-game-controller-cycle-host>`,
+  render: () => document.createElement(CYCLE_TAG),
 };
 
 export const FillViewport: Story = {
@@ -203,9 +197,9 @@ export const FillViewport: Story = {
     },
   },
   render: (args) =>
-    html`<game-controller
-      .actions=${args.actions}
-      .vibrate=${args.vibrate}
-      .leftControl=${args.leftControl}
-    ></game-controller>`,
+    createEl<GameControllerElement>("game-controller", {
+      actions: args.actions,
+      vibrate: args.vibrate,
+      leftControl: args.leftControl,
+    }),
 };
