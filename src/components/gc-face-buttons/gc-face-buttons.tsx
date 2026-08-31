@@ -6,6 +6,7 @@ import { dispatchComposed } from "../../lib/dispatch-event";
 import { immediatePressProps } from "../../lib/immediate-press";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useFeedbackAttribute } from "../../lib/use-feedback-attribute";
 import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import {
   gameControllerFaceButtonLabels,
@@ -23,13 +24,15 @@ export type GcFacePressDetail = {
 export type GcFaceButtonsProps = {
   actions?: number;
   container?: HTMLElement;
+  feedback?: boolean | string;
   onButton?: (detail: GcFacePressDetail) => void;
 };
 
-export function GcFaceButtons({ actions = 2, container, onButton }: GcFaceButtonsProps) {
+export function GcFaceButtons({ actions = 2, container, feedback, onButton }: GcFaceButtonsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inShadow = isShadowContainer(container);
   useDoubleTapZoomGuard(container, rootRef);
+  useFeedbackAttribute(container, rootRef, feedback);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
   const labels = gameControllerFaceButtonLabels(actions);
   const cls = gcFaceButtonsInnerClass(actions);
@@ -64,6 +67,7 @@ export function GcFaceButtons({ actions = 2, container, onButton }: GcFaceButton
 
 export interface GcFaceButtonsElement extends HTMLElement {
   actions: number;
+  feedback: boolean;
   readonly updateComplete: Promise<void>;
 }
 
@@ -72,6 +76,7 @@ export const GcFaceButtonsElement = defineReactElement<GcFaceButtonsProps, GcFac
   {
     props: {
       actions: "number",
+      feedback: "boolean",
     },
   },
 );

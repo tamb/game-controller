@@ -1,6 +1,7 @@
 import { type CSSProperties, type ReactNode, useLayoutEffect, useRef } from "react";
 import type { GameControllerActionKey } from "../../events";
 import { EVENTS } from "../../events";
+import { coerceFeedback, syncFeedbackAttribute } from "../../feedback";
 import { parseVibrateAttribute, pulseHaptics } from "../../haptics";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
@@ -54,6 +55,8 @@ export type GameControllerHooks = Record<string, (controller: HTMLElement) => vo
 export type GameControllerProps = {
   actions?: number;
   vibrate?: boolean | string;
+  /** Visual press feedback on buttons, d-pad, and stick (default on). Off: `feedback="false"`. */
+  feedback?: boolean | string;
   leftControl?: string;
   /** `"usable"` (default) fits the remaining visual viewport after header/footer chrome. */
   scale?: string;
@@ -97,6 +100,7 @@ function NamedRegion({
 function GameControllerView({
   actions = 2,
   vibrate: vibrateProp,
+  feedback: feedbackProp,
   leftControl,
   scale,
   size: sizeProp,
@@ -116,6 +120,7 @@ function GameControllerView({
   useDoubleTapZoomGuard(container, rootRef);
   const css = resolveComponentCss(styleText, HOST_CLASS, inShadow);
   const vibrate = coerceVibrate(vibrateProp);
+  const feedback = coerceFeedback(feedbackProp);
   const leftStickMode = resolveGameControllerLeftControl(leftControl);
   const controlSize = resolveGameControllerControlSize(sizeProp);
   const slots = partitionGameControllerSlots(children);
@@ -199,6 +204,12 @@ function GameControllerView({
   useLayoutEffect(() => {
     const host = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
     if (!host) return;
+    syncFeedbackAttribute(host, feedback);
+  }, [container, feedback]);
+
+  useLayoutEffect(() => {
+    const host = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
+    if (!host) return;
     if (controlSize === "auto") {
       host.removeAttribute("data-gc-size");
       return;
@@ -226,7 +237,7 @@ function GameControllerView({
               name={GAME_CONTROLLER_SLOTS.ancillaries}
               inShadow={inShadow}
               assigned={slots.ancillaries}
-              fallback={<GcAncillaryButtons />}
+              fallback={<GcAncillaryButtons feedback={feedbackProp} />}
             />
           </div>
         </div>
@@ -236,7 +247,13 @@ function GameControllerView({
               name={GAME_CONTROLLER_SLOTS.leftControl}
               inShadow={inShadow}
               assigned={slots.leftControl}
-              fallback={leftStickMode === "joystick" ? <GcJoystick emitCardinal /> : <GcDpad />}
+              fallback={
+                leftStickMode === "joystick" ? (
+                  <GcJoystick emitCardinal feedback={feedbackProp} />
+                ) : (
+                  <GcDpad feedback={feedbackProp} />
+                )
+              }
             />
           </div>
           <div className="gamecontroller__actions">
@@ -244,7 +261,7 @@ function GameControllerView({
               name={GAME_CONTROLLER_SLOTS.actions}
               inShadow={inShadow}
               assigned={slots.actions}
-              fallback={<GcFaceButtons actions={actions} />}
+              fallback={<GcFaceButtons actions={actions} feedback={feedbackProp} />}
             />
           </div>
         </div>
@@ -279,6 +296,7 @@ GameControllerView.displayName = "GameController";
 export interface GameControllerElement extends HTMLElement {
   actions: number;
   vibrate: boolean;
+  feedback: boolean;
   leftControl: GameControllerLeftControl;
   scale: GameControllerScale;
   size: GameControllerControlSize;
@@ -294,6 +312,7 @@ export const GameControllerElement = defineReactElement<GameControllerProps, Gam
     props: {
       actions: "number",
       vibrate: "boolean",
+      feedback: "boolean",
       leftControl: "string",
       scale: "string",
       size: "string",

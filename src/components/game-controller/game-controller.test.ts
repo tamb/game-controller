@@ -347,6 +347,41 @@ describe("GameControllerElement", () => {
     expect(off.vibrate).toBe(false);
   });
 
+  it("syncs data-gc-feedback when feedback is disabled", async () => {
+    const el = document.createElement("game-controller") as GameControllerElement;
+    document.body.appendChild(el);
+    await el.updateComplete;
+    expect(el.hasAttribute("data-gc-feedback")).toBe(false);
+
+    el.feedback = false;
+    await el.updateComplete;
+    expect(el.getAttribute("data-gc-feedback")).toBe("off");
+  });
+
+  it("parses feedback=0 and feedback=off attributes as visual feedback off", async () => {
+    const zero = document.createElement("game-controller") as GameControllerElement;
+    zero.setAttribute("feedback", "0");
+    document.body.appendChild(zero);
+    await zero.updateComplete;
+    expect(zero.feedback).toBe(false);
+    expect(zero.getAttribute("data-gc-feedback")).toBe("off");
+
+    const off = document.createElement("game-controller") as GameControllerElement;
+    off.setAttribute("feedback", "off");
+    document.body.appendChild(off);
+    await off.updateComplete;
+    expect(off.feedback).toBe(false);
+  });
+
+  it("marks d-pad buttons pressed on pointerdown", async () => {
+    const el = await mount();
+    const upBtn = el.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    upBtn.dispatchEvent(
+      new PointerEvent("pointerdown", { bubbles: true, pointerType: "touch", button: 0 }),
+    );
+    expect(upBtn.dataset.gcPressed).toBe("");
+  });
+
   it("calls navigator.vibrate on d-pad presses when vibrate is true", async () => {
     const vibrate = vi.fn(() => true as boolean);
     Object.defineProperty(navigator, "vibrate", {

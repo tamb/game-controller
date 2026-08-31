@@ -27,6 +27,14 @@
   --gc-focus-ring-style: solid;
   --gc-focus-ring-color: #000000;
   --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);
+
+  --gc-btn-pressed-scale: 0.94;
+  --gc-btn-pressed-brightness: 0.9;
+  --gc-dpad-btn-pressed-overlay: rgba(0, 0, 0, 0.12);
+}
+
+:host([data-gc-feedback="off"]) {
+  --gc-feedback-enabled: 0;
 }
 
 :host *,
@@ -49,6 +57,7 @@
 }
 
 .gcdpad__btn {
+  position: relative;
   margin: 0;
   padding: 0;
   min-width: 0;
@@ -64,6 +73,35 @@
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  transition:
+    transform 0.06s ease,
+    filter 0.06s ease;
+}
+
+.gcdpad__btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gc-dpad-btn-pressed-overlay, rgba(0, 0, 0, 0.12));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.06s ease;
+}
+
+.gcdpad__btn:active,
+.gcdpad__btn[data-gc-pressed] {
+  transform: scale(
+    calc(1 - (1 - var(--gc-btn-pressed-scale, 0.94)) * var(--gc-feedback-enabled, 1))
+  );
+  filter: brightness(
+    calc(1 - (1 - var(--gc-btn-pressed-brightness, 0.9)) * var(--gc-feedback-enabled, 1))
+  );
+}
+
+.gcdpad__btn:active::after,
+.gcdpad__btn[data-gc-pressed]::after {
+  opacity: var(--gc-feedback-enabled, 1);
 }
 
 .gcdpad__btn--up {
@@ -74,12 +112,26 @@
   border: var(--gc-dpad-btn-up-border, var(--gc-dpad-btn-border));
 }
 
+.gcdpad__btn--up::after {
+  background: var(
+    --gc-dpad-btn-up-pressed-overlay,
+    var(--gc-dpad-btn-pressed-overlay, rgba(0, 0, 0, 0.12))
+  );
+}
+
 .gcdpad__btn--right {
   grid-column: 3;
   grid-row: 2;
   background: var(--gc-dpad-btn-right-bg, var(--gc-dpad-btn-bg));
   color: var(--gc-dpad-btn-right-color, var(--gc-dpad-btn-color));
   border: var(--gc-dpad-btn-right-border, var(--gc-dpad-btn-border));
+}
+
+.gcdpad__btn--right::after {
+  background: var(
+    --gc-dpad-btn-right-pressed-overlay,
+    var(--gc-dpad-btn-pressed-overlay, rgba(0, 0, 0, 0.12))
+  );
 }
 
 .gcdpad__btn--down {
@@ -90,12 +142,26 @@
   border: var(--gc-dpad-btn-down-border, var(--gc-dpad-btn-border));
 }
 
+.gcdpad__btn--down::after {
+  background: var(
+    --gc-dpad-btn-down-pressed-overlay,
+    var(--gc-dpad-btn-pressed-overlay, rgba(0, 0, 0, 0.12))
+  );
+}
+
 .gcdpad__btn--left {
   grid-column: 1;
   grid-row: 2;
   background: var(--gc-dpad-btn-left-bg, var(--gc-dpad-btn-bg));
   color: var(--gc-dpad-btn-left-color, var(--gc-dpad-btn-color));
   border: var(--gc-dpad-btn-left-border, var(--gc-dpad-btn-border));
+}
+
+.gcdpad__btn--left::after {
+  background: var(
+    --gc-dpad-btn-left-pressed-overlay,
+    var(--gc-dpad-btn-pressed-overlay, rgba(0, 0, 0, 0.12))
+  );
 }
 
 .gcdpad__btn:focus {

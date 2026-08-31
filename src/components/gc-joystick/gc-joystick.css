@@ -2,6 +2,8 @@
   display: block;
   width: 100%;
   max-width: var(--gc-control-size, 140px);
+  height: auto;
+  max-height: 100%;
   aspect-ratio: 1;
   box-sizing: border-box;
   touch-action: none;
@@ -19,6 +21,13 @@
   --gc-focus-ring-style: solid;
   --gc-focus-ring-color: #000000;
   --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);
+
+  --gc-joystick-ring-pressed-overlay: rgba(0, 0, 0, 0.06);
+  --gc-joystick-knob-pressed-brightness: 0.88;
+}
+
+:host([data-gc-feedback="off"]) {
+  --gc-feedback-enabled: 0;
 }
 
 :host *,
@@ -30,8 +39,19 @@
 .gcjoystick {
   position: relative;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 1;
   touch-action: none;
+}
+
+/**
+ * Custom-element tree: `.gcjoystick` is a child of `:host`. Fill the square
+ * host. When React nests this control, `:host` is rewritten onto the same
+ * `.gcjoystick-host.gcjoystick` node — a descendant selector must not match,
+ * or `height: 100%` stretches the stick in a landscape `align-self: stretch`
+ * column and `aspect-ratio` is ignored.
+ */
+:host > .gcjoystick {
+  height: 100%;
 }
 
 .gcjoystick__ring {
@@ -40,6 +60,21 @@
   border-radius: 50%;
   background: var(--gc-joystick-ring-bg);
   border: var(--gc-joystick-ring-border);
+}
+
+.gcjoystick__ring::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gc-joystick-ring-pressed-overlay, rgba(0, 0, 0, 0.06));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.08s ease;
+}
+
+.gcjoystick[data-gc-active] .gcjoystick__ring::after {
+  opacity: var(--gc-feedback-enabled, 1);
 }
 
 .gcjoystick__knob {
@@ -53,10 +88,18 @@
   border: var(--gc-joystick-knob-border);
   cursor: grab;
   box-shadow: none;
+  transition:
+    filter 0.08s ease,
+    box-shadow 0.08s ease;
 }
 
-.gcjoystick__knob:active {
+.gcjoystick__knob:active,
+.gcjoystick[data-gc-active] .gcjoystick__knob {
   cursor: grabbing;
+  filter: brightness(
+    calc(1 - (1 - var(--gc-joystick-knob-pressed-brightness, 0.88)) * var(--gc-feedback-enabled, 1))
+  );
+  box-shadow: 0 0 0 calc(2px * var(--gc-feedback-enabled, 1)) rgba(0, 0, 0, 0.12);
 }
 
 .gcjoystick__knob:focus {

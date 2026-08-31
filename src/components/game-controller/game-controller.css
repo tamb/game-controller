@@ -142,6 +142,20 @@
   --gc-focus-ring-color: #000000;
   --gc-focus-ring: var(--gc-focus-ring-width) var(--gc-focus-ring-style) var(--gc-focus-ring-color);
 
+  /**
+   * Press feedback (visual). Default on (`1`). Disable with `feedback="off"` on
+   * `<game-controller>` / a control, or `--gc-feedback-enabled: 0` in CSS.
+   */
+  --gc-feedback-enabled: 1;
+  --gc-btn-pressed-scale: 0.94;
+  --gc-btn-pressed-brightness: 0.9;
+  --gc-action-btn-pressed-overlay: rgba(0, 0, 0, 0.1);
+  --gc-dpad-btn-pressed-overlay: rgba(0, 0, 0, 0.12);
+  --gc-ancillary-btn-pressed-overlay: rgba(0, 0, 0, 0.08);
+  --gc-joystick-ring-pressed-overlay: rgba(0, 0, 0, 0.06);
+  --gc-joystick-knob-pressed-brightness: 0.88;
+  --gc-joystick-knob-pressed-shadow: 0 0 0 2px rgba(0, 0, 0, 0.12);
+
   color: var(--gc-color-text);
   font-family: var(--gc-font-family);
 }
@@ -173,6 +187,10 @@
 :host([size="large"]),
 :host([data-gc-size="large"]) {
   --gc-control-size: var(--gc-control-size-large);
+}
+
+:host([data-gc-feedback="off"]) {
+  --gc-feedback-enabled: 0;
 }
 
 /* iOS Safari legacy full-height when parent chain lacks height */
@@ -367,6 +385,14 @@
   margin-bottom: 4px;
 }
 
+.gamecontroller__d-pad-container gc-joystick,
+.gamecontroller__d-pad-container .gcjoystick,
+.gamecontroller__d-pad-container .gcjoystick-host {
+  height: auto;
+  max-height: 100%;
+  aspect-ratio: 1;
+}
+
 .gamecontroller__ancillaries gc-ancillary-buttons {
   display: block;
 }
@@ -457,6 +483,20 @@
     margin-bottom: 0;
     width: var(--gc-control-size);
     max-width: 100%;
+  }
+
+  /**
+   * Side column is `align-self: stretch`. Keep the analog stick circular:
+   * an explicit used height would win over `aspect-ratio`.
+   */
+  .gamecontroller__d-pad-container gc-joystick,
+  .gamecontroller__d-pad-container .gcjoystick,
+  .gamecontroller__d-pad-container .gcjoystick-host {
+    height: auto;
+    max-height: 100%;
+    aspect-ratio: 1;
+    flex: 0 0 auto;
+    align-self: center;
   }
 
   .gamecontroller__center {

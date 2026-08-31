@@ -61,4 +61,23 @@ describe("immediatePressProps", () => {
     } as never);
     expect(emit).not.toHaveBeenCalled();
   });
+
+  it("marks pressed on pointerdown and clears on pointerup", () => {
+    const emit = vi.fn();
+    const props = immediatePressProps(emit);
+    const target = document.createElement("button");
+
+    props.onPointerDown({
+      pointerType: "touch",
+      button: 0,
+      timeStamp: 10,
+      currentTarget: target,
+    } as never);
+    expect(target.dataset.gcPressed).toBe("");
+
+    props.onPointerUp({
+      currentTarget: target,
+    } as never);
+    expect(target.dataset.gcPressed).toBeUndefined();
+  });
 });
