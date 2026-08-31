@@ -35,7 +35,7 @@ const INDIGO_RETRO_THEME: Readonly<Record<string, string>> = {
 };
 
 type StoryArgs = {
-  actions: number;
+  actions: 2 | 4;
   vibrate: boolean;
   leftControl: "dpad" | "joystick";
   scale: "usable" | "none";
@@ -192,7 +192,7 @@ export const CustomGcTheme: Story = {
 const CYCLE_TAG = "sb-game-controller-cycle-host";
 
 class CycleDemoHost extends HTMLElement {
-  #actions = 2;
+  #actions: 2 | 4 = 2;
   #gc: GameControllerElement | null = null;
 
   connectedCallback(): void {

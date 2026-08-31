@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EVENTS } from "../../events";
 import type { GcJoystickElement } from "./gc-joystick";
-import "./gc-joystick";
+import "../../register";
 
 async function mountJoystick(props?: Partial<GcJoystickElement>) {
   document.body.replaceChildren();
@@ -67,7 +67,8 @@ function lastMoveWithMagnitude(spy: ReturnType<typeof vi.fn>): CustomEvent {
     .map((c) => c[0] as CustomEvent)
     .filter(
       (e) =>
-        e.type === EVENTS.gcJoystick.move && (e.detail as { magnitude?: number }).magnitude > 0,
+        e.type === EVENTS.gcJoystick.move &&
+        ((e.detail as { magnitude?: number } | undefined)?.magnitude ?? 0) > 0,
     );
   const last = moves.at(-1);
   if (!last) throw new Error(`expected ${EVENTS.gcJoystick.move} with magnitude > 0`);

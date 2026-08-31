@@ -102,6 +102,7 @@ export function defineReactElement<P extends { container?: HTMLElement }, El ext
 }
 
 export function defineOnce(tag: string, ctor: CustomElementConstructor): void {
+  if (typeof customElements === "undefined") return;
   if (!customElements.get(tag)) {
     customElements.define(tag, ctor);
   }

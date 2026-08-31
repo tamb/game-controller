@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EVENTS } from "../../events";
 import type { GcAncillaryButtonsElement } from "./gc-ancillary-buttons";
-import "./gc-ancillary-buttons";
+import "../../register";
 
 async function mount() {
   document.body.replaceChildren();

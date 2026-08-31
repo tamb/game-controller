@@ -3,7 +3,7 @@ import { EVENTS } from "../../events";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
 import { immediatePressProps } from "../../lib/immediate-press";
-import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
+import { defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { useFeedbackAttribute } from "../../lib/use-feedback-attribute";
 import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
@@ -16,12 +16,19 @@ export type GcAncillaryId = keyof typeof EVENTS.gcAncillary;
 export type GcAncillaryPressDetail = {
   controller: HTMLElement;
   id: GcAncillaryId;
+  repeat: boolean;
+};
+
+export type GcAncillaryReleaseDetail = {
+  controller: HTMLElement;
+  id: GcAncillaryId;
 };
 
 export type GcAncillaryButtonsProps = {
   container?: HTMLElement;
   feedback?: boolean | string;
   onPress?: (detail: GcAncillaryPressDetail) => void;
+  onRelease?: (detail: GcAncillaryReleaseDetail) => void;
 };
 
 const BUTTONS: readonly { id: GcAncillaryId; part: string }[] = [
@@ -30,19 +37,32 @@ const BUTTONS: readonly { id: GcAncillaryId; part: string }[] = [
   { id: "start", part: "btn-start" },
 ];
 
-export function GcAncillaryButtons({ container, feedback, onPress }: GcAncillaryButtonsProps) {
+export function GcAncillaryButtons({
+  container,
+  feedback,
+  onPress,
+  onRelease,
+}: GcAncillaryButtonsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inShadow = isShadowContainer(container);
   useDoubleTapZoomGuard(container, rootRef);
   useFeedbackAttribute(container, rootRef, feedback);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
 
-  const emitPress = (id: GcAncillaryId) => {
+  const emitPress = (id: GcAncillaryId, isRepeat: boolean) => {
     const controller = getCustomElementHost(container, rootRef.current);
     if (!controller) return;
-    const detail: GcAncillaryPressDetail = { controller, id };
+    const detail: GcAncillaryPressDetail = { controller, id, repeat: isRepeat };
     onPress?.(detail);
     dispatchComposed(controller, EVENTS.gcAncillary[id], detail);
+  };
+
+  const emitReleased = (id: GcAncillaryId) => {
+    const controller = getCustomElementHost(container, rootRef.current);
+    if (!controller) return;
+    const detail: GcAncillaryReleaseDetail = { controller, id };
+    onRelease?.(detail);
+    dispatchComposed(controller, EVENTS.gcAncillaryReleased[id], detail);
   };
 
   return (
@@ -60,7 +80,10 @@ export function GcAncillaryButtons({ container, feedback, onPress }: GcAncillary
             className="gcancillary__btn"
             part={part}
             id={id === "fullscreen" ? "fullscreen" : undefined}
-            {...immediatePressProps(() => emitPress(id))}
+            {...immediatePressProps({
+              onPress: ({ repeat }) => emitPress(id, repeat),
+              onRelease: () => emitReleased(id),
+            })}
           >
             {id}
           </button>
@@ -83,5 +106,3 @@ export const GcAncillaryButtonsElement = defineReactElement<
     feedback: "boolean",
   },
 });
-
-defineOnce("gc-ancillary-buttons", GcAncillaryButtonsElement);

@@ -6,6 +6,7 @@ import {
   gameControllerFaceButtonLabels,
   gameControllerViewportOrientation,
   gcFaceButtonsInnerClass,
+  resolveGameControllerActions,
   resolveGameControllerAutoControlSize,
   resolveGameControllerControlSize,
   resolveGameControllerLeftControl,
@@ -101,5 +102,20 @@ describe("resolveGameControllerLeftControl", () => {
     expect(resolveGameControllerLeftControl("trackball")).toBe("dpad");
     expect(resolveGameControllerLeftControl(undefined)).toBe("dpad");
     expect(resolveGameControllerLeftControl(null)).toBe("dpad");
+  });
+});
+
+describe("resolveGameControllerActions", () => {
+  it("keeps 2 and treats omitted as 2", () => {
+    expect(resolveGameControllerActions(2)).toBe(2);
+    expect(resolveGameControllerActions("2")).toBe(2);
+    expect(resolveGameControllerActions(undefined)).toBe(2);
+    expect(resolveGameControllerActions(null)).toBe(2);
+  });
+
+  it("treats 4 and other values as four-button", () => {
+    expect(resolveGameControllerActions(4)).toBe(4);
+    expect(resolveGameControllerActions("4")).toBe(4);
+    expect(resolveGameControllerActions(3)).toBe(4);
   });
 });

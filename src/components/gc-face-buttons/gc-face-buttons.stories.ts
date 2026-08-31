@@ -7,7 +7,7 @@ import { SB_GC_FACE_EVENTS } from "../story-event-log/story-event-log";
 import type { GcFaceButtonsElement } from "./gc-face-buttons";
 
 type StoryArgs = {
-  actions: number;
+  actions: 2 | 4;
 };
 
 const meta = {

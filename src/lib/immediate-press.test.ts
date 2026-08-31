@@ -1,5 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { immediatePressProps, shouldIgnoreClickAfterPointerPress } from "./immediate-press";
+import {
+  DEFAULT_REPEAT_DELAY_MS,
+  immediatePressProps,
+  shouldIgnoreClickAfterPointerPress,
+} from "./immediate-press";
 
 describe("shouldIgnoreClickAfterPointerPress", () => {
   it("ignores a click that follows a pointer press", () => {
@@ -17,8 +21,8 @@ describe("shouldIgnoreClickAfterPointerPress", () => {
 
 describe("immediatePressProps", () => {
   it("emits on pointerdown and ignores the paired click", () => {
-    const emit = vi.fn();
-    const props = immediatePressProps(emit);
+    const onPress = vi.fn();
+    const props = immediatePressProps({ onPress });
     const target = document.createElement("button");
 
     props.onPointerDown({
@@ -27,30 +31,51 @@ describe("immediatePressProps", () => {
       timeStamp: 10,
       currentTarget: target,
     } as never);
-    expect(emit).toHaveBeenCalledTimes(1);
+    expect(onPress).toHaveBeenCalledTimes(1);
+    expect(onPress).toHaveBeenCalledWith({ repeat: false });
 
     props.onClick({
       timeStamp: 12,
       currentTarget: target,
     } as never);
-    expect(emit).toHaveBeenCalledTimes(1);
+    expect(onPress).toHaveBeenCalledTimes(1);
   });
 
-  it("emits on click when there was no pointer press", () => {
-    const emit = vi.fn();
-    const props = immediatePressProps(emit);
+  it("emits press and release on click when there was no pointer press", () => {
+    const onPress = vi.fn();
+    const onRelease = vi.fn();
+    const props = immediatePressProps({ onPress, onRelease });
     const target = document.createElement("button");
 
     props.onClick({
       timeStamp: 12,
       currentTarget: target,
     } as never);
-    expect(emit).toHaveBeenCalledTimes(1);
+    expect(onPress).toHaveBeenCalledTimes(1);
+    expect(onRelease).toHaveBeenCalledTimes(1);
+  });
+
+  it("emits release on pointerup after a press", () => {
+    const onPress = vi.fn();
+    const onRelease = vi.fn();
+    const props = immediatePressProps({ onPress, onRelease });
+    const target = document.createElement("button");
+
+    props.onPointerDown({
+      pointerType: "touch",
+      button: 0,
+      timeStamp: 10,
+      currentTarget: target,
+    } as never);
+    props.onPointerUp({
+      currentTarget: target,
+    } as never);
+    expect(onRelease).toHaveBeenCalledTimes(1);
   });
 
   it("ignores non-primary mouse buttons", () => {
-    const emit = vi.fn();
-    const props = immediatePressProps(emit);
+    const onPress = vi.fn();
+    const props = immediatePressProps({ onPress });
     const target = document.createElement("button");
 
     props.onPointerDown({
@@ -59,12 +84,12 @@ describe("immediatePressProps", () => {
       timeStamp: 10,
       currentTarget: target,
     } as never);
-    expect(emit).not.toHaveBeenCalled();
+    expect(onPress).not.toHaveBeenCalled();
   });
 
   it("marks pressed on pointerdown and clears on pointerup", () => {
-    const emit = vi.fn();
-    const props = immediatePressProps(emit);
+    const onPress = vi.fn();
+    const props = immediatePressProps({ onPress });
     const target = document.createElement("button");
 
     props.onPointerDown({
@@ -79,5 +104,34 @@ describe("immediatePressProps", () => {
       currentTarget: target,
     } as never);
     expect(target.dataset.gcPressed).toBeUndefined();
+  });
+
+  it("repeats after the default delay while held", () => {
+    vi.useFakeTimers();
+    const onPress = vi.fn();
+    const props = immediatePressProps({ onPress, repeat: true });
+    const target = document.createElement("button");
+    document.body.append(target);
+
+    props.onPointerDown({
+      pointerType: "touch",
+      button: 0,
+      timeStamp: 10,
+      currentTarget: target,
+    } as never);
+    expect(onPress).toHaveBeenCalledTimes(1);
+
+    vi.advanceTimersByTime(DEFAULT_REPEAT_DELAY_MS);
+    expect(onPress).toHaveBeenCalledTimes(2);
+    expect(onPress).toHaveBeenLastCalledWith({ repeat: true });
+
+    vi.advanceTimersByTime(80);
+    expect(onPress).toHaveBeenCalledTimes(3);
+
+    props.onPointerUp({ currentTarget: target } as never);
+    vi.advanceTimersByTime(400);
+    expect(onPress).toHaveBeenCalledTimes(3);
+    vi.useRealTimers();
+    target.remove();
   });
 });

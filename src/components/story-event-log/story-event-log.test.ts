@@ -2,8 +2,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { EVENTS } from "../../events";
 import "../../index";
 import type { GameControllerElement } from "../game-controller/game-controller";
+import "./register";
 import type { SbEventLogElement } from "./story-event-log";
-import "./story-event-log";
 
 async function flush() {
   await new Promise((r) => requestAnimationFrame(r));

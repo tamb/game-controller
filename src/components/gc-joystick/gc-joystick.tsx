@@ -2,7 +2,7 @@ import { type PointerEvent as ReactPointerEvent, useMemo, useRef, useState } fro
 import { EVENTS, gcJoystickClockHourEvent } from "../../events";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
-import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
+import { defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { useFeedbackAttribute } from "../../lib/use-feedback-attribute";
 import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
@@ -23,7 +23,6 @@ export type { GcJoystickCardinal, JoystickMoveSnapshotFields, JoystickSector };
 export { DEFAULT_JOYSTICK_SECTORS };
 
 const HOST_CLASS = "gcjoystick-host";
-const TAG = "gc-joystick";
 
 export type GcJoystickMoveDetail = JoystickMoveSnapshotFields & {
   controller: HTMLElement;
@@ -84,6 +83,10 @@ export function GcJoystick({
   const dragging = useRef(false);
   const [knob, setKnob] = useState({ dx: 0, dy: 0 });
   const [active, setActive] = useState(false);
+  const [stickA11y, setStickA11y] = useState({
+    magnitude: 0,
+    cardinal: "none" as GcJoystickCardinal,
+  });
 
   const inShadow = isShadowContainer(container);
   useDoubleTapZoomGuard(container, rootRef);
@@ -122,6 +125,7 @@ export function GcJoystick({
     if (!detail) return null;
     onMove?.(detail);
     dispatchComposed(detail.controller, EVENTS.gcJoystick.move, { ...detail });
+    setStickA11y({ magnitude: detail.magnitude, cardinal: detail.cardinal });
     return detail;
   };
 
@@ -217,6 +221,7 @@ export function GcJoystick({
       angleDeg: null,
     });
     setKnob({ dx: 0, dy: 0 });
+    setStickA11y({ magnitude: 0, cardinal: "none" });
     const detail = emitMove(kin);
     if (!detail) return;
 
@@ -304,6 +309,15 @@ export function GcJoystick({
           className="gcjoystick__knob"
           part="knob"
           aria-label="Joystick"
+          aria-valuemin={0}
+          aria-valuemax={1}
+          aria-valuenow={stickA11y.magnitude}
+          aria-valuetext={
+            stickA11y.cardinal === "none"
+              ? "centered"
+              : `${stickA11y.cardinal} ${stickA11y.magnitude.toFixed(2)}`
+          }
+          role="slider"
           style={{ transform: tf }}
           onPointerDown={onKnobPointerDown}
           onPointerMove={onKnobPointerMove}
@@ -357,5 +371,3 @@ Object.defineProperty(GcJoystickElement.prototype, "sectors", {
     sectorsDescriptor?.set?.call(this, value);
   },
 });
-
-defineOnce(TAG, GcJoystickElement);

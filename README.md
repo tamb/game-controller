@@ -2,24 +2,30 @@
 
 A Gameboy-style virtual controller skin, written as **React components** and also exported as **native custom elements** via [`@r2wc/core`](https://www.npmjs.com/package/@r2wc/core). Styles are plain CSS (with variables on `:host`) inside the shadow root.
 
+The package is **ESM-only** (no CommonJS build). **`react` and `react-dom` are required even if you only use `<game-controller>` in HTML**, because each custom element mounts a React root.
+
 ## Installation
 
 ```bash
 npm install @tamb/gamecontroller react react-dom
 ```
 
-`react` and `react-dom` are peer dependencies (v18 or v19).
+Peer dependencies: **React 18 or 19**. Node **20+** is required to build from source / run the toolchain.
+
+See [CHANGELOG.md](CHANGELOG.md) for the public contract. **`1.x` will not remove `EVENTS.*` names or documented attributes without a major version.** Unknown attribute values keep the documented fallbacks (d-pad, `scale=usable`, `size=auto`, two face buttons).
 
 ## Usage
 
 ### React
+
+Import from **`@tamb/gamecontroller/react`**. That entry does **not** call `customElements.define`, so it is safe next to other copies of the tags and is tree-shakeable.
 
 ```tsx
 import {
   GameController,
   GcFaceButtons,
   GcJoystick,
-} from "@tamb/gamecontroller";
+} from "@tamb/gamecontroller/react";
 
 export function App() {
   return (
@@ -46,13 +52,15 @@ export function App() {
 }
 ```
 
+Do **not** server-render `<GameController>` or the custom elements. Capability helpers (`isFullscreenSupported`, `isHapticsSupported`) are SSR-safe. In Next.js / RSC, mark the UI as client-only (`"use client"` or `dynamic(..., { ssr: false })`).
+
 Unnamed children still go to the **stage**. Omit a named region to keep the default control (`GcDpad` / `GcJoystick` from `leftControl`, `GcFaceButtons`, `GcAncillaryButtons`).
 
-The same components are available from the main entry (`GameController`, `GcDpad`, `GcJoystick`, `GcFaceButtons`, `GcAncillaryButtons`) along with the web component classes and slot helpers (`GameController.Stage`, `GameController.LeftControl`, `GameController.Actions`, `GameController.Ancillaries`, `GAME_CONTROLLER_SLOTS`).
+The same components are also available from the main entry (which **does** register tags), along with the web component classes and slot helpers (`GameController.Stage`, `GameController.LeftControl`, `GameController.Actions`, `GameController.Ancillaries`, `GAME_CONTROLLER_SLOTS`).
 
 ### Web component
 
-Register the elements once (side effect of the main entry):
+Register the elements once (side effect of the **main** entry). You still need to install `react` and `react-dom`.
 
 ```ts
 import "@tamb/gamecontroller";
@@ -83,6 +91,8 @@ el.hooks = {
 };
 document.body.appendChild(el);
 ```
+
+**iOS Safari:** `requestFullscreen()` and `navigator.vibrate` are often unavailable. The demo surfaces that with `getDemoCapabilityStatus()`.
 
 ### Layout and fullscreen
 
@@ -126,6 +136,8 @@ All interaction events bubble and are composed (usable from outside shadow DOM).
 
 Use the exported **`EVENTS`** object so listeners stay in sync with what the elements dispatch (for example `EVENTS.gameController.action.a`, `EVENTS.gcJoystick.move`). Per-hour clock events are built with **`gcJoystickClockHourEvent(n)`** (`n` is 1–12). For Storybook, **`SB_GAME_CONTROLLER_EVENTS`**, **`SB_GC_DPAD_EVENTS`**, and **`SB_GC_JOYSTICK_EVENTS`** are flat arrays derived from the same definitions.
 
+Press events (`gcdpad:up`, `gcface:a`, `gamecontroller:dpad:up`, …) fire on **pointerdown** and on **d-pad hold-to-repeat**. Matching **`*:released`** events fire on pointerup / cancel (and on a keyboard/programmatic `click` with no prior pointer). Press `detail` includes **`repeat: boolean`** (`true` only for extra d-pad fires after the hold delay).
+
 ```ts
 import { EVENTS } from "@tamb/gamecontroller";
 
@@ -136,26 +148,43 @@ el.addEventListener(EVENTS.gameController.dpad.up, (e) => {
 
 | Event |
 | --- |
-| `gamecontroller:ancillary:fullscreen` |
-| `gamecontroller:ancillary:select` |
-| `gamecontroller:ancillary:start` |
-| `gamecontroller:dpad:up` `gamecontroller:dpad:right` `gamecontroller:dpad:down` `gamecontroller:dpad:left` |
-| `gamecontroller:action:a` `gamecontroller:action:b` (two-button layout) |
-| `gamecontroller:action:y` `gamecontroller:action:x` `gamecontroller:action:b` `gamecontroller:action:a` (four-button layout) |
+| `gamecontroller:ancillary:fullscreen` (+ `:released`) |
+| `gamecontroller:ancillary:select` (+ `:released`) |
+| `gamecontroller:ancillary:start` (+ `:released`) |
+| `gamecontroller:dpad:up` `gamecontroller:dpad:right` `gamecontroller:dpad:down` `gamecontroller:dpad:left` (+ each `:released`) |
+| `gamecontroller:action:a` `gamecontroller:action:b` (two-button layout) (+ `:released`) |
+| `gamecontroller:action:y` `gamecontroller:action:x` `gamecontroller:action:b` `gamecontroller:action:a` (four-button layout) (+ `:released`) |
 
 `<game-controller>` embeds **`<gc-dpad>`**, **`<gc-ancillary-buttons>`**, and **`<gc-face-buttons>`**; d-pad / ancillary / face events also surface as the `gamecontroller:*` names below when handled by the shell.
 
 #### `<gc-ancillary-buttons>` (standalone)
 
-Row buttons emit **`gcancillary:fullscreen`**, **`gcancillary:select`**, **`gcancillary:start`** with `detail: { controller, id }`. Theme with **`--gc-ancillary-*`** on the host (same tokens as inside `<game-controller>`).
+Row buttons emit **`gcancillary:fullscreen`**, **`gcancillary:select`**, **`gcancillary:start`** (and **`*:released`**) with `detail: { controller, id }` (`repeat` on press). Theme with **`--gc-ancillary-*`** on the host (same tokens as inside `<game-controller>`).
 
 #### `<gc-face-buttons>` (standalone)
 
-**`actions`** (`2` or `4`) sets the diamond vs pair layout. Emits **`gcface:a`** … **`gcface:y`** with `detail: { controller, button }`. Theme with **`--gc-action-*`** on the host.
+**`actions`** (`2` or `4`) sets the diamond vs pair layout. Emits **`gcface:a`** … **`gcface:y`** (and **`*:released`**) with `detail: { controller, button }` (`repeat` on press). Theme with **`--gc-action-*`** on the host.
 
 #### `<gc-dpad>` (standalone)
 
-Direction clicks emit **`gcdpad:up`**, **`gcdpad:down`**, **`gcdpad:left`**, **`gcdpad:right`** with `detail: { controller, direction }`. Inherits **`--gc-dpad-*`** variables from ancestors.
+Direction presses emit **`gcdpad:up`**, **`gcdpad:down`**, **`gcdpad:left`**, **`gcdpad:right`** with `detail: { controller, direction, repeat }`. Release emits **`gcdpad:up:released`** (same for other directions).
+
+**Hold-to-repeat** (d-pad only; default **on**): after the initial press, wait **`repeat-delay`** (**400ms**) then fire the same press event every **`repeat-interval`** (**80ms**) until release. **`repeat="false"`** (also `0` / `off`) disables. Face and ancillary buttons do **not** auto-repeat. Haptics pulse on the **first** press only, not on repeats. `hooks` and `gamecontroller:dpad:*` **do** fire on repeats so movement works.
+
+Inherits **`--gc-dpad-*`** variables from ancestors.
+
+#### Keyboard
+
+`<game-controller>` installs **`installGameControllerKeyboard`** by default (**`keyboard`** on; **`keyboard="false"`** to disable). Keys are handled on `window` (the host does not need focus). Typing in **`input` / `textarea` / `contenteditable`** is ignored. OS `keydown.repeat` is ignored; d-pad uses the same delay/interval as pointer hold.
+
+Default map (overridable via `installGameControllerKeyboard(el, { map })`):
+
+| Keys | Action |
+| --- | --- |
+| Arrows, **WASD** | D-pad (or joystick digital offset + cardinals when **`left-control="joystick"`**) |
+| **K / J / I / U** | A / B / X / Y |
+| **Enter** | Start |
+| **Shift** | Select |
 
 #### `<gc-joystick>` (standalone)
 
@@ -176,12 +205,14 @@ Also: **`dead-zone`** (default `0.12`), **`sectors-json`** (`[{ id, startDeg, en
 ### API (`GameControllerElement`)
 
 - **`actions`**: `2` | `4` — number of face buttons (attribute `actions`, reflected).
-- **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, joystick grab, and joystick **cardinal** changes where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`).
+- **`vibrate`**: haptics via `navigator.vibrate` on taps, d-pad, ancillaries, joystick grab, and joystick **cardinal** changes where supported (default `true`). Toggle off in JS with `el.vibrate = false` or in HTML with **`vibrate="false"`** (also `0` or `off`). Repeats do **not** pulse.
+- **`keyboard`**: window key mapper (default `true`). **`keyboard="false"`** disables. See Keyboard above.
+- **`repeat`**: d-pad hold-to-repeat (default `true`). **`repeat="false"`** disables. **`repeatDelay`** / **`repeatInterval`** (attributes **`repeat-delay`** / **`repeat-interval`**) default to **400** / **80** milliseconds.
 - **`leftControl`**: `"dpad"` (default) or `"joystick"` — attribute **`left-control`** swaps `<gc-dpad>` for `<gc-joystick>` with **`emit-cardinal`** enabled (listen for **`gcjoystick:*`**; no automatic **`gamecontroller:dpad:*`** mapping).
 - **`scale`**: `"usable"` (default) or `"none"` — attribute **`scale`**. Usable mode sizes the host to the remaining visual viewport after header / footer menus (`measureUsableScreen` / `--gc-usable-height`). **`none`** (also `false` / `0` / `off`) leaves sizing to CSS tokens only.
 - **`size`**: `"auto"` (default), `"small"`, `"normal"`, or `"large"` — attribute **`size`**. Auto picks a D-pad / stick / face-button cluster from the **short axis** (**small** if either axis is **≤360px**, **large** only when **both** are **≥600px**, otherwise **normal**). Portrait pixels are **120 / 165 / 198**; landscape remaps the same names to **100 / 140 / 168**. Axis, action diameter, and knob stay in the original 165px ratio. **`scale`** is how much of the screen the shell fills; **`size`** is how big the hands are.
 - **`chromeHeader`** / **`chromeFooter`**: optional chrome sources — attributes **`chrome-header`** / **`chrome-footer`**. CSS selector, pixel size (`48` or `48px`), or (from JS/React) an element outside the controller. Auto-detects **`data-gc-chrome`** and sibling **`<header>`** / **`<footer>`** when omitted.
-- **`hooks`**: optional `Record<string, (controller) => void>` keyed by control name (`select`, `start`, `a`, …); not an HTML attribute.
+- **`hooks`**: optional `Partial<Record<GameControllerHookName, (controller) => void>>` keyed by `up` / `down` / `left` / `right`, `a` / `b` / `x` / `y`, `select` / `start` / `fullscreen`; not an HTML attribute. Hooks run on each press including d-pad repeats.
 
 Fullscreen unlocks **`screen.orientation`** (when available) so the device can rotate into **landscape** while the controller is fullscreen.
 
@@ -294,7 +325,7 @@ npm run storybook
 
 Stories under **Game controller**, **GC / D-pad**, and **GC / Joystick** include an **`sb-event-log`** panel that prints bubbling custom events (JSON `detail`, with `controller` shown as a tag name). Use **Portrait** / **Landscape** for the opinionated phone layouts (390×844 and 844×390), **Fill viewport (no event log)** for the usable screen, or **Usable screen (header + footer)** to see chrome subtracted.
 
-The playground still mounts the **custom elements**; the same components can be imported as React from `@tamb/gamecontroller` (or the `@tamb/gamecontroller/react` alias).
+The playground still mounts the **custom elements**; React apps should import from **`@tamb/gamecontroller/react`**.
 
 ### GitHub Pages demo
 
@@ -324,9 +355,10 @@ npm run lint:fix
 
 ## Testing
 
-Unit tests use [Vitest](https://vitest.dev/) with [happy-dom](https://github.com/capricorn86/happy-dom):
+Unit tests use [Vitest](https://vitest.dev/) with [happy-dom](https://github.com/capricorn86/happy-dom). Browser smoke tests use [Playwright](https://playwright.dev/) (Chromium + WebKit):
 
 ```bash
 npm test
 npm run test:watch
+npm run test:e2e
 ```
