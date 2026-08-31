@@ -8,7 +8,7 @@
   box-sizing: border-box;
   touch-action: none;
 
-  --gc-joystick-ring-bg: transparent;
+  --gc-joystick-ring-bg: #ffffff;
   --gc-joystick-ring-border-width: 1px;
   --gc-joystick-ring-border-color: #000000;
   --gc-joystick-ring-border: var(--gc-joystick-ring-border-width) solid

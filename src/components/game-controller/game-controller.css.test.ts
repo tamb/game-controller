@@ -115,6 +115,14 @@ describe("controller touch + stage overflow CSS", () => {
     expect(controllerCss).not.toMatch(/\.gamecontroller__ancillaries \.gcancillary\s*[,{]/);
   });
 
+  it("defaults the shell, d-pad, and stick ring to white", () => {
+    expect(controllerCss).toMatch(/--gc-dpad-btn-bg:\s*#ffffff/);
+    expect(dpadCss).toMatch(/--gc-dpad-btn-bg:\s*#ffffff/);
+    expect(joystickCss).toMatch(/--gc-joystick-ring-bg:\s*#ffffff/);
+    expect(controllerCss).toMatch(/--gc-joystick-ring-bg:\s*#ffffff/);
+    expect(controllerCss).toMatch(/--gc-shell-bg:\s*#ffffff/);
+  });
+
   it("defines press feedback tokens and an opt-out hook", () => {
     expect(controllerCss).toMatch(/--gc-feedback-enabled:\s*1/);
     expect(controllerCss).toMatch(

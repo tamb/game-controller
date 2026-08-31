@@ -1,5 +1,5 @@
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --demo-ink: #d7f5c8;
   --demo-ink-dim: #8fbf7a;
   --demo-panel: rgb(8 28 14 / 0.72);
@@ -30,8 +30,7 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100dvh;
-  background: #020617;
-  color: var(--demo-ink);
+  background: #ffffff;
   font-family: "IBM Plex Mono", "SF Mono", ui-monospace, Menlo, Consolas, monospace;
 }
 
@@ -52,24 +51,6 @@ body {
   max-height: 100%;
   --gc-host-min-height: 0;
   --gc-host-height: 100%;
-  --gc-shell-bg: #111827;
-  --gc-stage-bg: #04140a;
-  --gc-stage-border-width: 3px;
-  --gc-stage-border-color: #1f3d28;
-  --gc-color-text: #e5e7eb;
-  --gc-action-btn-bg: #f8fafc;
-  --gc-action-btn-color: #111827;
-  --gc-action-btn-border-color: #0f172a;
-  --gc-dpad-btn-bg: #1f2937;
-  --gc-dpad-btn-border-color: #0f172a;
-  --gc-ancillary-btn-bg: #1f2937;
-  --gc-ancillary-btn-color: #e5e7eb;
-  --gc-ancillary-btn-border-color: #0f172a;
-  --gc-joystick-ring-bg: #1f2937;
-  --gc-joystick-ring-border: 2px solid #0f172a;
-  --gc-joystick-knob-bg: #f8fafc;
-  --gc-joystick-knob-border: 2px solid #0f172a;
-  --gc-main-controls-bg: rgb(255 255 255 / 0.04);
 }
 
 .stage-screen {
@@ -82,6 +63,7 @@ body {
   padding: clamp(0.65rem, 2.2vmin, 1rem);
   overflow: auto;
   touch-action: pan-y;
+  color-scheme: dark;
   background:
     radial-gradient(ellipse at 50% 0%, rgb(72 160 90 / 0.18), transparent 55%),
     linear-gradient(180deg, #062012 0%, #04140a 100%);

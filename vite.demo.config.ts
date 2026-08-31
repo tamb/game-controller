@@ -18,8 +18,8 @@ export default defineConfig({
         short_name: "Controller",
         description:
           "Interactive demo of @tamb/gamecontroller — a virtual Gameboy-style controller for the web.",
-        theme_color: "#020617",
-        background_color: "#020617",
+        theme_color: "#ffffff",
+        background_color: "#ffffff",
         display: "standalone",
         orientation: "any",
         scope: base,

@@ -1,6 +1,6 @@
 /**
  * D-pad shell. Inherits `--gc-dpad-*` from ancestors (e.g. `<game-controller>`).
- * Standalone defaults match neutral monochrome (transparent pads, black borders).
+ * Standalone defaults match neutral monochrome (white pads, black borders).
  *
  * Plus is a 3×3 grid: `--gc-dpad-axis` is each arm length, `--gc-dpad-half` is
  * the crossbar thickness (and the center gap). Scales down to the container.
@@ -14,7 +14,7 @@
   box-sizing: border-box;
   touch-action: manipulation;
 
-  --gc-dpad-btn-bg: transparent;
+  --gc-dpad-btn-bg: #ffffff;
   --gc-dpad-btn-color: transparent;
   --gc-dpad-btn-border-width: 1px;
   --gc-dpad-btn-border-style: solid;

@@ -20,6 +20,17 @@ describe("demo anti-zoom page contract", () => {
     expect(css).toMatch(/\.stage-screen\s*\{[^}]*touch-action:\s*pan-y/);
   });
 
+  it("does not theme the controller chrome; stage keeps its own colors", () => {
+    const css = readFileSync(join(here, "demo.css"), "utf8");
+    expect(css).not.toMatch(/--gc-shell-bg:/);
+    expect(css).not.toMatch(/--gc-dpad-btn-bg:/);
+    expect(css).not.toMatch(/--gc-joystick-ring-bg:/);
+    expect(css).not.toMatch(/--gc-action-btn-bg:/);
+    expect(css).not.toMatch(/--gc-ancillary-btn-bg:/);
+    expect(css).toMatch(/body\s*\{[^}]*background:\s*#ffffff/);
+    expect(css).toMatch(/\.stage-screen\s*\{[^}]*background:/);
+  });
+
   it("installs the double-tap zoom guard on the document", () => {
     const main = readFileSync(join(here, "main.ts"), "utf8");
     expect(main).toMatch(/installDoubleTapZoomGuard\(document\)/);
