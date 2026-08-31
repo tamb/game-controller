@@ -95,9 +95,34 @@ describe("controller touch + stage overflow CSS", () => {
     expect(faceCss).toMatch(/margin-bottom:\s*30%/);
   });
 
+  it("keeps the analog stick circular when the landscape hand column stretches", () => {
+    expect(joystickCss).toMatch(/:host\s*\{[^}]*height:\s*auto/);
+    expect(joystickCss).toMatch(/:host\s*\{[^}]*aspect-ratio:\s*1/);
+    expect(joystickCss).toMatch(/\.gcjoystick\s*\{[^}]*aspect-ratio:\s*1/);
+    expect(joystickCss).toMatch(/:host\s*>\s*\.gcjoystick\s*\{[^}]*height:\s*100%/);
+    expect(joystickCss).not.toMatch(/^\.gcjoystick\s*\{[^}]*height:\s*100%/m);
+    expect(controllerCss).toMatch(
+      /\.gamecontroller__d-pad-container gc-joystick,\s*\.gamecontroller__d-pad-container \.gcjoystick,\s*\.gamecontroller__d-pad-container \.gcjoystick-host\s*\{[^}]*aspect-ratio:\s*1/,
+    );
+    expect(controllerCss).toMatch(
+      /@media \(orientation:\s*landscape\)[\s\S]*\.gcjoystick-host\s*\{[^}]*aspect-ratio:\s*1/,
+    );
+  });
+
   it("does not force display:block on inner control layout classes", () => {
     expect(controllerCss).not.toMatch(/\.gamecontroller__d-pad-container \.gcdpad\s*[,{]/);
     expect(controllerCss).not.toMatch(/\.gamecontroller__actions \.gcface__actions\s*[,{]/);
     expect(controllerCss).not.toMatch(/\.gamecontroller__ancillaries \.gcancillary\s*[,{]/);
+  });
+
+  it("defines press feedback tokens and an opt-out hook", () => {
+    expect(controllerCss).toMatch(/--gc-feedback-enabled:\s*1/);
+    expect(controllerCss).toMatch(
+      /:host\(\[data-gc-feedback="off"\]\)\s*\{[^}]*--gc-feedback-enabled:\s*0/,
+    );
+    expect(faceCss).toMatch(/\.gcface__btn\[data-gc-pressed\]/);
+    expect(dpadCss).toMatch(/\.gcdpad__btn:active::after/);
+    expect(ancillaryCss).toMatch(/\.gcancillary__btn\[data-gc-pressed\]/);
+    expect(joystickCss).toMatch(/\.gcjoystick\[data-gc-active\]\s+\.gcjoystick__ring::after/);
   });
 });

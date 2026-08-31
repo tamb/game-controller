@@ -5,6 +5,7 @@ import { dispatchComposed } from "../../lib/dispatch-event";
 import { immediatePressProps } from "../../lib/immediate-press";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useFeedbackAttribute } from "../../lib/use-feedback-attribute";
 import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import styles from "./gc-ancillary-buttons.css?raw";
 
@@ -19,6 +20,7 @@ export type GcAncillaryPressDetail = {
 
 export type GcAncillaryButtonsProps = {
   container?: HTMLElement;
+  feedback?: boolean | string;
   onPress?: (detail: GcAncillaryPressDetail) => void;
 };
 
@@ -28,10 +30,11 @@ const BUTTONS: readonly { id: GcAncillaryId; part: string }[] = [
   { id: "start", part: "btn-start" },
 ];
 
-export function GcAncillaryButtons({ container, onPress }: GcAncillaryButtonsProps) {
+export function GcAncillaryButtons({ container, feedback, onPress }: GcAncillaryButtonsProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const inShadow = isShadowContainer(container);
   useDoubleTapZoomGuard(container, rootRef);
+  useFeedbackAttribute(container, rootRef, feedback);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
 
   const emitPress = (id: GcAncillaryId) => {
@@ -68,12 +71,17 @@ export function GcAncillaryButtons({ container, onPress }: GcAncillaryButtonsPro
 }
 
 export interface GcAncillaryButtonsElement extends HTMLElement {
+  feedback: boolean;
   readonly updateComplete: Promise<void>;
 }
 
 export const GcAncillaryButtonsElement = defineReactElement<
   GcAncillaryButtonsProps,
   GcAncillaryButtonsElement
->(GcAncillaryButtons);
+>(GcAncillaryButtons, {
+  props: {
+    feedback: "boolean",
+  },
+});
 
 defineOnce("gc-ancillary-buttons", GcAncillaryButtonsElement);

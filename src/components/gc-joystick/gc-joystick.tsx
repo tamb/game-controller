@@ -4,6 +4,7 @@ import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
 import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
+import { useFeedbackAttribute } from "../../lib/use-feedback-attribute";
 import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
 import styles from "./gc-joystick.css?raw";
 import {
@@ -33,6 +34,7 @@ export type GcJoystickProps = {
   emitCardinal?: boolean;
   emitClock?: boolean;
   emitSectors?: boolean;
+  feedback?: boolean | string;
   sectorsJson?: string | null;
   sectors?: JoystickSector[];
   container?: HTMLElement;
@@ -67,6 +69,7 @@ export function GcJoystick({
   emitCardinal,
   emitClock,
   emitSectors,
+  feedback,
   sectorsJson,
   sectors: sectorsProp,
   container,
@@ -80,9 +83,11 @@ export function GcJoystick({
   const lastClockHour = useRef<number | null>(null);
   const dragging = useRef(false);
   const [knob, setKnob] = useState({ dx: 0, dy: 0 });
+  const [active, setActive] = useState(false);
 
   const inShadow = isShadowContainer(container);
   useDoubleTapZoomGuard(container, rootRef);
+  useFeedbackAttribute(container, rootRef, feedback);
   const css = resolveComponentCss(styles, HOST_CLASS, inShadow);
   const doCardinal = coerceBool(emitCardinal);
   const doClock = coerceBool(emitClock);
@@ -202,6 +207,7 @@ export function GcJoystick({
 
   const resetStick = () => {
     dragging.current = false;
+    setActive(false);
     const kin = kinState({
       knobDx: 0,
       knobDy: 0,
@@ -249,6 +255,7 @@ export function GcJoystick({
   const onKnobPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
     e.preventDefault();
     dragging.current = true;
+    setActive(true);
     e.currentTarget.setPointerCapture(e.pointerId);
     const controller = host();
     if (controller) {
@@ -289,6 +296,7 @@ export function GcJoystick({
         className={inShadow ? "gcjoystick" : `${HOST_CLASS} gcjoystick`}
         part="base"
         data-emit-cardinal={doCardinal ? "" : undefined}
+        data-gc-active={active ? "" : undefined}
       >
         <div ref={ringRef} className="gcjoystick__ring" part="ring" />
         <button
@@ -313,6 +321,7 @@ export interface GcJoystickElement extends HTMLElement {
   emitCardinal: boolean;
   emitClock: boolean;
   emitSectors: boolean;
+  feedback: boolean;
   sectorsJson: string | null;
   sectors: JoystickSector[];
   readonly updateComplete: Promise<void>;
@@ -326,6 +335,7 @@ export const GcJoystickElement = defineReactElement<GcJoystickProps, GcJoystickE
       emitCardinal: "boolean",
       emitClock: "boolean",
       emitSectors: "boolean",
+      feedback: "boolean",
       sectorsJson: "string",
     },
     objectProps: ["sectors"],

@@ -10,6 +10,14 @@
   color: var(--gc-color-text, #000000);
   font-family: var(--gc-font-family, system-ui, sans-serif);
   touch-action: manipulation;
+
+  --gc-btn-pressed-scale: 0.94;
+  --gc-btn-pressed-brightness: 0.9;
+  --gc-action-btn-pressed-overlay: rgba(0, 0, 0, 0.1);
+}
+
+:host([data-gc-feedback="off"]) {
+  --gc-feedback-enabled: 0;
 }
 
 :host *,
@@ -26,6 +34,7 @@
 }
 
 .gcface__btn {
+  position: relative;
   width: var(--gc-action-size, 50px);
   height: var(--gc-action-size, 50px);
   font-family: inherit;
@@ -36,6 +45,35 @@
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  transition:
+    transform 0.06s ease,
+    filter 0.06s ease;
+}
+
+.gcface__btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gc-action-btn-pressed-overlay, rgba(0, 0, 0, 0.1));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.06s ease;
+}
+
+.gcface__btn:active,
+.gcface__btn[data-gc-pressed] {
+  transform: scale(
+    calc(1 - (1 - var(--gc-btn-pressed-scale, 0.94)) * var(--gc-feedback-enabled, 1))
+  );
+  filter: brightness(
+    calc(1 - (1 - var(--gc-btn-pressed-brightness, 0.9)) * var(--gc-feedback-enabled, 1))
+  );
+}
+
+.gcface__btn:active::after,
+.gcface__btn[data-gc-pressed]::after {
+  opacity: var(--gc-feedback-enabled, 1);
 }
 
 .gcface__btn:focus {
@@ -54,11 +92,25 @@
   border: var(--gc-action-btn-1-border, var(--gc-action-btn-border, 1px solid #000000));
 }
 
+.gcface__btn--1::after {
+  background: var(
+    --gc-action-btn-1-pressed-overlay,
+    var(--gc-action-btn-pressed-overlay, rgba(0, 0, 0, 0.1))
+  );
+}
+
 .gcface__btn--2 {
   margin-left: calc(50% - var(--gc-action-size, 50px));
   background: var(--gc-action-btn-2-bg, var(--gc-action-btn-bg, #ffffff));
   color: var(--gc-action-btn-2-color, var(--gc-action-btn-color, #000000));
   border: var(--gc-action-btn-2-border, var(--gc-action-btn-border, 1px solid #000000));
+}
+
+.gcface__btn--2::after {
+  background: var(
+    --gc-action-btn-2-pressed-overlay,
+    var(--gc-action-btn-pressed-overlay, rgba(0, 0, 0, 0.1))
+  );
 }
 
 .gcface__btn--3 {
@@ -67,10 +119,24 @@
   border: var(--gc-action-btn-3-border, var(--gc-action-btn-border, 1px solid #000000));
 }
 
+.gcface__btn--3::after {
+  background: var(
+    --gc-action-btn-3-pressed-overlay,
+    var(--gc-action-btn-pressed-overlay, rgba(0, 0, 0, 0.1))
+  );
+}
+
 .gcface__btn--4 {
   background: var(--gc-action-btn-4-bg, var(--gc-action-btn-bg, #ffffff));
   color: var(--gc-action-btn-4-color, var(--gc-action-btn-color, #000000));
   border: var(--gc-action-btn-4-border, var(--gc-action-btn-border, 1px solid #000000));
+}
+
+.gcface__btn--4::after {
+  background: var(
+    --gc-action-btn-4-pressed-overlay,
+    var(--gc-action-btn-pressed-overlay, rgba(0, 0, 0, 0.1))
+  );
 }
 
 .gcface__actions--four {

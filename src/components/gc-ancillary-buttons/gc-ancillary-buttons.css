@@ -9,6 +9,14 @@
   color: var(--gc-color-text, #000000);
   font-family: var(--gc-font-family, system-ui, sans-serif);
   touch-action: manipulation;
+
+  --gc-btn-pressed-scale: 0.96;
+  --gc-btn-pressed-brightness: 0.92;
+  --gc-ancillary-btn-pressed-overlay: rgba(0, 0, 0, 0.08);
+}
+
+:host([data-gc-feedback="off"]) {
+  --gc-feedback-enabled: 0;
 }
 
 :host *,
@@ -26,6 +34,7 @@
 }
 
 .gcancillary__btn {
+  position: relative;
   margin: var(--gc-ancillary-margin, 5%);
   padding: var(--gc-ancillary-padding, 1% 5%);
   font-family: inherit;
@@ -38,6 +47,35 @@
   -webkit-user-select: none;
   user-select: none;
   -webkit-touch-callout: none;
+  transition:
+    transform 0.06s ease,
+    filter 0.06s ease;
+}
+
+.gcancillary__btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--gc-ancillary-btn-pressed-overlay, rgba(0, 0, 0, 0.08));
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.06s ease;
+}
+
+.gcancillary__btn:active,
+.gcancillary__btn[data-gc-pressed] {
+  transform: scale(
+    calc(1 - (1 - var(--gc-btn-pressed-scale, 0.96)) * var(--gc-feedback-enabled, 1))
+  );
+  filter: brightness(
+    calc(1 - (1 - var(--gc-btn-pressed-brightness, 0.92)) * var(--gc-feedback-enabled, 1))
+  );
+}
+
+.gcancillary__btn:active::after,
+.gcancillary__btn[data-gc-pressed]::after {
+  opacity: var(--gc-feedback-enabled, 1);
 }
 
 .gcancillary__btn:focus {
