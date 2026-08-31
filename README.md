@@ -187,9 +187,9 @@ Fullscreen unlocks **`screen.orientation`** (when available) so the device can r
 
 ### Theming (`--gc-*` CSS variables)
 
-Set custom properties on `<game-controller>`. They apply on `:host` and drive colors, borders, and sizing inside the shadow tree. **Built-in defaults are neutral monochrome**: black text and outlines, white shell and face buttons, transparent stage / ancillary / d-pad fills unless you override them. `<gc-dpad>` and `<gc-joystick>` use the same idea when used alone.
+Set custom properties on `<game-controller>`. They apply on `:host` and drive colors, borders, and sizing inside the shadow tree. **Built-in defaults are neutral monochrome**: black text and outlines, white shell, face buttons, d-pad pads, and stick ring, transparent stage / ancillary fills unless you override them. `<gc-dpad>` and `<gc-joystick>` use the same idea when used alone.
 
-`<gc-joystick>` defaults: transparent ring with a black circle stroke, white knob with black border, no drop shadow.
+`<gc-joystick>` defaults: white ring with a black circle stroke, white knob with black border, no drop shadow.
 
 **Shell**
 

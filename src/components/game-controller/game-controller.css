@@ -1,6 +1,7 @@
 /**
  * All tokens use the `--gc-` prefix (game controller). Defaults are neutral monochrome
- * (black strokes/text, white or transparent fills). Set overrides on `<game-controller>`:
+ * (black strokes/text, white shell / face / d-pad / stick fills). Set overrides on
+ * `<game-controller>`:
  *
  *   game-controller {
  *     --gc-shell-bg: #111;
@@ -121,11 +122,12 @@
   --gc-controls-pad-inline: 0.85rem;
 
   --gc-joystick-knob-size: calc(var(--gc-control-size) * 28 / 165);
+  --gc-joystick-ring-bg: #ffffff;
 
   /* D-pad — axis / half stay in the original 66 / 33 ratio of --gc-control-size */
   --gc-dpad-axis: calc(var(--gc-control-size) * 66 / 165);
   --gc-dpad-half: calc(var(--gc-control-size) * 33 / 165);
-  --gc-dpad-btn-bg: transparent;
+  --gc-dpad-btn-bg: #ffffff;
   --gc-dpad-btn-color: transparent;
   --gc-dpad-btn-border-width: 1px;
   --gc-dpad-btn-border-style: solid;
