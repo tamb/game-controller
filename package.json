@@ -1,6 +1,6 @@
 {
   "name": "@tamb/gamecontroller",
-  "version": "1.0.0",
+  "version": "1.0.0-rc.0",
   "type": "module",
   "description": "A simple HTML skin for a Gameboy-style virtual controller",
   "scripts": {
