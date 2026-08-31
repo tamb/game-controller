@@ -1,1 +1,0 @@
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/game-controller/demo/dev-sw.js?dev-sw', { scope: '/game-controller/demo/', type: 'classic' })
