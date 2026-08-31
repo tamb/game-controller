@@ -1,12 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EVENTS } from "../../events";
+import type { GameControllerActionsCount } from "../game-controller/game-controller-layout";
 import type { GcFaceButtonsElement } from "./gc-face-buttons";
-import "./gc-face-buttons";
+import "../../register";
 
 async function mount(actions: number) {
   document.body.replaceChildren();
   const el = document.createElement("gc-face-buttons") as GcFaceButtonsElement;
-  el.actions = actions;
+  el.actions = actions as GameControllerActionsCount;
   document.body.append(el);
   await el.updateComplete;
   return el;

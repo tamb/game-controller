@@ -91,6 +91,14 @@ export function resolveGameControllerControlSize(
   return "auto";
 }
 
+/** Face-button count. Unknown values fall back to two buttons. */
+export type GameControllerActionsCount = 2 | 4;
+
+export function resolveGameControllerActions(value: unknown): GameControllerActionsCount {
+  if (value === 2 || value === "2" || value == null || value === "") return 2;
+  return 4;
+}
+
 /**
  * `size="auto"` bucket from viewport size. Matches the shell CSS:
  * small if either axis ≤ 360, large only when both axes ≥ 600.

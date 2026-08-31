@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EVENTS } from "../../events";
 import type { GcDpadElement } from "./gc-dpad";
-import "./gc-dpad";
+import "../../register";
 
 async function mountDpad() {
   document.body.replaceChildren();
@@ -50,5 +50,69 @@ describe("GcDpadElement", () => {
     clickPad(el.shadowRoot!, sel);
     expect(spy).toHaveBeenCalledTimes(1);
     expect((spy.mock.calls[0][0] as CustomEvent).detail.direction).toBe(dir);
+  });
+
+  it("emits released after click", async () => {
+    const el = await mountDpad();
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gcDpadReleased.up, spy);
+    clickPad(el.shadowRoot!, ".gcdpad__btn--up");
+    expect(spy).toHaveBeenCalledTimes(1);
+    expect((spy.mock.calls[0][0] as CustomEvent).detail.direction).toBe("up");
+  });
+
+  it("includes repeat:false on the first press", async () => {
+    const el = await mountDpad();
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gcDpad.up, spy);
+    clickPad(el.shadowRoot!, ".gcdpad__btn--up");
+    expect((spy.mock.calls[0][0] as CustomEvent).detail.repeat).toBe(false);
+  });
+
+  it("repeats gcdpad:up while held", async () => {
+    const el = await mountDpad();
+    vi.useFakeTimers();
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gcDpad.up, spy);
+    const btn = el.shadowRoot!.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    btn.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        pointerType: "touch",
+        button: 0,
+      }),
+    );
+    expect(spy).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(400);
+    expect(spy.mock.calls.length).toBeGreaterThanOrEqual(2);
+    expect((spy.mock.calls[1][0] as CustomEvent).detail.repeat).toBe(true);
+    btn.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true }));
+    const count = spy.mock.calls.length;
+    vi.advanceTimersByTime(400);
+    expect(spy).toHaveBeenCalledTimes(count);
+    vi.useRealTimers();
+  });
+
+  it("does not repeat when repeat is false", async () => {
+    const el = await mountDpad();
+    el.repeat = false;
+    await el.updateComplete;
+    vi.useFakeTimers();
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gcDpad.up, spy);
+    const btn = el.shadowRoot!.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    btn.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        pointerType: "touch",
+        button: 0,
+      }),
+    );
+    vi.advanceTimersByTime(800);
+    expect(spy).toHaveBeenCalledTimes(1);
+    btn.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true }));
+    vi.useRealTimers();
   });
 });

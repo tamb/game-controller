@@ -22,11 +22,20 @@ describe("Storybook event name lists", () => {
   it("includes every game-shell plus gcdpad and joystick channels", () => {
     const set = new Set(SB_GAME_CONTROLLER_EVENTS);
     for (const v of Object.values(EVENTS.gameController.ancillary)) expect(set.has(v)).toBe(true);
+    for (const v of Object.values(EVENTS.gameController.ancillaryReleased))
+      expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gameController.dpad)) expect(set.has(v)).toBe(true);
+    for (const v of Object.values(EVENTS.gameController.dpadReleased))
+      expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gameController.action)) expect(set.has(v)).toBe(true);
+    for (const v of Object.values(EVENTS.gameController.actionReleased))
+      expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gcDpad)) expect(set.has(v)).toBe(true);
+    for (const v of Object.values(EVENTS.gcDpadReleased)) expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gcAncillary)) expect(set.has(v)).toBe(true);
+    for (const v of Object.values(EVENTS.gcAncillaryReleased)) expect(set.has(v)).toBe(true);
     for (const v of Object.values(EVENTS.gcFace)) expect(set.has(v)).toBe(true);
+    for (const v of Object.values(EVENTS.gcFaceReleased)) expect(set.has(v)).toBe(true);
     expect(set.has(EVENTS.gcJoystick.pointerDown)).toBe(true);
     expect(set.has(EVENTS.gcJoystick.move)).toBe(true);
     expect(set.has(EVENTS.gcJoystick.sector)).toBe(true);
@@ -35,7 +44,9 @@ describe("Storybook event name lists", () => {
   });
 
   it("matches gcdpad-only list length", () => {
-    expect(SB_GC_DPAD_EVENTS.length).toBe(Object.keys(EVENTS.gcDpad).length);
+    expect(SB_GC_DPAD_EVENTS.length).toBe(
+      Object.keys(EVENTS.gcDpad).length + Object.keys(EVENTS.gcDpadReleased).length,
+    );
     expect(new Set(SB_GC_DPAD_EVENTS).size).toBe(SB_GC_DPAD_EVENTS.length);
   });
 

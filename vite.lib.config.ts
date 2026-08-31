@@ -11,12 +11,18 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, "src/index.ts"),
+      entry: {
+        main: resolve(__dirname, "src/index.ts"),
+        react: resolve(__dirname, "src/react.ts"),
+      },
       formats: ["es"],
-      fileName: "main",
+      fileName: (_format, entryName) => `${entryName}.js`,
     },
     rollupOptions: {
       external: ["react", "react-dom", "react/jsx-runtime", "react-dom/client", "@r2wc/core"],
+      treeshake: {
+        moduleSideEffects: (id) => id.includes("register"),
+      },
       output: {
         preserveModules: false,
       },

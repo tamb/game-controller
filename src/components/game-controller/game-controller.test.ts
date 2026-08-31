@@ -3,7 +3,7 @@ import { EVENTS } from "../../events";
 import "../../index";
 import type { GameControllerElement } from "./game-controller";
 
-async function mount(actions = 2) {
+async function mount(actions: 2 | 4 = 2) {
   document.body.replaceChildren();
   const el = document.createElement("game-controller") as GameControllerElement;
   el.actions = actions;
@@ -515,5 +515,60 @@ describe("GameControllerElement", () => {
     const dblclick = new MouseEvent("dblclick", { bubbles: true, cancelable: true });
     el.dispatchEvent(dblclick);
     expect(dblclick.defaultPrevented).toBe(true);
+  });
+
+  it("dispatches d-pad released events", async () => {
+    const el = await mount();
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gameController.dpadReleased.up, spy);
+    const upBtn = el.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    upBtn.click();
+    expect(spy).toHaveBeenCalledTimes(1);
+  });
+
+  it("maps ArrowUp to d-pad when keyboard is on", async () => {
+    const el = await mount();
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gameController.dpad.up, spy);
+    window.dispatchEvent(new KeyboardEvent("keydown", { code: "ArrowUp", bubbles: true }));
+    expect(spy).toHaveBeenCalledTimes(1);
+    window.dispatchEvent(new KeyboardEvent("keyup", { code: "ArrowUp", bubbles: true }));
+  });
+
+  it("does not map keys when keyboard is false", async () => {
+    const el = await mount();
+    el.keyboard = false;
+    await el.updateComplete;
+    const spy = vi.fn();
+    el.addEventListener(EVENTS.gameController.dpad.up, spy);
+    window.dispatchEvent(new KeyboardEvent("keydown", { code: "ArrowUp", bubbles: true }));
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("does not vibrate on d-pad repeat fires", async () => {
+    const vibrate = vi.fn(() => true as boolean);
+    Object.defineProperty(navigator, "vibrate", {
+      configurable: true,
+      writable: true,
+      value: vibrate,
+    });
+    const el = await mount();
+    el.vibrate = true;
+    await el.updateComplete;
+    vi.useFakeTimers();
+    const upBtn = el.shadowRoot?.querySelector(".gcdpad__btn--up") as HTMLButtonElement;
+    upBtn.dispatchEvent(
+      new PointerEvent("pointerdown", {
+        bubbles: true,
+        cancelable: true,
+        pointerType: "touch",
+        button: 0,
+      }),
+    );
+    expect(vibrate).toHaveBeenCalledTimes(1);
+    vi.advanceTimersByTime(400);
+    expect(vibrate).toHaveBeenCalledTimes(1);
+    upBtn.dispatchEvent(new PointerEvent("pointerup", { bubbles: true, cancelable: true }));
+    vi.useRealTimers();
   });
 });

@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/web-components-vite";
 import { MINIMAL_VIEWPORTS } from "storybook/viewport";
+import "../src/components/story-event-log/register";
 import { GC_STORY_VIEWPORTS } from "../src/storybook/gc-viewports";
 
 const preview = {

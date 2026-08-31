@@ -8,7 +8,7 @@ import {
   SB_GC_JOYSTICK_EVENTS,
 } from "../../events";
 import { resolveComponentCss } from "../../lib/component-css";
-import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
+import { defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { formatStoryEventLogLine } from "./story-event-log-format";
 
@@ -22,7 +22,6 @@ export {
 };
 
 const HOST_CLASS = "sb-event-log-host";
-const TAG = "sb-event-log";
 
 const STYLES = `
 :host {
@@ -277,5 +276,3 @@ export const SbEventLogElement = defineReactElement<SbEventLogProps, SbEventLogE
     emptyBooleanAttributes: ["embed-stage", "newest-first"],
   },
 );
-
-defineOnce(TAG, SbEventLogElement);

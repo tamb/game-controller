@@ -12,11 +12,13 @@ export function isHapticsSupported(
   return typeof nav?.vibrate === "function";
 }
 
-type FullscreenDocument = Pick<Document, "fullscreenEnabled"> & {
+type FullscreenDocument = {
+  fullscreenEnabled?: boolean;
   webkitFullscreenEnabled?: boolean;
 };
 
-type FullscreenElement = Pick<Element, "requestFullscreen"> & {
+type FullscreenElement = {
+  requestFullscreen?: Element["requestFullscreen"];
   webkitRequestFullscreen?: () => Promise<void> | void;
 };
 

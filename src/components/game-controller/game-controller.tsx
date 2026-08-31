@@ -3,9 +3,11 @@ import type { GameControllerActionKey } from "../../events";
 import { EVENTS } from "../../events";
 import { coerceFeedback, syncFeedbackAttribute } from "../../feedback";
 import { parseVibrateAttribute, pulseHaptics } from "../../haptics";
+import { coerceKeyboard, installGameControllerKeyboard } from "../../keyboard";
 import { resolveComponentCss } from "../../lib/component-css";
 import { dispatchComposed } from "../../lib/dispatch-event";
-import { defineOnce, defineReactElement } from "../../lib/r2wc-element";
+import { DEFAULT_REPEAT_DELAY_MS, DEFAULT_REPEAT_INTERVAL_MS } from "../../lib/immediate-press";
+import { defineReactElement } from "../../lib/r2wc-element";
 import { getCustomElementHost, isShadowContainer } from "../../lib/shadow-host";
 import { unlockScreenOrientation } from "../../orientation";
 import { useDoubleTapZoomGuard } from "../../prevent-double-tap-zoom";
@@ -23,8 +25,10 @@ import { GcFaceButtons } from "../gc-face-buttons/gc-face-buttons";
 import { GcJoystick } from "../gc-joystick/gc-joystick";
 import styleText from "./game-controller.css?raw";
 import {
+  type GameControllerActionsCount,
   type GameControllerControlSize,
   type GameControllerLeftControl,
+  resolveGameControllerActions,
   resolveGameControllerControlSize,
   resolveGameControllerLeftControl,
 } from "./game-controller-layout";
@@ -38,7 +42,12 @@ import {
   partitionGameControllerSlots,
 } from "./game-controller-slots";
 
-export type { GameControllerControlSize, GameControllerLeftControl, GameControllerScale };
+export type {
+  GameControllerActionsCount,
+  GameControllerControlSize,
+  GameControllerLeftControl,
+  GameControllerScale,
+};
 export {
   GAME_CONTROLLER_SLOTS,
   GameControllerActions,
@@ -48,20 +57,36 @@ export {
 };
 
 const HOST_CLASS = "game-controller";
-const TAG = "game-controller";
 
-export type GameControllerHooks = Record<string, (controller: HTMLElement) => void>;
+export type GameControllerHookName =
+  | GcDpadDirection
+  | GameControllerActionKey
+  | "select"
+  | "start"
+  | "fullscreen";
+
+export type GameControllerHooks = Partial<
+  Record<GameControllerHookName, (controller: HTMLElement) => void>
+>;
 
 export type GameControllerProps = {
-  actions?: number;
+  actions?: GameControllerActionsCount;
   vibrate?: boolean | string;
   /** Visual press feedback on buttons, d-pad, and stick (default on). Off: `feedback="false"`. */
   feedback?: boolean | string;
-  leftControl?: string;
+  leftControl?: GameControllerLeftControl;
   /** `"usable"` (default) fits the remaining visual viewport after header/footer chrome. */
-  scale?: string;
+  scale?: GameControllerScale;
   /** `"auto"` (default) picks small / normal / large from the short viewport axis. */
-  size?: string;
+  size?: GameControllerControlSize;
+  /** Keyboard mapper (default on). Off: `keyboard="false"`. */
+  keyboard?: boolean | string;
+  /** D-pad hold-to-repeat (default on). Off: `repeat="false"`. */
+  repeat?: boolean | string;
+  /** Ms before the first extra d-pad fire (default 400). */
+  repeatDelay?: number | string;
+  /** Ms between extra d-pad fires (default 80). */
+  repeatInterval?: number | string;
   /** Header menu: selector, `48` / `48px`, or an element outside the controller. */
   chromeHeader?: UsableScreenChromeSource;
   /** Footer menu: selector, pixel size, or element. */
@@ -78,6 +103,26 @@ function coerceVibrate(value: unknown): boolean {
   if (value === true || value === undefined || value === null) return true;
   if (typeof value === "string") return parseVibrateAttribute(value);
   return Boolean(value);
+}
+
+function coerceRepeat(value: unknown): boolean {
+  if (value === false) return false;
+  if (value === true || value === undefined || value === null) return true;
+  if (typeof value === "string") return parseVibrateAttribute(value);
+  return Boolean(value);
+}
+
+function coerceMs(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value) && value >= 0) return value;
+  if (typeof value === "string" && value.trim() !== "") {
+    const n = Number(value);
+    if (Number.isFinite(n) && n >= 0) return n;
+  }
+  return fallback;
+}
+
+function eventRepeat(event: Event): boolean {
+  return Boolean((event as CustomEvent<{ repeat?: boolean }>).detail?.repeat);
 }
 
 function NamedRegion({
@@ -104,6 +149,10 @@ function GameControllerView({
   leftControl,
   scale,
   size: sizeProp,
+  keyboard: keyboardProp,
+  repeat: repeatProp,
+  repeatDelay: delayProp,
+  repeatInterval: intervalProp,
   chromeHeader,
   chromeFooter,
   hooks = {},
@@ -121,18 +170,23 @@ function GameControllerView({
   const css = resolveComponentCss(styleText, HOST_CLASS, inShadow);
   const vibrate = coerceVibrate(vibrateProp);
   const feedback = coerceFeedback(feedbackProp);
+  const keyboard = coerceKeyboard(keyboardProp);
+  const dpadRepeat = coerceRepeat(repeatProp);
+  const repeatDelay = coerceMs(delayProp, DEFAULT_REPEAT_DELAY_MS);
+  const repeatInterval = coerceMs(intervalProp, DEFAULT_REPEAT_INTERVAL_MS);
   const leftStickMode = resolveGameControllerLeftControl(leftControl);
   const controlSize = resolveGameControllerControlSize(sizeProp);
+  const faceCount = resolveGameControllerActions(actions);
   const slots = partitionGameControllerSlots(children);
 
   useLayoutEffect(() => {
     const controller = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
     if (!controller) return;
 
-    const named = (refName: string, eventName: string) => {
-      pulseHaptics(vibrate);
+    const named = (refName: GameControllerHookName, eventName: string, repeat = false) => {
+      if (!repeat) pulseHaptics(vibrate);
       hooksRef.current[refName]?.(controller);
-      dispatchComposed(controller, eventName, { controller });
+      dispatchComposed(controller, eventName, { controller, repeat });
     };
 
     const toggleFullscreen = async () => {
@@ -148,18 +202,52 @@ function GameControllerView({
       }
     };
 
-    const onDpad = (direction: GcDpadDirection) => () => {
-      named(direction, EVENTS.gameController.dpad[direction]);
+    const onDpad = (direction: GcDpadDirection) => (event: Event) => {
+      named(direction, EVENTS.gameController.dpad[direction], eventRepeat(event));
     };
-    const onFace = (button: GameControllerActionKey) => () => {
-      named(button, EVENTS.gameController.action[button]);
+    const onDpadReleased = (direction: GcDpadDirection) => () => {
+      dispatchComposed(controller, EVENTS.gameController.dpadReleased[direction], {
+        controller,
+        direction,
+      });
     };
-    const onAncillaryFullscreen = () => {
-      named("fullscreen", EVENTS.gameController.ancillary.fullscreen);
+    const onFace = (button: GameControllerActionKey) => (event: Event) => {
+      named(button, EVENTS.gameController.action[button], eventRepeat(event));
+    };
+    const onFaceReleased = (button: GameControllerActionKey) => () => {
+      dispatchComposed(controller, EVENTS.gameController.actionReleased[button], {
+        controller,
+        button,
+      });
+    };
+    const onAncillaryFullscreen = (event: Event) => {
+      named("fullscreen", EVENTS.gameController.ancillary.fullscreen, eventRepeat(event));
       void toggleFullscreen();
     };
-    const onSelect = () => named("select", EVENTS.gameController.ancillary.select);
-    const onStart = () => named("start", EVENTS.gameController.ancillary.start);
+    const onAncillaryFullscreenReleased = () => {
+      dispatchComposed(controller, EVENTS.gameController.ancillaryReleased.fullscreen, {
+        controller,
+        id: "fullscreen",
+      });
+    };
+    const onSelect = (event: Event) => {
+      named("select", EVENTS.gameController.ancillary.select, eventRepeat(event));
+    };
+    const onSelectReleased = () => {
+      dispatchComposed(controller, EVENTS.gameController.ancillaryReleased.select, {
+        controller,
+        id: "select",
+      });
+    };
+    const onStart = (event: Event) => {
+      named("start", EVENTS.gameController.ancillary.start, eventRepeat(event));
+    };
+    const onStartReleased = () => {
+      dispatchComposed(controller, EVENTS.gameController.ancillaryReleased.start, {
+        controller,
+        id: "start",
+      });
+    };
     const onPulse = () => pulseHaptics(vibrate);
 
     const bindings: Array<[string, EventListener]> = [
@@ -167,13 +255,24 @@ function GameControllerView({
       [EVENTS.gcDpad.down, onDpad("down")],
       [EVENTS.gcDpad.left, onDpad("left")],
       [EVENTS.gcDpad.right, onDpad("right")],
+      [EVENTS.gcDpadReleased.up, onDpadReleased("up")],
+      [EVENTS.gcDpadReleased.down, onDpadReleased("down")],
+      [EVENTS.gcDpadReleased.left, onDpadReleased("left")],
+      [EVENTS.gcDpadReleased.right, onDpadReleased("right")],
       [EVENTS.gcFace.a, onFace("a")],
       [EVENTS.gcFace.b, onFace("b")],
       [EVENTS.gcFace.x, onFace("x")],
       [EVENTS.gcFace.y, onFace("y")],
+      [EVENTS.gcFaceReleased.a, onFaceReleased("a")],
+      [EVENTS.gcFaceReleased.b, onFaceReleased("b")],
+      [EVENTS.gcFaceReleased.x, onFaceReleased("x")],
+      [EVENTS.gcFaceReleased.y, onFaceReleased("y")],
       [EVENTS.gcAncillary.fullscreen, onAncillaryFullscreen],
       [EVENTS.gcAncillary.select, onSelect],
       [EVENTS.gcAncillary.start, onStart],
+      [EVENTS.gcAncillaryReleased.fullscreen, onAncillaryFullscreenReleased],
+      [EVENTS.gcAncillaryReleased.select, onSelectReleased],
+      [EVENTS.gcAncillaryReleased.start, onStartReleased],
       [EVENTS.gcJoystick.pointerDown, onPulse],
       ...Object.values(EVENTS.gcJoystick.cardinal).map((type): [string, EventListener] => [
         type,
@@ -190,6 +289,17 @@ function GameControllerView({
       }
     };
   }, [container, vibrate]);
+
+  useLayoutEffect(() => {
+    const host = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
+    if (!host) return;
+    if (!keyboard) return;
+    return installGameControllerKeyboard(host, {
+      leftControl: leftStickMode,
+      repeatDelay,
+      repeatInterval,
+    });
+  }, [container, keyboard, leftStickMode, repeatDelay, repeatInterval]);
 
   useLayoutEffect(() => {
     const host = getCustomElementHost(container, rootRef.current) ?? rootRef.current;
@@ -251,7 +361,12 @@ function GameControllerView({
                 leftStickMode === "joystick" ? (
                   <GcJoystick emitCardinal feedback={feedbackProp} />
                 ) : (
-                  <GcDpad feedback={feedbackProp} />
+                  <GcDpad
+                    feedback={feedbackProp}
+                    repeat={dpadRepeat}
+                    repeatDelay={repeatDelay}
+                    repeatInterval={repeatInterval}
+                  />
                 )
               }
             />
@@ -261,7 +376,7 @@ function GameControllerView({
               name={GAME_CONTROLLER_SLOTS.actions}
               inShadow={inShadow}
               assigned={slots.actions}
-              fallback={<GcFaceButtons actions={actions} feedback={feedbackProp} />}
+              fallback={<GcFaceButtons actions={faceCount} feedback={feedbackProp} />}
             />
           </div>
         </div>
@@ -294,9 +409,13 @@ export const GameController = Object.assign(GameControllerView, {
 GameControllerView.displayName = "GameController";
 
 export interface GameControllerElement extends HTMLElement {
-  actions: number;
+  actions: GameControllerActionsCount;
   vibrate: boolean;
   feedback: boolean;
+  keyboard: boolean;
+  repeat: boolean;
+  repeatDelay: number;
+  repeatInterval: number;
   leftControl: GameControllerLeftControl;
   scale: GameControllerScale;
   size: GameControllerControlSize;
@@ -313,6 +432,10 @@ export const GameControllerElement = defineReactElement<GameControllerProps, Gam
       actions: "number",
       vibrate: "boolean",
       feedback: "boolean",
+      keyboard: "boolean",
+      repeat: "boolean",
+      repeatDelay: "number",
+      repeatInterval: "number",
       leftControl: "string",
       scale: "string",
       size: "string",
@@ -320,7 +443,6 @@ export const GameControllerElement = defineReactElement<GameControllerProps, Gam
       chromeFooter: "string",
     },
     objectProps: ["hooks"],
+    emptyBooleanAttributes: ["keyboard", "repeat"],
   },
 );
-
-defineOnce(TAG, GameControllerElement);
